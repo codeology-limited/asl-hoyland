@@ -110,12 +110,11 @@ function App() {
   const handleConnect = async (port: string) => {
     try {
       console.log(`Attempting to open port: ${port}`);
-      await invoke<boolean>("xxx");
+
       const result = await invoke<boolean>("open_port", {
         args: { port_name: port, baud_rate: 9600 }
       });
 
-      console.log(11111111111);
       if (result) {
         setSelectedPort(port);
         setIsConnected(true);
@@ -130,12 +129,9 @@ function App() {
     }
   };
 
-
-
-
   const handleDisconnect = async () => {
     try {
-      await invoke("close_port", {args:{ port_name: selectedPort }});
+      await invoke("close_port", { args: { port_name: selectedPort } });
       setIsConnected(false);
       setSelectedPort("");
     } catch (err) {
@@ -144,14 +140,22 @@ function App() {
     }
   };
 
-  const handleStartStop = () => {
+  const handleStartStop = async () => {
     if (isRunning) {
       setIsRunning(false);
       setCurrentIndex(0);
       setProgress(0);
       setCurrentFrequency(null);
     } else {
-      setIsRunning(true);
+      try {
+        generator.sendInitialCommands( )
+
+        console.log(`Initial commands sent to port: ${selectedPort}`);
+        setIsRunning(true);
+      } catch (err) {
+        console.error("Error", err);
+        addError(`Failed to send initial commands: ${err}`);
+      }
     }
   };
 
