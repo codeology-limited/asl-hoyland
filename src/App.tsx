@@ -135,7 +135,7 @@ function App() {
 
   const handleDisconnect = async () => {
     try {
-      await invoke("close_port", { port_name: selectedPort });
+      await invoke("close_port", {args:{ port_name: selectedPort }});
       setIsConnected(false);
       setSelectedPort("");
     } catch (err) {

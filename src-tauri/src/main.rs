@@ -44,6 +44,10 @@ struct OpenPortArgs {
     port_name: String,
     baud_rate: u32,
 }
+#[derive(Serialize, Deserialize)]
+struct ClosePortArgs {
+    port_name: String
+}
 
 #[tauri::command]
 fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String> {
@@ -78,14 +82,14 @@ fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String>
 }
 
 #[tauri::command]
-fn close_port(state: State<AppState>, port_name: String) -> Result<(), String> {
-    println!("close_port called with port_name: {}", port_name);
+fn close_port(state: State<AppState>, args: ClosePortArgs) -> Result<bool, String> {
+    println!("close_port called with port_name: {}", args.port_name);
     let mut ports = state.ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-    if ports.remove(&port_name).is_some() {
-        println!("Successfully closed port: {}", port_name);
-        Ok(())
+    if ports.remove(&args.port_name).is_some() {
+        println!("Successfully closed port: {}", args.port_name);
+        Ok(true)
     } else {
-        println!("Port not found: {}", port_name);
+        println!("Port not found: {}", args.port_name);
         Err("Port not found".to_string())
     }
 }
