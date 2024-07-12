@@ -9,6 +9,7 @@ import { Program, ProgramItem } from "./types";
 import FrequencyGenerator from "./FrequencyGenerator";
 
 const db = new AppDatabase();
+const MAX_AMPLITUDE = 10; // Adjust based on your generator's specifications
 
 function App() {
   const [name, setName] = useState("");
@@ -63,7 +64,7 @@ function App() {
         onFrequencyChange(currentData.frequency); // Call the function with the current frequency
 
         const timeout = setTimeout(() => {
-          SENDTOPORT(currentData.frequency, currentData.runTime);
+          SENDTOPORT(currentData.frequency, intensity, currentData.runTime);
           setProgress(((currentIndex + 1) / loadedData.length) * 100);
           setCurrentIndex((prevIndex) => prevIndex + 1);
         }, currentData.runTime);
@@ -76,7 +77,7 @@ function App() {
         setCurrentFrequency(null);
       }
     }
-  }, [isRunning, isPaused, currentIndex, loadedData]);
+  }, [isRunning, isPaused, currentIndex, loadedData, intensity]);
 
   const loadProgramNames = async () => {
     try {
@@ -148,7 +149,7 @@ function App() {
       setCurrentFrequency(null);
     } else {
       try {
-        generator.sendInitialCommands( )
+        await generator.sendInitialCommands(); // Ensure this method exists in FrequencyGenerator
 
         console.log(`Initial commands sent to port: ${selectedPort}`);
         setIsRunning(true);
@@ -202,12 +203,13 @@ function App() {
     setErrors((prevErrors) => prevErrors.filter((error) => error.id !== id));
   };
 
-  const SENDTOPORT = async (frequency: number, time: number) => {
+  const SENDTOPORT = async (frequency: number, intensity: number, time: number) => {
+    const amplitude = (intensity / 100) * MAX_AMPLITUDE;
     try {
-      await generator.sendFrequency(frequency, time);
-      console.log(`Sent frequency ${frequency} Hz for ${time} ms to port`);
+      await generator.sendFrequency(frequency, amplitude, time);
+      console.log(`Sent frequency ${frequency} Hz and amplitude ${amplitude} V for ${time} ms to port`);
     } catch (error) {
-      addError(`Failed to send frequency: ${error}`);
+      addError(`Failed to send frequency and amplitude: ${error}`);
     }
   };
 

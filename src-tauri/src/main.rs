@@ -63,6 +63,11 @@ struct ClosePortArgs {
     port_name: String,
 }
 
+#[derive(Serialize, Deserialize)]
+struct SendInitialCommandsArgs {
+    port_name: String,
+}
+
 #[tauri::command]
 fn list_ports() -> Vec<String> {
     println!("list_ports called");
@@ -91,7 +96,12 @@ fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String>
         return Ok(true);
     }
 
-    match serialport::new(&args.port_name, args.baud_rate).timeout(Duration::from_millis(10)).open() {
+    match serialport::new(&args.port_name, args.baud_rate)
+        .timeout(Duration::from_millis(10))
+        .data_bits(serialport::DataBits::Eight)
+        .parity(serialport::Parity::None)
+        .stop_bits(serialport::StopBits::One)
+        .open() {
         Ok(port) => {
             ports.insert(args.port_name.clone(), PortHandle(Mutex::new(Some(port))));
             println!("Successfully opened port: {}", args.port_name);
@@ -124,7 +134,7 @@ fn log_test_port_data(data: &str) -> Result<bool, String> {
 }
 
 fn perform_real_port_write(ports: &Mutex<HashMap<String, PortHandle>>, port_name: &str, data: &str) -> Result<bool, String> {
-    println!("Writing Port data>>>: {}", data);
+    println!("Writing Port data: {}", data);
     let ports = ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
     let port_handle = ports.get(port_name).ok_or_else(|| "Port not found".to_string())?;
     let mut port = port_handle.0.lock().map_err(|_| "Failed to acquire lock on port.".to_string())?;
@@ -144,7 +154,6 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs) -> Result<bool, 
     if args.port_name == "Test Port" {
         log_test_port_data(&args.data)
     } else {
-
         perform_real_port_write(&state.ports, &args.port_name, &args.data)
     }
 }
@@ -152,28 +161,29 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs) -> Result<bool, 
 #[tauri::command]
 fn set_frequency(state: State<AppState>, args: SetFrequencyArgs) -> Result<bool, String> {
     println!("set_frequency called with port_name: {}, frequency: {}", args.port_name, args.frequency);
-    let cmd = format!("WFF{:.6}", args.frequency);
+    let cmd = format!("WMF{:014}", (args.frequency * 1_000_000.0) as u64);
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
 
 #[tauri::command]
 fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs) -> Result<bool, String> {
     println!("set_amplitude called with port_name: {}, amplitude: {}", args.port_name, args.amplitude);
-    let cmd = format!("WFA{:.2}", args.amplitude);
+    let cmd = format!("WMA{:.2}", args.amplitude);
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
+
 
 #[tauri::command]
 fn set_offset(state: State<AppState>, args: SetOffsetArgs) -> Result<bool, String> {
     println!("set_offset called with port_name: {}, offset: {}", args.port_name, args.offset);
-    let cmd = format!("WFO{:.2}", args.offset);
+    let cmd = format!("WMO{:.2}", args.offset);
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
 
 #[tauri::command]
 fn set_phase(state: State<AppState>, args: SetPhaseArgs) -> Result<bool, String> {
     println!("set_phase called with port_name: {}, phase: {}", args.port_name, args.phase);
-    let cmd = format!("WFP{:.1}", args.phase);
+    let cmd = format!("WMP{:.1}", args.phase);
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
 
@@ -189,11 +199,11 @@ fn enable_output(state: State<AppState>, args: EnableOutputArgs) -> Result<bool,
 }
 
 #[tauri::command]
-fn send_initial_commands(state: State<AppState>, args: ClosePortArgs) -> Result<bool, String> {
+fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) -> Result<bool, String> {
     println!("send_initial_commands called with port_name: {}", args.port_name);
     let commands = [
-        "UBZ1", "UMS0", "UUL0", "WFW00", "WFF3100000.000000",
-        "WFO00.00", "WFD50.0", "WFP000", "WFT0", "WFN1"
+        "UBZ1", "UMS0", "UUL0", "WMW00", "WMF310000000000",
+        "WMO00.00", "WMD50.0", "WMP000", "WMT0", "WMN1"
     ];
 
     for cmd in &commands {
@@ -207,8 +217,6 @@ fn send_initial_commands(state: State<AppState>, args: ClosePortArgs) -> Result<
 
     return Ok(true)
 }
-
-
 
 fn main() {
     tauri::Builder::default()
