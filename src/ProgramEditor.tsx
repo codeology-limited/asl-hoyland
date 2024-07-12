@@ -1,0 +1,174 @@
+import React, { useState, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+
+interface ProgramItem {
+  frequency: number;
+  runTime: number;
+}
+
+interface Program {
+  name: string;
+  data: ProgramItem[];
+  runTimeInMinutes: number;
+}
+
+interface ProgramEditorProps {
+  onSave: (programName: string, programData: ProgramItem[], programRunTime: number) => void;
+  onCancel: () => void;
+  programs: Program[];
+  loadProgramData: (programName: string) => Promise<Program>;
+}
+
+const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, programs, loadProgramData }) => {
+  const [programName, setProgramName] = useState('');
+  const [programData, setProgramData] = useState<ProgramItem[]>([]);
+  const [currentFrequency, setCurrentFrequency] = useState<number>(0);
+  const [currentRunTime, setCurrentRunTime] = useState<number>(1000);
+  const [selectedProgram, setSelectedProgram] = useState<string>('');
+
+  useEffect(() => {
+    if (selectedProgram) {
+      loadProgramData(selectedProgram).then((program) => {
+        setProgramName(program.name);
+        setProgramData(program.data);
+      });
+    }
+  }, [selectedProgram, loadProgramData]);
+
+  const addProgramItem = () => {
+    if (currentFrequency > 0 && currentRunTime > 0) {
+      setProgramData([...programData, { frequency: currentFrequency, runTime: currentRunTime }]);
+      setCurrentFrequency(0);
+      setCurrentRunTime(1000);
+    }
+  };
+
+  const deleteItem = (index: number) => {
+    setProgramData(programData.filter((_, i) => i !== index));
+  };
+
+  const handleSave = () => {
+    if (programName.trim() && programData.length > 0) {
+      const totalRunTime = programData.reduce((acc, item) => acc + item.runTime, 0) / 60000;
+      onSave(programName, programData, totalRunTime);
+    }
+  };
+
+  const handleProgramSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProgram(e.target.value);
+  };
+
+  const resetForm = () => {
+    setProgramName('');
+    setProgramData([]);
+    setSelectedProgram('');
+    setCurrentFrequency(0);
+    setCurrentRunTime(1000);
+  };
+
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(programData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setProgramData(items);
+  };
+
+  return (
+      <div>
+        <div className="program-toolbar">
+          <select value={selectedProgram} onChange={handleProgramSelect}>
+            <option value="">Create New Program</option>
+            {programs.map((program) => (
+                <option key={program.name} value={program.name}>{program.name}</option>
+            ))}
+          </select>
+          <button type="button" onClick={resetForm}>New Program</button>
+        </div>
+        <div className="program-toolbar">
+          <label>
+            Program Name:
+            <input
+                type="text"
+                value={programName}
+                onChange={(e) => setProgramName(e.target.value)}
+                placeholder="Enter program name"
+            />
+          </label>
+        </div>
+
+        <div className="add program-toolbar">
+          <label>
+            Frequency (Hz):
+            <input
+                type="number"
+                value={currentFrequency}
+                onChange={(e) => setCurrentFrequency(Number(e.target.value))}
+                min="0"
+            />
+          </label>
+          <label>
+            Run Time (ms):
+            <input
+                type="number"
+                value={currentRunTime}
+                onChange={(e) => setCurrentRunTime(Number(e.target.value))}
+                min="1"
+            />
+          </label>
+          <button onClick={addProgramItem} className="add-frequency-btn">Add</button>
+        </div>
+
+        <div className="program-toolbar">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="program-items">
+              {(provided) => (
+                  <table className="program-table" {...provided.droppableProps} ref={provided.innerRef}>
+                    <thead>
+                    <tr>
+                      <th>Frequency (Hz)</th>
+                      <th>Run Time (ms)</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {programData.map((item, index) => (
+                        <Draggable key={index} draggableId={`item-${index}`} index={index}>
+                          {(provided) => (
+                              <tr
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                              >
+                                <td>{item.frequency}</td>
+                                <td>{item.runTime}</td>
+                                <td>
+                                  <button onClick={() => deleteItem(index)} className="delete-btn">X</button>
+                                </td>
+                              </tr>
+                          )}
+                        </Draggable>
+                    ))}
+                    {provided.placeholder}
+                    </tbody>
+                  </table>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+
+        <div className="program-toolbar">
+          <div className="button-group">
+            <button type="button" onClick={handleSave}>Save</button>
+            <button type="button" onClick={onCancel}>Cancel</button>
+          </div>
+        </div>
+      </div>
+  );
+};
+
+export default ProgramEditor;
