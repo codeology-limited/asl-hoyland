@@ -42,6 +42,18 @@ class FrequencyGenerator {
     await this.enableOutput(1, false);
     await this.enableOutput(2, false);
   }
+  async stopAndReset() {
+    try {
+      const result = await invoke('stop_and_reset', { args: { port_name: this.port_name } });
+      if (result) {
+        console.log(`Stop and reset commands sent successfully to port: ${this.port_name}`);
+      } else {
+        console.error(`Failed to send stop and reset commands to port: ${this.port_name}`);
+      }
+    } catch (error) {
+      console.error(`Error sending stop and reset commands: ${error}`);
+    }
+  }
 }
 
 export default FrequencyGenerator;

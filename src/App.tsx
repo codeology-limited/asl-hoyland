@@ -153,7 +153,7 @@ function App() {
       setCurrentFrequency(null);
     } else {
       try {
-        await generator.sendInitialCommands(); // Ensure this method exists in FrequencyGenerator
+        await generator.sendInitialCommands();
 
         console.log(`Initial commands sent to port: ${selectedPort}`);
         setIsRunning(true);
@@ -166,6 +166,19 @@ function App() {
 
   const handlePause = () => {
     setIsPaused(!isPaused);
+  };
+
+  const handleStopAndReset = async () => {
+    try {
+      await generator.stopAndReset();
+      setIsRunning(false);
+      setCurrentIndex(0);
+      setProgress(0);
+      setCurrentFrequency(null);
+    } catch (err) {
+      console.error("Error", err);
+      addError(`Failed to stop and reset: ${err}`);
+    }
   };
 
   const storeData = async (programName: string, programData: ProgramItem[], programRunTime: number) => {
@@ -207,7 +220,7 @@ function App() {
     setErrors((prevErrors) => prevErrors.filter((error) => error.id !== id));
   };
 
-  const SENDTOPORT = async (channel: number, frequency: number, intensity: number, time: number) => {
+  const SENDTOPORT = async (channel: number, frequency: number, intensity:number, time:number) => {
     const amplitude = (intensity / 100) * MAX_AMPLITUDE;
     try {
       await generator.sendFrequency(channel, frequency, amplitude, time);
@@ -305,6 +318,11 @@ function App() {
                     {isPaused ? "Resume" : "Pause"}
                   </button>
                 </div>
+                <div>
+                  <button type="button" onClick={handleStopAndReset}>
+                    Stop and Reset
+                  </button>
+                </div>
               </div>
 
               <div className="program-toolbar">
@@ -354,6 +372,11 @@ function App() {
                   </button>
                   <button type="button" onClick={handlePause}>
                     {isPaused ? "Resume" : "Pause"}
+                  </button>
+                </div>
+                <div>
+                  <button type="button" onClick={handleStopAndReset}>
+                    Stop and Reset
                   </button>
                 </div>
               </div>

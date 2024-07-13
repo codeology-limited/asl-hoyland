@@ -20,13 +20,14 @@ html, body {
   background-position: 0 0;
   background-size: cover;
   background-repeat: no-repeat;
+padding-bottom: 20vh;
 }
 
 .container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 90vh;
+  /*position: fixed;*/
+  /*top: 0;*/
+  /*left: 0;*/
+  /*height: 90vh;*/
   width: 100vw;
   font-size: 1.6rem;
   margin: 0;

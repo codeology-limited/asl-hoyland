@@ -57,7 +57,33 @@ struct ClosePortArgs {
 struct SendInitialCommandsArgs {
     port_name: String,
 }
+#[derive(Serialize, Deserialize)]
+struct StopCommandsArgs {
+    port_name: String,
+}
 
+#[tauri::command]
+fn stop_and_reset(state: State<AppState>, args: StopCommandsArgs) -> Result<bool, String> {
+    println!("stop_and_reset called with port_name: {}", args.port_name);
+    let commands = [
+        "WMX1",  // Disable output for channel 1
+        "WMX2",  // Disable output for channel 2
+        "UBZ0",  // Reset output through BNC (example reset command)
+        "UMS0",  // Modulation off
+        "UUL0",  // Sweep off
+    ];
+
+    for cmd in &commands {
+        if args.port_name == "Test Port" {
+            log_test_port_data(cmd)?;
+        } else {
+            perform_real_port_write(&state.ports, &args.port_name, cmd).map_err(|e| format!("Failed to write command: {}", e))?;
+        }
+        std::thread::sleep(Duration::from_millis(100));
+    }
+
+    Ok(true)
+}
 #[tauri::command]
 fn list_ports() -> Vec<String> {
     println!("list_ports called");
@@ -177,8 +203,14 @@ fn enable_output(state: State<AppState>, args: EnableOutputArgs) -> Result<bool,
 fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) -> Result<bool, String> {
     println!("send_initial_commands called with port_name: {}", args.port_name);
     let commands = [
-        "UBZ1", "UMS0", "UUL0", "WMW00", "WMF310000000000",
-        "WMO00.00", "WMD50.0", "WMP000", "WMT0", "WMN1"
+        "UBZ1", "UMS0", "UUL0",
+        "WMW00",  // Select square wave for channel 1
+        "WMF11000000000",  // Set frequency for channel 1
+        "WMA101.00",  // Set amplitude for channel 1
+        "WMF20000000000",  // Set frequency for channel 2
+        "WMA201.00",  // Set amplitude for channel 2
+        "WMN1",  // Enable output for channel 1
+        "WMN2"  // Enable output for channel 2
     ];
 
     for cmd in &commands {
@@ -192,7 +224,6 @@ fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) 
 
     Ok(true)
 }
-
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -209,7 +240,8 @@ fn main() {
             set_amplitude,
             send_initial_commands,
             enable_output,
-            write_to_port
+            write_to_port,
+            stop_and_reset
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
