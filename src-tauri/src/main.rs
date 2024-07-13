@@ -57,33 +57,12 @@ struct ClosePortArgs {
 struct SendInitialCommandsArgs {
     port_name: String,
 }
+
 #[derive(Serialize, Deserialize)]
-struct StopCommandsArgs {
+struct StopAndResetArgs {
     port_name: String,
 }
 
-#[tauri::command]
-fn stop_and_reset(state: State<AppState>, args: StopCommandsArgs) -> Result<bool, String> {
-    println!("stop_and_reset called with port_name: {}", args.port_name);
-    let commands = [
-        "WMX1",  // Disable output for channel 1
-        "WMX2",  // Disable output for channel 2
-        "UBZ0",  // Reset output through BNC (example reset command)
-        "UMS0",  // Modulation off
-        "UUL0",  // Sweep off
-    ];
-
-    for cmd in &commands {
-        if args.port_name == "Test Port" {
-            log_test_port_data(cmd)?;
-        } else {
-            perform_real_port_write(&state.ports, &args.port_name, cmd).map_err(|e| format!("Failed to write command: {}", e))?;
-        }
-        std::thread::sleep(Duration::from_millis(100));
-    }
-
-    Ok(true)
-}
 #[tauri::command]
 fn list_ports() -> Vec<String> {
     println!("list_ports called");
@@ -192,9 +171,9 @@ fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs) -> Result<bool,
 fn enable_output(state: State<AppState>, args: EnableOutputArgs) -> Result<bool, String> {
     println!("enable_output called with port_name: {}, channel: {}, enable: {}", args.port_name, args.channel, args.enable);
     let cmd = if args.enable {
-        format!("WFN{}", args.channel)
+        format!("WMN{}", args.channel)
     } else {
-        format!("WFX{}", args.channel)
+        format!("WMX{}", args.channel)
     };
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
@@ -203,14 +182,8 @@ fn enable_output(state: State<AppState>, args: EnableOutputArgs) -> Result<bool,
 fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) -> Result<bool, String> {
     println!("send_initial_commands called with port_name: {}", args.port_name);
     let commands = [
-        "UBZ1", "UMS0", "UUL0",
-        "WMW00",  // Select square wave for channel 1
-        "WMF11000000000",  // Set frequency for channel 1
-        "WMA101.00",  // Set amplitude for channel 1
-        "WMF20000000000",  // Set frequency for channel 2
-        "WMA201.00",  // Set amplitude for channel 2
-        "WMN1",  // Enable output for channel 1
-        "WMN2"  // Enable output for channel 2
+        "UBZ1", "UMS0", "UUL0", "WMW00", "WMF11000000000",
+        "WMA101.00", "WMF20000000000", "WMA201.00", "WMN1", "WMN2"
     ];
 
     for cmd in &commands {
@@ -224,6 +197,25 @@ fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) 
 
     Ok(true)
 }
+
+#[tauri::command]
+fn stop_and_reset(state: State<AppState>, args: StopAndResetArgs) -> Result<bool, String> {
+    println!("stop_and_reset called with port_name: {}", args.port_name);
+    let commands = [
+        "WMX1", "WMX2", "UBZ0", "UMS0", "UUL0"
+    ];
+
+    for cmd in &commands {
+        if args.port_name == "Test Port" {
+            log_test_port_data(cmd)?;
+        } else {
+            perform_real_port_write(&state.ports, &args.port_name, cmd).map_err(|e| format!("Failed to write command: {}", e))?;
+        }
+    }
+
+    Ok(true)
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -240,8 +232,8 @@ fn main() {
             set_amplitude,
             send_initial_commands,
             enable_output,
-            write_to_port,
-            stop_and_reset
+            stop_and_reset,
+            write_to_port
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

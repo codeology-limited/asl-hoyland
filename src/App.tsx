@@ -48,11 +48,7 @@ function App() {
     if (name) {
       db.loadData(name)
           .then(({ data, runTimeInMinutes }) => {
-            setLoadedData(data.map(item => ({
-              channel: item.channel || 1,  // Default channel to 1 if not set
-              frequency: item.frequency,
-              runTime: item.runTime
-            })));
+            setLoadedData(data);
             setRunTimeInMinutes(runTimeInMinutes);
           })
           .catch((err) => addError(err.message));
@@ -68,7 +64,9 @@ function App() {
         onFrequencyChange(currentData.frequency); // Call the function with the current frequency
 
         const timeout = setTimeout(() => {
-          SENDTOPORT(currentData.channel, currentData.frequency, intensity, currentData.runTime);
+          // Send to both channels
+          SENDTOPORT(1, currentData.frequency, intensity, currentData.runTime);
+          SENDTOPORT(2, currentData.frequency, intensity, currentData.runTime);
           setProgress(((currentIndex + 1) / loadedData.length) * 100);
           setCurrentIndex((prevIndex) => prevIndex + 1);
         }, currentData.runTime);

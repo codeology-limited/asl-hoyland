@@ -35,7 +35,10 @@ class FrequencyGenerator {
   async sendFrequency(channel: number, frequency: number, amplitude: number, duration: number) {
     await this.setFrequency(channel, frequency);
     await this.setAmplitude(channel, amplitude);
+    await this.enableOutput(channel, true);
     await new Promise(resolve => setTimeout(resolve, duration));
+    // Optional: Disable output if you want to stop after duration
+    // await this.enableOutput(channel, false);
   }
 
   async stop() {
