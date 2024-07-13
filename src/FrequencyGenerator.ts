@@ -9,7 +9,7 @@ class FrequencyGenerator {
 
   async sendInitialCommands() {
     try {
-      const result = await invoke('send_initial_commands', {args:{ port_name: this.port_name }});
+      const result = await invoke('send_initial_commands', { args: { port_name: this.port_name } });
       if (result) {
         console.log(`Initial commands sent successfully to port: ${this.port_name}`);
       } else {
@@ -20,29 +20,21 @@ class FrequencyGenerator {
     }
   }
 
-  async setFrequency(frequency: number) {
-    await invoke('set_frequency', { args: { port_name: this.port_name, frequency } });
+  async setFrequency(channel: number, frequency: number) {
+    await invoke('set_frequency', { args: { port_name: this.port_name, channel, frequency } });
   }
 
-  async setAmplitude(amplitude: number) {
-    await invoke('set_amplitude', { args: { port_name: this.port_name, amplitude } });
-  }
-
-  async setOffset(offset: number) {
-    await invoke('set_offset', { args: { port_name: this.port_name, offset } });
-  }
-
-  async setPhase(phase: number) {
-    await invoke('set_phase', { args: { port_name: this.port_name, phase } });
+  async setAmplitude(channel: number, amplitude: number) {
+    await invoke('set_amplitude', { args: { port_name: this.port_name, channel, amplitude } });
   }
 
   async enableOutput(channel: number, enable: boolean) {
     await invoke('enable_output', { args: { port_name: this.port_name, channel, enable } });
   }
 
-  async sendFrequency(frequency: number, amplitude: number, duration: number) {
-    await this.setFrequency(frequency);
-    await this.setAmplitude(amplitude);
+  async sendFrequency(channel: number, frequency: number, amplitude: number, duration: number) {
+    await this.setFrequency(channel, frequency);
+    await this.setAmplitude(channel, amplitude);
     await new Promise(resolve => setTimeout(resolve, duration));
   }
 

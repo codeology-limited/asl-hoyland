@@ -24,25 +24,15 @@ struct WriteToPortArgs {
 #[derive(Serialize, Deserialize)]
 struct SetFrequencyArgs {
     port_name: String,
+    channel: u8,
     frequency: f64,
 }
 
 #[derive(Serialize, Deserialize)]
 struct SetAmplitudeArgs {
     port_name: String,
+    channel: u8,
     amplitude: f64,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetOffsetArgs {
-    port_name: String,
-    offset: f64,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetPhaseArgs {
-    port_name: String,
-    phase: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -160,30 +150,15 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs) -> Result<bool, 
 
 #[tauri::command]
 fn set_frequency(state: State<AppState>, args: SetFrequencyArgs) -> Result<bool, String> {
-    println!("set_frequency called with port_name: {}, frequency: {}", args.port_name, args.frequency);
-    let cmd = format!("WMF{:014}", (args.frequency * 1_000_000.0) as u64);
+    println!("set_frequency called with port_name: {}, channel: {}, frequency: {}", args.port_name, args.channel, args.frequency);
+    let cmd = format!("WMF{}{:014}", args.channel, (args.frequency * 1_000_000.0) as u64);
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
 
 #[tauri::command]
 fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs) -> Result<bool, String> {
-    println!("set_amplitude called with port_name: {}, amplitude: {}", args.port_name, args.amplitude);
-    let cmd = format!("WMA{:.2}", args.amplitude);
-    write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
-}
-
-
-#[tauri::command]
-fn set_offset(state: State<AppState>, args: SetOffsetArgs) -> Result<bool, String> {
-    println!("set_offset called with port_name: {}, offset: {}", args.port_name, args.offset);
-    let cmd = format!("WMO{:.2}", args.offset);
-    write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
-}
-
-#[tauri::command]
-fn set_phase(state: State<AppState>, args: SetPhaseArgs) -> Result<bool, String> {
-    println!("set_phase called with port_name: {}, phase: {}", args.port_name, args.phase);
-    let cmd = format!("WMP{:.1}", args.phase);
+    println!("set_amplitude called with port_name: {}, channel: {}, amplitude: {}", args.port_name, args.channel, args.amplitude);
+    let cmd = format!("WMA{}{:05.2}", args.channel, args.amplitude);
     write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
 }
 
@@ -215,7 +190,7 @@ fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) 
         std::thread::sleep(Duration::from_millis(100));
     }
 
-    return Ok(true)
+    Ok(true)
 }
 
 fn main() {
@@ -233,8 +208,6 @@ fn main() {
             set_frequency,
             set_amplitude,
             send_initial_commands,
-            set_offset,
-            set_phase,
             enable_output,
             write_to_port
         ])

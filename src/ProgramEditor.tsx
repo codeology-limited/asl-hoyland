@@ -1,7 +1,9 @@
+// ProgramEditor.tsx
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface ProgramItem {
+  channel: number;
   frequency: number;
   runTime: number;
 }
@@ -22,6 +24,7 @@ interface ProgramEditorProps {
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, programs, loadProgramData }) => {
   const [programName, setProgramName] = useState('');
   const [programData, setProgramData] = useState<ProgramItem[]>([]);
+  const [currentChannel, setCurrentChannel] = useState<number>(1);
   const [currentFrequency, setCurrentFrequency] = useState<number>(0);
   const [currentRunTime, setCurrentRunTime] = useState<number>(1000);
   const [selectedProgram, setSelectedProgram] = useState<string>('');
@@ -36,8 +39,9 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
   }, [selectedProgram, loadProgramData]);
 
   const addProgramItem = () => {
-    if (currentFrequency > 0 && currentRunTime > 0) {
-      setProgramData([...programData, { frequency: currentFrequency, runTime: currentRunTime }]);
+    if (currentChannel > 0 && currentFrequency > 0 && currentRunTime > 0) {
+      setProgramData([...programData, { channel: currentChannel, frequency: currentFrequency, runTime: currentRunTime }]);
+      setCurrentChannel(1);
       setCurrentFrequency(0);
       setCurrentRunTime(1000);
     }
@@ -62,6 +66,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
     setProgramName('');
     setProgramData([]);
     setSelectedProgram('');
+    setCurrentChannel(1);
     setCurrentFrequency(0);
     setCurrentRunTime(1000);
   };
@@ -103,6 +108,15 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
 
         <div className="add program-toolbar">
           <label>
+            Channel:
+            <input
+                type="number"
+                value={currentChannel}
+                onChange={(e) => setCurrentChannel(Number(e.target.value))}
+                min="1"
+            />
+          </label>
+          <label>
             Frequency (Hz):
             <input
                 type="number"
@@ -130,6 +144,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
                   <table className="program-table" {...provided.droppableProps} ref={provided.innerRef}>
                     <thead>
                     <tr>
+                      <th>Channel</th>
                       <th>Frequency (Hz)</th>
                       <th>Run Time (ms)</th>
                       <th>Action</th>
@@ -144,6 +159,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                               >
+                                <td>{item.channel}</td>
                                 <td>{item.frequency}</td>
                                 <td>{item.runTime}</td>
                                 <td>

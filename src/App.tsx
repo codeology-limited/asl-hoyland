@@ -48,7 +48,11 @@ function App() {
     if (name) {
       db.loadData(name)
           .then(({ data, runTimeInMinutes }) => {
-            setLoadedData(data);
+            setLoadedData(data.map(item => ({
+              channel: item.channel || 1,  // Default channel to 1 if not set
+              frequency: item.frequency,
+              runTime: item.runTime
+            })));
             setRunTimeInMinutes(runTimeInMinutes);
           })
           .catch((err) => addError(err.message));
@@ -64,7 +68,7 @@ function App() {
         onFrequencyChange(currentData.frequency); // Call the function with the current frequency
 
         const timeout = setTimeout(() => {
-          SENDTOPORT(currentData.frequency, intensity, currentData.runTime);
+          SENDTOPORT(currentData.channel, currentData.frequency, intensity, currentData.runTime);
           setProgress(((currentIndex + 1) / loadedData.length) * 100);
           setCurrentIndex((prevIndex) => prevIndex + 1);
         }, currentData.runTime);
@@ -203,11 +207,11 @@ function App() {
     setErrors((prevErrors) => prevErrors.filter((error) => error.id !== id));
   };
 
-  const SENDTOPORT = async (frequency: number, intensity: number, time: number) => {
+  const SENDTOPORT = async (channel: number, frequency: number, intensity: number, time: number) => {
     const amplitude = (intensity / 100) * MAX_AMPLITUDE;
     try {
-      await generator.sendFrequency(frequency, amplitude, time);
-      console.log(`Sent frequency ${frequency} Hz and amplitude ${amplitude} V for ${time} ms to port`);
+      await generator.sendFrequency(channel, frequency, amplitude, time);
+      console.log(`Sent frequency ${frequency} Hz and amplitude ${amplitude} V for ${time} ms to port on channel ${channel}`);
     } catch (error) {
       addError(`Failed to send frequency and amplitude: ${error}`);
     }

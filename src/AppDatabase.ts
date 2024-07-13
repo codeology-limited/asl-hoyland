@@ -1,10 +1,10 @@
-//AppDatabase.tsx
+// AppDatabase.tsx
 import Dexie from "dexie";
 
 interface Program {
   id?: number;
   name: string;
-  data: { frequency: number; runTime: number }[];
+  data: { channel: number; frequency: number; runTime: number }[]; // Include channel property
   runTimeInMinutes: number;
   default: boolean; // Add the default boolean property
 }
@@ -34,8 +34,9 @@ class AppDatabase extends Dexie {
           const itemRunTime = (typedProgram.runTimeInMinutes * 60000) / typedProgram.data.length;
 
           // Ensure each item has the correct structure
-          const dataWithRunTime = typedProgram.data.map(frequency => ({
-            frequency: frequency as unknown as number,
+          const dataWithRunTime = typedProgram.data.map(item => ({
+            channel: item.channel || 1, // Default to channel 1 if not set
+            frequency: item.frequency as unknown as number,
             runTime: itemRunTime
           }));
 
@@ -61,8 +62,6 @@ class AppDatabase extends Dexie {
     try {
       const program = await this.programs.where("name").equals(programName).first();
       if (program) {
-
-        console.log("PROGRAM>>>>",program)
         return {
           data: program.data,
           runTimeInMinutes: program.runTimeInMinutes,
