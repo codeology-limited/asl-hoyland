@@ -84,10 +84,11 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
   };
 
   return (
-      <div>
+      <div id="editor" className="tabBody editor">
+        <h2>Edit Programs</h2>
         <div className="program-toolbar">
           <select value={selectedProgram} onChange={handleProgramSelect}>
-            <option value="">Create New Program</option>
+            <option value="">Choose existing or create a new Program</option>
             {programs.map((program) => (
                 <option key={program.name} value={program.name}>{program.name}</option>
             ))}

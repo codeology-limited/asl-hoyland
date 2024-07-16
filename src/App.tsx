@@ -271,13 +271,13 @@ function App() {
             Default Programs
           </button>
           <button className={activeTab === "your" ? "active" : ""} onClick={() => handleTabChange("your")}>
-            Your Programs
+            Personal
           </button>
           <button className={activeTab === "create" ? "active" : ""} onClick={() => handleTabChange("create")}>
             Editor
           </button>
           <button className={activeTab === "debug" ? "active" : ""} onClick={() => handleTabChange("debug")}>
-            Config
+            Settings
           </button>
         </div>
 
@@ -339,7 +339,7 @@ function App() {
 
         {activeTab === "your" && (
             <div id="your-programs" className="tabBody">
-              <h2>Custom Programs</h2>
+              <h2>Personalised Programs</h2>
               <div className="progress-bar-wrapper program-toolbar">
                 <label htmlFor="your-progress-bar">Running Program: {name}</label>
                 <div className="progress-bar">
@@ -357,7 +357,7 @@ function App() {
                     value={name}
                     onChange={(e) => setName(e.currentTarget.value)}
                 >
-                  <option value="">Click here to choose custom program</option>
+                  <option value="">Click here to choose personal program</option>
                   {programNames.map((programName) => (
                       <option key={programName} value={programName}>
                         {programName}
@@ -394,8 +394,7 @@ function App() {
         )}
 
         {activeTab === "create" && (
-            <div id="editor" className="tabBody editor">
-              <h2>Edit Programs</h2>
+
               <ProgramEditor
                   onSave={storeData}
                   onCancel={() => handleTabChange("your")}
@@ -406,11 +405,12 @@ function App() {
                   }))}
                   loadProgramData={loadProgramData}
               />
-            </div>
+
         )}
 
         {activeTab === "debug" && (
             <div id="debug" className="tabBody">
+              <h2>Settings</h2>
               <button type="button" onClick={eraseAllData}>
                 Reset Data
               </button>
@@ -424,7 +424,7 @@ function App() {
         )}
 
         <footer>
-          <p>
+        <p>
             Copyright 2024 <a href="http://altered-states.net">altered-states.net</a>
           </p>
         </footer>

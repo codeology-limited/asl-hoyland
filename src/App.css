@@ -9,11 +9,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  box-sizing: border-box;
+  box-sizing: content-box;
 }
 
 html, body {
-  height: 100vh;
+  height: 100%;
   width: 100vw;
   font-size: 10px;
   background-image: url(/download.webp);
@@ -28,7 +28,10 @@ padding-bottom: 20vh;
   /*top: 0;*/
   /*left: 0;*/
   /*height: 90vh;*/
-  width: 100vw;
+
+  overflow: hidden;
+  margin: 20vw;
+  width: 100%;
   font-size: 1.6rem;
   margin: 0;
   display: flex;
@@ -39,14 +42,14 @@ padding-bottom: 20vh;
 }
 
 footer {
-  position: fixed;
+  xposition: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
   flex-direction: row;
   padding: 1vh 1vw;
-  border-top: 1px inset #d1d1d1;
+  border-top: 1px solid black;
   height: 5vh;
   align-items: center;
 }
@@ -101,7 +104,7 @@ input,
 button,
 select {
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(209, 209, 209, 0.5);
   padding: 1vh 1.5vw;
   font-size: 1.6rem;
   font-weight: 500;
@@ -203,12 +206,18 @@ input[type=range] {
 .tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom:0;
+  border-bottom: 1px solid white;
+
 }
 
 .tabs button {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
+  border-top: 2px solid white;
+  border-left: 1px solid white;
+  border-right: 1px solid white;
+  background-color: #fefefe;
+  border-radius: 0;
+margin-bottom: -1px;
   padding: 10px 20px;
   cursor: pointer;
   font-size: 1.6rem;
@@ -217,7 +226,7 @@ input[type=range] {
 }
 
 .tabs button.active {
-  background-color: #ccc;
+  background-color: #d1d1d1;
 }
 
 .tabs button:hover {
@@ -225,18 +234,27 @@ input[type=range] {
 }
 
 .tabBody {
-  margin: 0 auto;
- 
- 
-  margin-top: 20px;
+  width: 100vw;
+  margin: 0;
+ padding: 0;
 }
 
+.tabBody h2{
+  padding: 0;
+  margin:0;
+  background: white;
+  color: black;
+  border: 1px solid rgba(209, 209, 209, 0.5);
+  line-height: 3;
+  text-indent: 5vw;
+}
 .program-toolbar {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
-  min-width: 700px;
+
+  border-bottom: 1px solid rgba(209, 209, 209, 0.5);
+
 }
 
 .program-toolbar:first-child {
@@ -272,7 +290,7 @@ select {
 }
 
 #your-programs {
- 
+
 }
 
 #your-programs .program-toolbar:first-child,
@@ -313,14 +331,14 @@ select {
   margin-top: 10px;
 }
 
-.progress {
-  height: 100%;
-  background-color: #76c7c0;
-  width: 0;
-}
+/*.progress {*/
+/*  height: 100%;*/
+/*  background-color: #76c7c0;*/
+/*  width: 0;*/
+/*}*/
 
 #your-programs .progress-bar {
-  background-color: #d6e9ff;
+  background-color: #76c7c0;
 }
 
 #your-programs .progress {
@@ -340,13 +358,13 @@ select {
 }
 
 .editor {
-  /*border: 1px solid rgba(255, 255, 255, 0.1);*/
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  padding: 0 2vw;
-  /*background-color: rgba(255, 255, 255, 0.1);*/
-  margin-bottom: 2vh;
+  /*!*border: 1px solid rgba(255, 255, 255, 0.1);*!*/
+  /*border-radius: 8px;*/
+  /*display: flex;*/
+  /*flex-direction: column;*/
+  /*padding: 0 2vw;*/
+  /*!*background-color: rgba(255, 255, 255, 0.1);*!*/
+  /*margin-bottom: 2vh;*/
 }
 
 .editor .add {
@@ -369,12 +387,11 @@ select {
   color: white;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
-
-.editor input,
-.editor button,
-.editor select {
+ input,
+ button,
+ select {
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #d1d1d;
   padding: 1vh 1.5vw;
   font-size: 1.6rem;
   font-weight: 500;
@@ -384,7 +401,8 @@ select {
   transition: border-color 0.25s, background-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   outline: none;
-  height: 40px;
+
+  line-height: 2;
 }
 
 .editor button {
@@ -404,14 +422,9 @@ select {
   background-color: #e8e8e8;
 }
 
-
-
 .add-frequency-btn {
   align-self: flex-end;
 }
-
-
- 
 
 .program-table {
   width: 100%;
@@ -490,55 +503,3 @@ select {
 .com-port-toolbar select {
   min-width: 150px;
 }
-/* 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button,
-  select {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  
-  button:active,
-  select:active {
-    background-color: #0f0f0f69;
-  }
-
-  .editor input,
-  .editor button,
-  .editor select {
-    color: #ffffff;
-    background-color: rgba(15, 15, 15, 0.6);
-  }
-
-  .program-table {
-    background-color: rgba(15, 15, 15, 0.6);
-  }
-
-  .program-table th,
-  .program-table td {
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .program-table th {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .program-table tr:nth-child(even) {
-    background-color: rgba(15, 15, 15, 0.7);
-  }
-
-  .program-table tr:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-} */
