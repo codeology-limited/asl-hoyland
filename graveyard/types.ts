@@ -1,14 +1,14 @@
 
-// In types.ts or wherever ProgramItem is defined
 export interface ProgramItem {
-  channel: number;  // Add this line
+  channel: number;
   frequency: number;
   runTime: number;
 }
 
 export interface Program {
   name: string;
+  range: boolean;
   data: ProgramItem[];
-  runTimeInMinutes: number;
+  maxTimeInMinutes: number;
+  default: boolean;
 }
-

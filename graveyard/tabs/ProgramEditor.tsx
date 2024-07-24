@@ -1,21 +1,9 @@
-// ProgramEditor.tsx
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-
-interface ProgramItem {
-  channel: number;
-  frequency: number;
-  runTime: number;
-}
-
-interface Program {
-  name: string;
-  data: ProgramItem[];
-  runTimeInMinutes: number;
-}
+import { Program, ProgramItem } from '../types.ts';
 
 interface ProgramEditorProps {
-  onSave: (programName: string, programData: ProgramItem[], programRunTime: number) => void;
+  onSave: (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => void;
   onCancel: () => void;
   programs: Program[];
   loadProgramData: (programName: string) => Promise<Program>;
@@ -28,12 +16,14 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
   const [currentFrequency, setCurrentFrequency] = useState<number>(0);
   const [currentRunTime, setCurrentRunTime] = useState<number>(1000);
   const [selectedProgram, setSelectedProgram] = useState<string>('');
+  const [range, setRange] = useState<boolean>(false);
 
   useEffect(() => {
     if (selectedProgram) {
       loadProgramData(selectedProgram).then((program) => {
         setProgramName(program.name);
         setProgramData(program.data);
+        setRange(program.range);
       });
     }
   }, [selectedProgram, loadProgramData]);
@@ -54,7 +44,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
   const handleSave = () => {
     if (programName.trim() && programData.length > 0) {
       const totalRunTime = programData.reduce((acc, item) => acc + item.runTime, 0) / 60000;
-      onSave(programName, programData, totalRunTime);
+      onSave(programName, programData, totalRunTime, range);
     }
   };
 
@@ -69,6 +59,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
     setCurrentChannel(1);
     setCurrentFrequency(0);
     setCurrentRunTime(1000);
+    setRange(false);
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -106,7 +97,16 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
             />
           </label>
         </div>
-
+        <div className="program-toolbar">
+          <label>
+            Range:
+            <input
+                type="checkbox"
+                checked={range}
+                onChange={(e) => setRange(e.target.checked)}
+            />
+          </label>
+        </div>
         <div className="add program-toolbar">
           <label>
             Channel:
@@ -137,7 +137,6 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
           </label>
           <button onClick={addProgramItem} className="add-frequency-btn">Add</button>
         </div>
-
         <div className="program-toolbar">
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="program-items">
@@ -177,7 +176,6 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel, program
             </Droppable>
           </DragDropContext>
         </div>
-
         <div className="program-toolbar">
           <div className="button-group">
             <button type="button" onClick={handleSave}>Save</button>

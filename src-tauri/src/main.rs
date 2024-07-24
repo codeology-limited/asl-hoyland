@@ -5,122 +5,62 @@ use std::time::Duration;
 use tauri::Manager;
 use std::io::Write;
 use std::sync::Mutex;
-use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use tauri::State;
 
 struct PortHandle(Mutex<Option<Box<dyn SerialPort + Send>>>);
 
 struct AppState {
-    ports: Mutex<HashMap<String, PortHandle>>,
+    port: Mutex<PortHandle>,
+    port_name: Mutex<String>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct WriteToPortArgs {
-    port_name: String,
-    data: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetFrequencyArgs {
-    port_name: String,
+struct SetParameterArgs {
     channel: u8,
-    frequency: f64,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetAmplitudeArgs {
-    port_name: String,
-    channel: u8,
-    amplitude: f64,
+    value: f64,
 }
 
 #[derive(Serialize, Deserialize)]
 struct EnableOutputArgs {
-    port_name: String,
     channel: u8,
     enable: bool,
 }
 
-#[derive(Serialize, Deserialize)]
-struct OpenPortArgs {
-    port_name: String,
-    baud_rate: u32,
-}
+fn find_and_connect_port() -> Result<(Box<dyn SerialPort + Send>, String), String> {
+    let ports = serialport::available_ports().map_err(|e| format!("No ports found: {}", e))?;
 
-#[derive(Serialize, Deserialize)]
-struct ClosePortArgs {
-    port_name: String,
-}
+    for port_info in ports {
+        if let Ok(mut port) = serialport::new(&port_info.port_name, 9600)
+            .timeout(Duration::from_millis(10))
+            .open()
+        {
+            let mut buffer = [0; 32];
+            if let Ok(()) = port.write_all(b"UMO\n") {
+                std::thread::sleep(Duration::from_millis(100));
+                if let Ok(bytes_read) = port.read(&mut buffer) {
+                    let response = String::from_utf8_lossy(&buffer[..bytes_read]);
+                    if response.starts_with("FY23") || response.starts_with("FY63") {
+                        println!("Found device on port: {}", port_info.port_name);
+                        drop(port); // Close the port at 9600 baud
+                        // Reconnect at 115200 baud
+                        let port = serialport::new(&port_info.port_name, 115200)
+                            .timeout(Duration::from_millis(10))
+                            .open()
+                            .map_err(|e| format!("Failed to open port at 115200: {}", e))?;
+                        return Ok((port, port_info.port_name));
+                    }
+                }
+            }
+        }
+    }
 
-#[derive(Serialize, Deserialize)]
-struct SendInitialCommandsArgs {
-    port_name: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct StopAndResetArgs {
-    port_name: String,
+    Err("No compatible device found".to_string())
 }
 
 #[tauri::command]
-fn list_ports() -> Vec<String> {
-    println!("list_ports called");
-    let mut ports = serialport::available_ports()
-        .map(|ports| ports.into_iter().map(|p| p.port_name).collect::<Vec<String>>())
-        .unwrap_or_else(|_| Vec::new());
-    ports.push("Test Port".to_string());
-    println!("Available ports: {:?}", ports);
-    ports
-}
-
-#[tauri::command]
-fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String> {
-    println!("open_port called with port_name: {}, baud_rate: {}", args.port_name, args.baud_rate);
-
-    let mut ports = state.ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-
-    if ports.contains_key(&args.port_name) {
-        return Err(format!("Port already open: {}", args.port_name));
-    }
-
-    if args.port_name == "Test Port" {
-        println!("Simulating opening Test Port");
-        ports.insert(args.port_name.clone(), PortHandle(Mutex::new(None)));
-        println!("Test Port opened");
-        return Ok(true);
-    }
-
-    match serialport::new(&args.port_name, args.baud_rate)
-        .timeout(Duration::from_millis(10))
-        .data_bits(serialport::DataBits::Eight)
-        .parity(serialport::Parity::None)
-        .stop_bits(serialport::StopBits::One)
-        .open() {
-        Ok(port) => {
-            ports.insert(args.port_name.clone(), PortHandle(Mutex::new(Some(port))));
-            println!("Successfully opened port: {}", args.port_name);
-            Ok(true)
-        },
-        Err(e) => {
-            let msg = format!("Failed to open port: {}. Error: {}", args.port_name, e);
-            println!("{}", msg);
-            Err(msg)
-        },
-    }
-}
-
-#[tauri::command]
-fn close_port(state: State<AppState>, args: ClosePortArgs) -> Result<bool, String> {
-    println!("close_port called with port_name: {}", args.port_name);
-    let mut ports = state.ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-    if ports.remove(&args.port_name).is_some() {
-        println!("Successfully closed port: {}", args.port_name);
-        Ok(true)
-    } else {
-        println!("Port not found: {}", args.port_name);
-        Err("Port not found".to_string())
-    }
+fn get_current_port(state: State<AppState>) -> String {
+    state.port_name.lock().unwrap().clone()
 }
 
 fn log_test_port_data(data: &str) -> Result<bool, String> {
@@ -128,70 +68,61 @@ fn log_test_port_data(data: &str) -> Result<bool, String> {
     Ok(true)
 }
 
-fn perform_real_port_write(ports: &Mutex<HashMap<String, PortHandle>>, port_name: &str, data: &str) -> Result<bool, String> {
-    println!("Writing Port data: {}", data);
-    let ports = ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-    let port_handle = ports.get(port_name).ok_or_else(|| "Port not found".to_string())?;
-    let mut port = port_handle.0.lock().map_err(|_| "Failed to acquire lock on port.".to_string())?;
-    let port = port.as_mut().ok_or_else(|| "Port not open".to_string())?;
+fn write_to_port(state: &State<AppState>, data: &str) -> Result<bool, String> {
+    let port_name = state.port_name.lock().unwrap().clone();
+    println!("write_to_port called with port_name: {}, data: {}", port_name, data);
 
-    port.write_all(data.as_bytes()).map_err(|e| {
-        println!("Failed to write to port: {}", e);
-        e.to_string()
-    })?;
-    println!("Successfully wrote to port: {}", port_name);
-    Ok(true)
-}
-
-#[tauri::command]
-fn write_to_port(state: State<AppState>, args: WriteToPortArgs) -> Result<bool, String> {
-    println!("write_to_port called with port_name: {}, data: {}", args.port_name, args.data);
-    if args.port_name == "Test Port" {
-        log_test_port_data(&args.data)
+    if port_name == "TEST" {
+        log_test_port_data(data)
     } else {
-        perform_real_port_write(&state.ports, &args.port_name, &args.data)
+        let port_handle = state.port.lock().map_err(|_| "Failed to acquire lock on port.".to_string())?;
+        let mut port = port_handle.0.lock().map_err(|_| "Failed to acquire lock on port.".to_string())?;
+        let port = port.as_mut().ok_or_else(|| "Port not open".to_string())?;
+
+        port.write_all(data.as_bytes()).map_err(|e| {
+            println!("Failed to write to port: {}", e);
+            e.to_string()
+        })?;
+        println!("Successfully wrote to port: {}", port_name);
+        Ok(true)
     }
 }
 
 #[tauri::command]
-fn set_frequency(state: State<AppState>, args: SetFrequencyArgs) -> Result<bool, String> {
-    println!("set_frequency called with port_name: {}, channel: {}, frequency: {}", args.port_name, args.channel, args.frequency);
-    let cmd = format!("WMF{}{:014}", args.channel, (args.frequency * 1_000_000.0) as u64);
-    write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
+fn set_frequency(state: State<AppState>, args: SetParameterArgs) -> Result<bool, String> {
+    println!("set_frequency called with channel: {}, frequency: {}", args.channel, args.value);
+    let cmd = format!("WMF{}{:014}", args.channel, (args.value * 1_000_000.0) as u64);
+    write_to_port(&state, &cmd)
 }
 
 #[tauri::command]
-fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs) -> Result<bool, String> {
-    println!("set_amplitude called with port_name: {}, channel: {}, amplitude: {}", args.port_name, args.channel, args.amplitude);
-    let cmd = format!("WMA{}{:05.2}", args.channel, args.amplitude);
-    write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
+fn set_amplitude(state: State<AppState>, args: SetParameterArgs) -> Result<bool, String> {
+    println!("set_amplitude called with channel: {}, amplitude: {}", args.channel, args.value);
+    let cmd = format!("WMA{}{:05.2}", args.channel, args.value);
+    write_to_port(&state, &cmd)
 }
 
 #[tauri::command]
 fn enable_output(state: State<AppState>, args: EnableOutputArgs) -> Result<bool, String> {
-    println!("enable_output called with port_name: {}, channel: {}, enable: {}", args.port_name, args.channel, args.enable);
+    println!("enable_output called with channel: {}, enable: {}", args.channel, args.enable);
     let cmd = if args.enable {
         format!("WMN{}", args.channel)
     } else {
         format!("WMX{}", args.channel)
     };
-    write_to_port(state, WriteToPortArgs { port_name: args.port_name, data: cmd })
+    write_to_port(&state, &cmd)
 }
 
 #[tauri::command]
-fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) -> Result<bool, String> {
-    println!("send_initial_commands called with port_name: {}", args.port_name);
+fn send_initial_commands(state: State<AppState>) -> Result<bool, String> {
+    println!("send_initial_commands called");
     let commands = [
         "UBZ1", "UMS0", "UUL0", "WMW00", "WMF11000000000",
         "WMA101.00", "WMF20000000000", "WMA201.00", "WMN1", "WMN2"
     ];
 
     for cmd in &commands {
-        if args.port_name == "Test Port" {
-            log_test_port_data(cmd)?;
-        } else {
-            perform_real_port_write(&state.ports, &args.port_name, cmd).map_err(|e| format!("Failed to write command: {}", e))?;
-        }
+        write_to_port(&state, cmd)?;
         std::thread::sleep(Duration::from_millis(100));
     }
 
@@ -199,18 +130,14 @@ fn send_initial_commands(state: State<AppState>, args: SendInitialCommandsArgs) 
 }
 
 #[tauri::command]
-fn stop_and_reset(state: State<AppState>, args: StopAndResetArgs) -> Result<bool, String> {
-    println!("stop_and_reset called with port_name: {}", args.port_name);
+fn stop_and_reset(state: State<AppState>) -> Result<bool, String> {
+    println!("****** stop_and_reset called");
     let commands = [
         "WMX1", "WMX2", "UBZ0", "UMS0", "UUL0"
     ];
 
     for cmd in &commands {
-        if args.port_name == "Test Port" {
-            log_test_port_data(cmd)?;
-        } else {
-            perform_real_port_write(&state.ports, &args.port_name, cmd).map_err(|e| format!("Failed to write command: {}", e))?;
-        }
+        write_to_port(&state, cmd)?;
     }
 
     Ok(true)
@@ -219,21 +146,29 @@ fn stop_and_reset(state: State<AppState>, args: StopAndResetArgs) -> Result<bool
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            app.manage(AppState {
-                ports: Mutex::new(HashMap::new()),
-            });
+            let port_result = find_and_connect_port();
+            let (port, port_name) = match port_result {
+                Ok((port, name)) => (Some(port), name),
+                Err(e) => {
+                    println!("Error finding port: {}. Using TEST port.", e);
+                    (None, "TEST".to_string())
+                }
+            };
+
+            let state = AppState {
+                port: Mutex::new(PortHandle(Mutex::new(port))),
+                port_name: Mutex::new(port_name),
+            };
+            app.manage(state);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            list_ports,
-            open_port,
-            close_port,
+            get_current_port,
             set_frequency,
             set_amplitude,
             send_initial_commands,
             enable_output,
             stop_and_reset,
-            write_to_port
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

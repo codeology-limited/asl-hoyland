@@ -1,0 +1,442 @@
+:root {
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 24px;
+    font-weight: 400;
+    color: white;
+    background-color: #f6f6f6;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    box-sizing: content-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100vw;
+    font-size: 10px;
+    background-image: url(/download.webp);
+    background-position: 0 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding-bottom: 20vh;
+}
+
+.container {
+    /*position: fixed;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*height: 90vh;*/
+
+    overflow: hidden;
+    margin: 20vw;
+    width: 100%;
+    font-size: 1.6rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: left;
+
+}
+
+
+.logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: 0.75s;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+a {
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
+}
+
+a:hover {
+    color: red;
+}
+
+h1 {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    background-image: url(/altsta.webp);
+    background-position: 0 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 200px;
+    text-indent: -10000px;
+}
+
+.alert, .error-item {
+    position: relative;
+    border: 1px solid #b8daff;
+    background-color: #d1ecf1;
+    color: #0c5460;
+    padding: 1vh 1.5vw;
+    border-radius: 5px;
+    margin: 1vh 0;
+    font-family: Arial, sans-serif;
+}
+
+
+.error-list {
+    padding: 0;
+    margin: 0;
+}
+
+.error-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.error-list .error-item:last-child {
+    border-bottom: none;
+}
+
+.dismiss-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: none;
+    border: 1px solid #f8d7da;
+    padding: 0 2vw;
+    color: #681b23;
+    cursor: pointer;
+    font-size: 1.6rem;
+    z-index: 1000;
+}
+
+.dismiss-button:hover {
+    color: #721c24;
+}
+
+.playlist {
+    background-color: #f8f9fa;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.playlist h3 {
+    margin-top: 0;
+}
+
+.playlist ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.playlist li {
+    padding: 0.5em;
+}
+
+.playlist li.highlight {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom:0;
+    border-bottom: 1px solid white;
+
+}
+
+.tabs button {
+    border-top: 2px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    background-color: #fefefe;
+    border-radius: 0;
+    margin-bottom: -1px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1.6rem;
+    outline: none;
+    transition: background-color 0.3s;
+}
+
+.tabs button.active {
+    background-color: #d1d1d1;
+}
+
+.tabs button:hover {
+    background-color: #ddd;
+}
+
+.tabBody {
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+.tabBody h2{
+    padding: 0;
+    margin:0;
+    background: white;
+    color: black;
+    border: 1px solid rgba(209, 209, 209, 0.5);
+    line-height: 3;
+    text-indent: 5vw;
+}
+.program-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    border-bottom: 1px solid rgba(209, 209, 209, 0.5);
+
+}
+
+.program-toolbar:first-child {
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+}
+
+.program-toolbar:last-child {
+    border-top: 1px solid rgba(0,0,0,0.5);
+}
+
+select {
+    width: 60%;
+}
+
+.program-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    padding: 2vh 2vw;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#default-programs .program-toolbar:first-child,
+#default-programs .progress-bar-wrapper:first-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+#default-programs .program-toolbar:last-child,
+#default-programs .progress-bar-wrapper:last-child {
+    border-top: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+#your-programs {
+
+}
+
+#your-programs .program-toolbar:first-child,
+#your-programs .progress-bar-wrapper:first-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+#your-programs .program-toolbar:last-child,
+#your-programs .progress-bar-wrapper:last-child {
+    border-top: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.program-toolbar label,
+.progress-bar-wrapper label {
+    display: block;
+    color: white;
+    padding-bottom: 0.5vh;
+    width: 100%;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.program-toolbar select,
+.program-toolbar button,
+.program-toolbar input,
+.progress-bar-wrapper select,
+.progress-bar-wrapper button,
+.progress-bar-wrapper input {
+    margin-right: 1vw;
+}
+
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+/*.progress {*/
+/*  height: 100%;*/
+/*  background-color: #76c7c0;*/
+/*  width: 0;*/
+/*}*/
+
+
+.current-frequency {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    color: #000;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.editor {
+    /*!*border: 1px solid rgba(255, 255, 255, 0.1);*!*/
+    /*border-radius: 8px;*/
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*padding: 0 2vw;*/
+    /*!*background-color: rgba(255, 255, 255, 0.1);*!*/
+    /*margin-bottom: 2vh;*/
+}
+
+.editor .add {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+.editor .add button {
+    padding: 1vh 2vw;
+    height: 6vh;
+    margin-bottom:0.5vh;
+}
+.editor  label {
+
+    display: flex;
+    flex-direction: column;
+    margin-right: 1vw;
+    color: white;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+input,
+button,
+select {
+    border-radius: 8px;
+    border: 1px solid #d1d1d;
+    padding: 1vh 1.5vw;
+    font-size: 1.6rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: #0f0f0f;
+    background-color: #ffffff;
+    transition: border-color 0.25s, background-color 0.25s;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+    outline: none;
+
+    line-height: 2;
+}
+
+.editor button {
+    cursor: pointer;
+    min-width: 100px;
+    margin-left: 1vw;
+}
+
+.editor button:hover,
+.editor select:hover {
+    border-color: #396cd8;
+}
+
+.editor button:active,
+.editor select:active {
+    border-color: #396cd8;
+    background-color: #e8e8e8;
+}
+
+.add-frequency-btn {
+    align-self: flex-end;
+}
+
+.program-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2vh;
+    font-size: 1.4rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.program-table th,
+.program-table td {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1vh 1vw;
+    text-align: left;
+    color: #0f0f0f;
+}
+
+.program-table th {
+    background-color: rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+.program-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.program-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.program-table tr {
+    cursor: move;
+}
+
+.program-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.program-table .delete-btn {
+    background-color: #ff4136;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0 0 0 auto;
+    transition: background-color 0.25s;
+}
+
+.program-table .delete-btn:hover {
+    background-color: #ff1a1a;
+}
+
+.com-port-toolbar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;border: 10px solid red;
+}
+
+.com-port-toolbar select,
+.com-port-toolbar button {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.com-port-toolbar select {
+    min-width: 150px;
+}

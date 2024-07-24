@@ -1,4 +1,20 @@
 {
+  "tony": {
+    "default":true,
+    "range": true,
+    "data": [
+      1, 10
+    ],
+    "runTimeInMinutes": 1
+  },
+  "hoyland": {
+    "default":true,
+    "range": true,
+    "data": [
+      1, 40000
+    ],
+    "runTimeInMinutes": 60
+  },
     "herpes": {
       "default":true,
       "data": [
