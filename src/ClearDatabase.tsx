@@ -1,5 +1,5 @@
 import React from 'react';
-import AppDatabase from './util/AppDatabase';
+import AppDatabase from './util/AppDatabase.ts';
 
 const ClearDatabaseButton: React.FC = () => {
     const database = new AppDatabase();

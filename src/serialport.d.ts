@@ -1,4 +1,4 @@
-declare module 'serialport' {
+declare module 'src/serialport' {
     import { EventEmitter } from 'events';
   
     interface OpenOptions {

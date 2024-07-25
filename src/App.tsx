@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
-import "./assets/App.css";
-import ErrorBar from "./ErrorBar";
-import DefaultPrograms from "./DefaultPrograms/Index";
-import CustomPrograms from "./CustomPrograms/Index";
-import ProgramEditor from "./ProgramEditor/index";
-import AppDatabase from "./util/AppDatabase";
+import "../../h/hoyland/src/assets/App.css";
+import ErrorBar from "./ErrorBar.tsx";
+import DefaultPrograms from "../../h/hoyland/src/DefaultPrograms";
+import CustomPrograms from "../../h/hoyland/src/CustomPrograms";
+import ProgramEditor from "../../h/hoyland/src/ProgramEditor";
+import AppDatabase from "./util/AppDatabase.ts";
 import ClearDatabaseButton from "./ClearDatabase.tsx";
 
 const App: React.FC = () => {

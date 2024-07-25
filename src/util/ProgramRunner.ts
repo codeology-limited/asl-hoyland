@@ -1,5 +1,5 @@
-import AppDatabase from './AppDatabase';
-import FrequencyGenerator from './FrequencyGenerator';
+import AppDatabase from './AppDatabase.ts';
+import FrequencyGenerator from './FrequencyGenerator.ts';
 
 interface Program {
     id?: number;
@@ -62,7 +62,7 @@ class ProgramRunner {
         let currentStep = 0;
 
         const interval = (program.maxTimeInMinutes * 60 * 1000) / totalSteps;
-
+        console.log("Send initial commands")
         await this.generator.sendInitialCommands();
         if (program.range && program.data.length === 2) {
             const startFrequency = program.data[0].frequency;

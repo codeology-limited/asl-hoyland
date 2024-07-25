@@ -114,7 +114,7 @@ class AppDatabase extends Dexie {
   async getDefaultPrograms(): Promise<Program[]> {
     try {
       const programs = await this.programs.where('default').equals(1).toArray();
-      console.log('Default programs fetched from the database:', programs); // Debug log
+      //console.log('Default programs fetched from the database:', programs); // Debug log
       return programs.map(program => ({
         ...program,
         default: true, // Convert number back to boolean
