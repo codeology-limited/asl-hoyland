@@ -79,7 +79,9 @@ select {
     background-position: right 1em top 50%;
     background-size: 0.65em auto;
 }
-
+.defaultPrograms select{
+    width: 300px
+}
 input[type=range] {
     display:block;
     width: 100%;
@@ -142,7 +144,7 @@ input[type=range] {
     display: flex;
     flex-direction: column;
     background: white;
-    border: 10px solid red;
+
 }
 
 .tab-body div {

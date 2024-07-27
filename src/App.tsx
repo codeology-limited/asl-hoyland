@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
-import "../../h/hoyland/src/assets/App.css";
+import "./assets/App.css";
 import ErrorBar from "./ErrorBar.tsx";
 import DefaultPrograms from "../../h/hoyland/src/DefaultPrograms";
 import CustomPrograms from "../../h/hoyland/src/CustomPrograms";

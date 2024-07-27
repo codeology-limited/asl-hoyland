@@ -1,5 +1,5 @@
-import AppDatabase from './AppDatabase.ts';
-import FrequencyGenerator from './FrequencyGenerator.ts';
+import AppDatabase from './AppDatabase';
+import FrequencyGenerator from './FrequencyGenerator';
 
 interface Program {
     id?: number;
@@ -62,8 +62,39 @@ class ProgramRunner {
         let currentStep = 0;
 
         const interval = (program.maxTimeInMinutes * 60 * 1000) / totalSteps;
-        console.log("Send initial commands")
+        console.log("Send initial commands");
         await this.generator.sendInitialCommands();
+       //
+       //
+       // hoyland  ' Set Channel 2 frequency to 3.1 MHz
+       //  strText = "WFF3100000.000000"
+       //
+       //
+        // Set Channel 2 settings
+        await this.generator.setWaveform(2, 1); // Set Channel 2 to sine wave
+        await this.generator.setFrequency(2, 27.1); // Set Channel 2 frequency to 27.1 MHz
+        await this.generator.setAmplitude(2, 2); // Set Channel 2 amplitude
+        await this.generator.setOffset(2, 0); // Set Channel 2 offset to 0
+        await this.generator.setDutyCycle(2, 50); // Set Channel 2 duty cycle to 50%
+        await this.generator.setPhase(2, 0); // Set Channel 2 phase to 0
+        await this.generator.setAttenuation(2, 0); // Set Channel 2 attenuation to 0
+        await this.generator.enableOutput(2, true); // Turn Channel 2 on
+
+
+        // Set Channel 1 settings
+        await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
+        await this.generator.setFrequency(1, 0); // Set Channel 1 frequency to 0 Hz
+        await this.generator.setAmplitude(1, 2); // Set Channel 1 amplitude
+        await this.generator.setOffset(1, 0); // Set Channel 1 offset to 0
+        await this.generator.setDutyCycle(1, 50); // Set Channel 1 duty cycle to 50%
+        await this.generator.setPhase(1, 0); // Set Channel 1 phase to 0
+        await this.generator.setAttenuation(1, 0); // Set Channel 1 attenuation to 0
+        await this.generator.enableOutput(1, true); // Turn Channel 1 on
+
+
+        // Synchronize voltage output
+        await this.generator.synchroniseVoltage();
+
         if (program.range && program.data.length === 2) {
             const startFrequency = program.data[0].frequency;
             const endFrequency = program.data[1].frequency;
@@ -75,7 +106,9 @@ class ProgramRunner {
                         await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
                     }
                 }
-                await this.generator.sendFrequency(program.data[0].channel, frequency, this.intensity);
+                // Set frequency for Channel 1
+                await this.generator.setFrequency(1, frequency);
+                await this.generator.setFrequency(2, frequency);
                 currentStep++;
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
@@ -90,7 +123,9 @@ class ProgramRunner {
                         await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
                     }
                 }
-                await this.generator.sendFrequency(item.channel, item.frequency, this.intensity);
+                // Set frequency for the specified channel
+                await this.generator.setFrequency(1, item.frequency);
+               // await this.generator.setFrequency(2, item.frequency);
                 currentStep++;
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
@@ -98,9 +133,13 @@ class ProgramRunner {
                 await new Promise(resolve => setTimeout(resolve, interval));
             }
         }
+
+        await this.generator.enableOutput(1, false); // Turn Channel 1 off
+        await this.generator.enableOutput(2, false); // Turn Channel 2 off
+
         this.running = false;
         this.paused = false;
-        this.generator.stopAndReset();
+        await this.generator.stopAndReset();
     }
 
     pauseProgram() {

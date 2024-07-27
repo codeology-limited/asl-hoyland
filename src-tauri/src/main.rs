@@ -13,7 +13,6 @@ use std::io::Read;
 #[macro_use]
 extern crate lazy_static;
 
-// Global mutable state for port name
 lazy_static! {
     static ref PORT_NAME: Mutex<String> = Mutex::new("TEST".to_string());
 }
@@ -24,15 +23,15 @@ struct AppState {
     ports: Mutex<HashMap<String, PortHandle>>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct WriteToPortArgs {
-    data: String,
-}
-
-#[derive(Serialize, Deserialize)]
+#[derive(serde::Deserialize)]
 struct SetFrequencyArgs {
     channel: u8,
     frequency: f64,
+}
+
+#[derive(serde::Deserialize)]
+struct WriteToPortArgs {
+    data: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -48,8 +47,39 @@ struct EnableOutputArgs {
 }
 
 #[derive(Serialize, Deserialize)]
+struct SetOffsetArgs {
+    channel: u8,
+    offset: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+struct SetDutyCycleArgs {
+    channel: u8,
+    duty_cycle: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+struct SetPhaseArgs {
+    channel: u8,
+    phase: u16,
+}
+
+#[derive(Serialize, Deserialize)]
+struct SetAttenuationArgs {
+    channel: u8,
+    attenuation: u8,
+}
+
+
+#[derive(Serialize, Deserialize)]
 struct OpenPortArgs {
     baud_rate: u32,
+}
+
+#[derive(serde::Deserialize)]
+struct SetWaveformArgs {
+    channel: u8,
+    waveform_type: u8,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -95,7 +125,7 @@ fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String>
         .data_bits(serialport::DataBits::Eight)
         .parity(serialport::Parity::None)
         .stop_bits(serialport::StopBits::One)
-        .flow_control(serialport::FlowControl::None) // No flow control
+        .flow_control(serialport::FlowControl::None)
         .open() {
         Ok(port) => {
             ports.insert(port_name.clone(), PortHandle(Mutex::new(Some(port))));
@@ -150,32 +180,110 @@ fn perform_real_port_write(ports: &Mutex<HashMap<String, PortHandle>>, data: &st
 
 #[tauri::command]
 fn write_to_port(state: State<AppState>, args: WriteToPortArgs) -> Result<bool, String> {
-    println!("write_to_port called with data: {}", args.data);
-    let data_with_newline = format!("{}{}", args.data, "\n"); // Appending newline character
-    perform_real_port_write(&state.ports, &data_with_newline)
-}
+    let port_name = PORT_NAME.lock().unwrap().clone();
+    println!("Writing to port: {} with data: {}", port_name, args.data);
 
-#[tauri::command]
-fn set_frequency(state: State<AppState>, channel: u8, frequency: f64) -> Result<bool, String> {
-    println!("set_frequency called with channel: {}, frequency: {}", channel, frequency);
-    let cmd = format!("WMF{}{:014}", channel, (frequency * 1_000_000.0) as u64);
-    write_to_port(state, WriteToPortArgs { data: cmd })
-}
-
-#[tauri::command]
-fn set_amplitude(state: State<AppState>, channel: u8, amplitude: f64) -> Result<bool, String> {
-    println!("set_amplitude called with channel: {}, amplitude: {}", channel, amplitude);
-    let cmd = format!("WMA{}{:05.2}", channel, amplitude);
-    write_to_port(state, WriteToPortArgs { data: cmd })
-}
-
-#[tauri::command]
-fn enable_output(state: State<AppState>, channel: u8, enable: bool) -> Result<bool, String> {
-    println!("enable_output called with channel: {}, enable: {}", channel, enable);
-    let cmd = if enable {
-        format!("WMN{}", channel)
+    if port_name == "TEST" {
+        log_test_port_data(&args.data)?;
     } else {
-        format!("WMX{}", channel)
+        match perform_real_port_write(&state.ports, &args.data) {
+            Ok(_) => println!("Command '{}' sent successfully", args.data),
+            Err(e) => {
+                let error_message = format!("Failed to send command '{}': {}", args.data, e);
+                println!("{}", error_message);
+                return Err(error_message);
+            },
+        }
+    }
+    Ok(true)
+}
+
+#[tauri::command]
+fn set_frequency(state: State<AppState>, args: SetFrequencyArgs) -> Result<bool, String> {
+    let cmd = match args.channel {
+        1 => format!("WMF{:014.6}\n", args.frequency * 1_000_000.0),
+        2 => format!("WFF{:014.6}\n", args.frequency * 1_000_000.0),
+        _ => return Err("Invalid channel".to_string()),
+    };
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn set_waveform(state: State<AppState>, args: SetWaveformArgs) -> Result<bool, String> {
+    let waveform_description = match args.waveform_type {
+        0 => "Sine Wave",
+        1 => "Square Wave",
+        2 => "Triangle Wave",
+        3 => "Sawtooth Wave",
+        4 => "Reverse Sawtooth Wave",
+        5 => "Pulse Wave",
+        6 => "Arbitrary Waveform",
+        _ => "Unknown Waveform",
+    };
+
+    let cmd = match args.channel {
+        1 => {
+            println!("Setting Channel 1 to waveform type: {} ({})", args.waveform_type, waveform_description);
+            format!("WMW{:02}\n", args.waveform_type) // Command for Channel 1 waveform
+        },
+        2 => {
+            println!("Setting Channel 2 to waveform type: {} ({})", args.waveform_type, waveform_description);
+            format!("WFW{:02}\n", args.waveform_type) // Command for Channel 2 waveform
+        },
+        _ => return Err("Invalid channel".to_string()),
+    };
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs) -> Result<bool, String> {
+    println!("set_amplitude called with channel: {}, amplitude: {}", args.channel, args.amplitude);
+    let cmd = format!("WMA{}{:05.2}", args.channel, args.amplitude);
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn set_offset(state: State<AppState>, args: SetOffsetArgs) -> Result<bool, String> {
+    println!("set_offset called with channel: {}, offset: {}", args.channel, args.offset);
+    let cmd = format!("WMO{:05.2}", args.offset);
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn set_duty_cycle(state: State<AppState>, args: SetDutyCycleArgs) -> Result<bool, String> {
+    println!("set_duty_cycle called with channel: {}, duty_cycle: {}", args.channel, args.duty_cycle);
+    let cmd = format!("WMD{:04.1}", args.duty_cycle);
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn set_phase(state: State<AppState>, args: SetPhaseArgs) -> Result<bool, String> {
+    println!("set_phase called with channel: {}, phase: {}", args.channel, args.phase);
+    let cmd = format!("WMP{:03}", args.phase);
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn set_attenuation(state: State<AppState>, args: SetAttenuationArgs) -> Result<bool, String> {
+    println!("set_attenuation called with channel: {}, attenuation: {}", args.channel, args.attenuation);
+    let cmd = format!("WMT{:01}", args.attenuation);
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn synchronise_voltage(state: State<AppState> ) -> Result<bool, String> {
+    println!("synchronise_voltage called");
+    let cmd = format!("USA2");
+    write_to_port(state, WriteToPortArgs { data: cmd })
+}
+
+#[tauri::command]
+fn enable_output(state: State<AppState>, args: EnableOutputArgs) -> Result<bool, String> {
+    println!("enable_output called with channel: {}, enable: {}", args.channel, args.enable);
+    let cmd = if args.enable {
+        format!("WMN{}", args.channel)
+    } else {
+        format!("WMX{}", args.channel)
     };
     write_to_port(state, WriteToPortArgs { data: cmd })
 }
@@ -184,12 +292,11 @@ fn enable_output(state: State<AppState>, channel: u8, enable: bool) -> Result<bo
 fn send_initial_commands(state: State<AppState>) -> Result<bool, String> {
     let port_name = PORT_NAME.lock().unwrap().clone();
     println!("send_initial_commands called with port_name: {}", port_name);
+
     let commands = [
-        "UBZ1\n", "UMS0\n", "UUL0\n", "WMW00\n", "WMF11000000000\n",
-        "WMA101.00\n", "WMF20000000000\n", "WMA201.00\n", "WMN1\n", "WMN2\n",
-        "WMW01\n", "WMF00000000000000\n", "WMA02.00\n", "WMO00.00\n", "WMD50.0\n",
-        "WMP000\n", "WMT0\n", "WMN1\n", "WMF0001000.000000\n", "RMW\n", "RMF\n",
-        "RMA\n", "RMO\n", "RMD\n", "RMP\n", "RMT\n", "RMN\n"
+        "UBZ1\n", "UMS0\n", "UUL0\n", "WFW00\n",
+         "WFF3100000.000000\n",
+        "WFO00.00\n", "WFD50.0\n", "WFP000\n", "WFT0\n", "WFN1\n"
     ];
 
     for cmd in &commands {
@@ -199,10 +306,13 @@ fn send_initial_commands(state: State<AppState>) -> Result<bool, String> {
         } else {
             match perform_real_port_write(&state.ports, cmd) {
                 Ok(_) => println!("Command '{}' sent successfully", cmd),
-                Err(e) => println!("Failed to send command '{}': {}", cmd, e),
+                Err(e) => {
+                    println!("Failed to send command '{}': {}", cmd, e);
+                    return Err(format!("Failed to send command '{}': {}", cmd, e));
+                },
             };
         }
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        std::thread::sleep(std::time::Duration::from_millis(300));
     }
 
     Ok(true)
@@ -213,7 +323,7 @@ fn stop_and_reset(state: State<AppState>) -> Result<bool, String> {
     let port_name = PORT_NAME.lock().unwrap().clone();
     println!("stop_and_reset called with port_name: {}", port_name);
     let commands = [
-        "WMX1\n", "WMX2\n", "UBZ0\n", "UMS0\n", "UUL0\n"
+         "WFN0\n", "WMN0\n","USD2\n"
     ];
 
     for cmd in &commands {
@@ -223,11 +333,38 @@ fn stop_and_reset(state: State<AppState>) -> Result<bool, String> {
         } else {
             match perform_real_port_write(&state.ports, cmd) {
                 Ok(_) => println!("Command '{}' sent successfully", cmd),
-                Err(e) => println!("Failed to send command '{}': {}", cmd, e),
+                Err(e) => {
+                    println!("Failed to send command '{}': {}", cmd, e);
+                    return Err(format!("Failed to send command '{}': {}", cmd, e));
+                },
             };
         }
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        std::thread::sleep(std::time::Duration::from_millis(300));
     }
+
+    Ok(true)
+}
+
+#[tauri::command]
+fn start_waveforms(state: State<AppState>) -> Result<bool, String> {
+//     let delay = 350;
+//
+//     // Set initial waveforms and amplitudes
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WFA02.00\n".to_string() })?;
+//     std::thread::sleep(std::time::Duration::from_millis(delay));
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WMW01\n".to_string() })?;
+//     std::thread::sleep(std::time::Duration::from_millis(delay));
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WMF0000000000000\n".to_string() })?;
+//     std::thread::sleep(std::time::Duration::from_millis(delay));
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WMA02.00\n".to_string() })?;
+//     // Assuming you have a function to set intensity display
+//     // set_intensity_display(state.clone(), 10);
+//
+//     // Set auxiliary waveform and frequency
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WFW00\n".to_string() })?;
+//     std::thread::sleep(std::time::Duration::from_millis(delay));
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WFF3100000000000\n".to_string() })?;
+//     std::thread::sleep(std::time::Duration::from_millis(delay));
 
     Ok(true)
 }
@@ -329,10 +466,17 @@ fn main() {
             close_port,
             set_frequency,
             set_amplitude,
+            set_offset,
+            set_duty_cycle,
+            set_phase,
+            set_attenuation,
+            synchronise_voltage,
             send_initial_commands,
             enable_output,
             stop_and_reset,
             write_to_port,
+            start_waveforms,
+            set_waveform,
             reconnect_device
         ])
         .run(tauri::generate_context!())
