@@ -84,10 +84,10 @@ const DefaultPrograms: React.FC = () => {
     };
 
     return (
-        <div className="tab-body">
+        <div className="tab-body default-programs">
             <div>
                 <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
-                    <option value="" disabled>Select a program</option>
+                    <option value="" disabled>Select default program</option>
                     {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}

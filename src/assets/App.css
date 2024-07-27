@@ -29,6 +29,22 @@ body{
     background-repeat: no-repeat;
 
 }
+
+
+h1 {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    background-image: url(/altsta.webp);
+    background-position: 0 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 200px;
+    text-indent: -10000px;
+}
+
+
+
 ul,li {
     list-style: none;
     padding: 0;
@@ -57,6 +73,13 @@ select {
 button,
 select {
     cursor: pointer;
+    margin-right: 20px;
+    border: 1px solid #cccccc;
+
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+    line-height: 30px;
 }
 
 button:hover,
@@ -78,15 +101,27 @@ select {
     background-repeat: no-repeat;
     background-position: right 1em top 50%;
     background-size: 0.65em auto;
+
 }
-.defaultPrograms select{
-    width: 300px
+.custom-programs select,
+.default-programs select {
+    width: 350px;
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+    line-height: 30px;
 }
 input[type=range] {
     display:block;
     width: 100%;
 }
 
+.custom-programs > div,
+.default-programs > div {
+   border-bottom: 1px dotted #ccc;
+    margin-top: 30px;
+
+}
 
 .progress-bar {
     position: relative;
@@ -107,37 +142,41 @@ input[type=range] {
     justify-content: center;
     margin-bottom:0;
     height: 50px;
+
 }
 
 .tabs .nav-links  {
-    border-bottom: 1px solid white;
+    xxborder-bottom: 1px solid red;
 }
 .tabs a {
+
     display: inline-block;
     text-decoration: none;
     color: black;
-    border-top: 2px solid white;
-    border-left: 1px solid white;
-    border-right: 1px solid white;
-    background-color: #fefefe;
+    border-top: 2px solid #cccccc;
+    border-left: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    background-color: #ccc;
     border-radius: 0;
     margin-bottom: -1px;
     line-height: 50px;
     height: 50px;
     padding: 0 20px;
     cursor: pointer;
-    font-size: 1.6rem;
+text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: bold;
     outline: none;
     transition: background-color 0.3s;
     cursor: pointer;
 }
 
 .tabs a.active {
-    background-color: #d1d1d1;
+    background-color: #fefefe;
 }
 
 .tabs a:hover {
-    background-color: #ddd;
+    background-color: #fefefe;
 }
 
 .tab-body {
@@ -145,6 +184,8 @@ input[type=range] {
     flex-direction: column;
     background: white;
 
+    max-width: 90vw;
+    margin: 0 auto;
 }
 
 .tab-body div {
@@ -158,6 +199,10 @@ input[type=range] {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -100%);
+    line-height: 2;
+    font-weight: bold;
+    text-transform: uppercase;
+
 }
 footer {
     position: fixed;

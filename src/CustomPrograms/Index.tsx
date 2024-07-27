@@ -71,10 +71,10 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ names }) => {
     };
 
     return (
-        <div className="tab-body">
+        <div className="tab-body custom-programs">
             <div>
                 <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
-                    <option value="" disabled>Select a program</option>
+                    <option value="" disabled>Select custom program</option>
                     {names.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}

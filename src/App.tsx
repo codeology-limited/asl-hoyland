@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
 import "./assets/App.css";
 import ErrorBar from "./ErrorBar.tsx";
-import DefaultPrograms from "../../h/hoyland/src/DefaultPrograms";
-import CustomPrograms from "../../h/hoyland/src/CustomPrograms";
-import ProgramEditor from "../../h/hoyland/src/ProgramEditor";
+import DefaultPrograms from "./DefaultPrograms/Index.tsx";
+import CustomPrograms from "./CustomPrograms/Index.tsx";
+import ProgramEditor from "./ProgramEditor/index.tsx";
 import AppDatabase from "./util/AppDatabase.ts";
 import ClearDatabaseButton from "./ClearDatabase.tsx";
 
