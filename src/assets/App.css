@@ -204,6 +204,19 @@ text-transform: uppercase;
     text-transform: uppercase;
 
 }
+#console {
+
+    background: rgba( 255,255,255,0.5);
+    padding: 30px;
+
+    max-width: 90vw;
+    margin: 0 auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
 footer {
     position: fixed;
     bottom: 0;
@@ -227,4 +240,22 @@ footer a {
 
 footer a:hover {
     color: red
+}
+.status-indicator{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    height: 20px;
+width: 20px;
+    background-color:#cccccc;
+    border:3px solid white;
+}
+.status-indicator.success{background-color:green}
+.status-indicator.fail{background-color:red}
+
+.stop {
+    color: red;
+}
+.start {
+    color: green;
 }

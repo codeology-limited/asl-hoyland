@@ -1,13 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use tauri::{self, Manager, State, Window};
 
 use serialport::{self, SerialPort};
 use std::sync::Mutex;
 use std::time::Duration;
-use tauri::Manager;
 use std::collections::HashMap;
 use std::io::Write;
 use serde::{Serialize, Deserialize};
-use tauri::State;
 use std::io::Read;
 
 #[macro_use]
@@ -345,30 +344,6 @@ fn stop_and_reset(state: State<AppState>) -> Result<bool, String> {
     Ok(true)
 }
 
-// #[tauri::command]
-// fn start_waveforms(state: State<AppState>) -> Result<bool, String> {
-//     let delay = 350;
-//
-//     // Set initial waveforms and amplitudes
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WFA02.00\n".to_string() })?;
-//     std::thread::sleep(std::time::Duration::from_millis(delay));
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WMW01\n".to_string() })?;
-//     std::thread::sleep(std::time::Duration::from_millis(delay));
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WMF0000000000000\n".to_string() })?;
-//     std::thread::sleep(std::time::Duration::from_millis(delay));
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WMA02.00\n".to_string() })?;
-//     // Assuming you have a function to set intensity display
-//     // set_intensity_display(state.clone(), 10);
-//
-//     // Set auxiliary waveform and frequency
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WFW00\n".to_string() })?;
-//     std::thread::sleep(std::time::Duration::from_millis(delay));
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WFF3100000000000\n".to_string() })?;
-//     std::thread::sleep(std::time::Duration::from_millis(delay));
-
-//     Ok(true)
-// }
-
 #[tauri::command]
 fn reconnect_device(state: State<AppState>, args: ReconnectArgs) -> Result<String, String> {
     println!("reconnect_device called with target_device: {}", args.target_device);
@@ -450,16 +425,6 @@ fn main() {
                 ports: Mutex::new(HashMap::new()),
             });
 
-            let state = app.state::<AppState>().clone();
-            let target_device = "Hoyland"; // Replace with the actual target device name
-            let baud_rate = 115200; // Use 115200 baud rate
-
-            // Call reconnect_device on startup
-            reconnect_device(state, ReconnectArgs {
-                target_device: target_device.to_string(),
-                baud_rate,
-            }).expect("Failed to execute reconnect_device on startup");
-
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -477,7 +442,6 @@ fn main() {
             enable_output,
             stop_and_reset,
             write_to_port,
-           // start_waveforms,
             set_waveform,
             reconnect_device
         ])

@@ -5,6 +5,7 @@ import ErrorBar from "./ErrorBar.tsx";
 import DefaultPrograms from "./DefaultPrograms/Index.tsx";
 import CustomPrograms from "./CustomPrograms/Index.tsx";
 import ProgramEditor from "./ProgramEditor/index.tsx";
+import StatusIndicator from "./StatusIndicator.tsx";
 import AppDatabase from "./util/AppDatabase.ts";
 import ClearDatabaseButton from "./ClearDatabase.tsx";
 import HoylandController from './util/HoylandController.ts';
@@ -12,6 +13,7 @@ import HoylandController from './util/HoylandController.ts';
 const App: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [port, setPort] = useState<string>("Connect to device");
+    const [status, setStatus] = useState<'success' | 'fail' | null>(null);
 
     useEffect(() => {
         const initializeDatabase = async () => {
@@ -22,10 +24,12 @@ const App: React.FC = () => {
         initializeDatabase();
     }, []);
 
-    async function reconnectDevice(){
-        const hoyland = new HoylandController()
-        setPort( `Connected to ${await hoyland.reconnectDevice()}`)
+    async function reconnectDevice() {
+        const hoyland = new HoylandController(setStatus);
+        setPort(`Connected to ${await hoyland.reconnectDevice()} port`);
     }
+
+    reconnectDevice()
 
     // Callback function to handle showing error messages
     const handleShowError = (newMessage: string) => {
@@ -72,6 +76,7 @@ const App: React.FC = () => {
                         <ClearDatabaseButton/>
                         <button onClick={reconnectDevice}>{port}</button>
                     </div>
+                    <StatusIndicator status={status} />
                 </main>
 
                 <ErrorBar messages={errorMessages} />

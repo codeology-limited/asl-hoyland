@@ -93,7 +93,7 @@ const DefaultPrograms: React.FC = () => {
                     ))}
                 </select>
 
-                <button onClick={handleStartStop}>{isRunning ? 'Stop' : 'Start'}</button>
+                <button className={isRunning ? 'stop' : 'start'} onClick={handleStartStop}>{isRunning ? 'Stop' : 'Start'}</button>
                 <button onClick={handlePauseContinue} disabled={!isRunning}>{isPaused ? 'Continue' : 'Pause'}</button>
             </div>
 
