@@ -345,8 +345,8 @@ fn stop_and_reset(state: State<AppState>) -> Result<bool, String> {
     Ok(true)
 }
 
-#[tauri::command]
-fn start_waveforms(state: State<AppState>) -> Result<bool, String> {
+// #[tauri::command]
+// fn start_waveforms(state: State<AppState>) -> Result<bool, String> {
 //     let delay = 350;
 //
 //     // Set initial waveforms and amplitudes
@@ -366,11 +366,11 @@ fn start_waveforms(state: State<AppState>) -> Result<bool, String> {
 //     write_to_port(state.clone(), WriteToPortArgs { data: "WFF3100000000000\n".to_string() })?;
 //     std::thread::sleep(std::time::Duration::from_millis(delay));
 
-    Ok(true)
-}
+//     Ok(true)
+// }
 
 #[tauri::command]
-fn reconnect_device(state: State<AppState>, args: ReconnectArgs) -> Result<bool, String> {
+fn reconnect_device(state: State<AppState>, args: ReconnectArgs) -> Result<String, String> {
     println!("reconnect_device called with target_device: {}", args.target_device);
 
     // Disconnect all ports
@@ -391,7 +391,7 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs) -> Result<bool,
     }
 
     // Reconnect to the target device if found
-    let mut reconnected = false;
+    let mut reconnected_port = String::new();
     for port in available_ports {
         println!("Checking port: {}", port.port_name);
         match serialport::new(&port.port_name, args.baud_rate)
@@ -415,7 +415,7 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs) -> Result<bool,
                             ports.insert(port.port_name.clone(), PortHandle(Mutex::new(Some(serial_port))));
                             println!("Successfully connected to device on port: {}", port.port_name);
                             *PORT_NAME.lock().unwrap() = port.port_name.clone();
-                            reconnected = true;
+                            reconnected_port = port.port_name.clone();
                             break;
                         }
                     },
@@ -430,16 +430,18 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs) -> Result<bool,
         }
     }
 
-    if !reconnected {
+    if reconnected_port.is_empty() {
         // Default to "TEST"
         let mut ports = state.ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
         println!("Target device not found. Defaulting to Test Port.");
         ports.insert("TEST".to_string(), PortHandle(Mutex::new(None)));
         *PORT_NAME.lock().unwrap() = "TEST".to_string();
+        reconnected_port = "TEST".to_string();
     }
 
-    Ok(true)
+    Ok(reconnected_port)
 }
+
 
 fn main() {
     tauri::Builder::default()
@@ -449,7 +451,7 @@ fn main() {
             });
 
             let state = app.state::<AppState>().clone();
-            let target_device = "your_target_device_name_here"; // Replace with the actual target device name
+            let target_device = "Hoyland"; // Replace with the actual target device name
             let baud_rate = 115200; // Use 115200 baud rate
 
             // Call reconnect_device on startup
@@ -475,7 +477,7 @@ fn main() {
             enable_output,
             stop_and_reset,
             write_to_port,
-            start_waveforms,
+           // start_waveforms,
             set_waveform,
             reconnect_device
         ])

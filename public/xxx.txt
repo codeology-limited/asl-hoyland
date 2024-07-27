@@ -1,7 +1,7 @@
 
 // import SerialPort from 'serialport';
 //
-// class FrequencyGenerator {
+// class HoylandController {
 //   private port: SerialPort;
 //   private isPaused: boolean = false;
 //   private currentFrequency: number | null = null;
@@ -167,12 +167,12 @@
 //   }
 // }
 //
-// export default FrequencyGenerator;
+// export default HoylandController;
 //
 // // Example usage:
 // (async () => {
 //   const portName = 'COM3'; // Update this to the correct port
-//   const generator = new FrequencyGenerator(portName);
+//   const generator = new HoylandController(portName);
 //
 //   await generator.connect();
 //   await generator.initial(); // Initialize the device

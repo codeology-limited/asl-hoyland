@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ProgramRunner from '../util/ProgramRunner';
 import AppDatabase from '../util/AppDatabase';
-import FrequencyGenerator from '../util/FrequencyGenerator';
+import HoylandController from '../util/HoylandController.ts';
 
 interface CustomProgramsProps {
     names: string[];
@@ -17,7 +17,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ names }) => {
     const runnerRef = useRef<ProgramRunner | null>(null);
 
     const database = new AppDatabase();
-    const generator = new FrequencyGenerator();
+    const generator = new HoylandController();
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
         setProgress(currentStep);

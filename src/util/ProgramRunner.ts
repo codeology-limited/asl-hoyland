@@ -1,5 +1,5 @@
 import AppDatabase from './AppDatabase';
-import FrequencyGenerator from './FrequencyGenerator';
+import HoylandController from './HoylandController.ts';
 
 interface Program {
     id?: number;
@@ -14,13 +14,13 @@ type ProgressCallback = (currentStep: number, totalSteps: number) => void;
 
 class ProgramRunner {
     private database: AppDatabase;
-    private generator: FrequencyGenerator;
+    private generator: HoylandController;
     private running: boolean;
     private paused: boolean;
     private intensity: number;
     private progressCallback: ProgressCallback | null;
 
-    constructor(database: AppDatabase, generator: FrequencyGenerator, progressCallback: ProgressCallback | null = null) {
+    constructor(database: AppDatabase, generator: HoylandController, progressCallback: ProgressCallback | null = null) {
         this.database = database;
         this.generator = generator;
         this.running = false;

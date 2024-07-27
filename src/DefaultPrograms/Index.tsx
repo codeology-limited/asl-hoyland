@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ProgramRunner from '../util/ProgramRunner';
 import AppDatabase from '../util/AppDatabase';
-import FrequencyGenerator from '../util/FrequencyGenerator';
+import HoylandController from '../util/HoylandController.ts';
 
 const DefaultPrograms: React.FC = () => {
     const [progress, setProgress] = useState(0);
@@ -14,7 +14,7 @@ const DefaultPrograms: React.FC = () => {
     const runnerRef = useRef<ProgramRunner | null>(null);
 
     const database = new AppDatabase();
-    const generator = new FrequencyGenerator();
+    const generator = new HoylandController();
 
     useEffect(() => {
         const loadDefaultPrograms = async () => {
@@ -22,7 +22,7 @@ const DefaultPrograms: React.FC = () => {
                 await database.preloadDefaults(); // Ensure defaults are preloaded
                 const programs = await database.getDefaultPrograms();
                 const names = programs.map(program => program.name);
-                console.log('Loaded default programs:', names); // Debug log
+               // console.log('Loaded default programs:', names); // Debug log
                 setProgramNames(names);
             } catch (error) {
                 console.error('Failed to load default programs:', error);

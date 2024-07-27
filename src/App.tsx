@@ -7,9 +7,11 @@ import CustomPrograms from "./CustomPrograms/Index.tsx";
 import ProgramEditor from "./ProgramEditor/index.tsx";
 import AppDatabase from "./util/AppDatabase.ts";
 import ClearDatabaseButton from "./ClearDatabase.tsx";
+import HoylandController from './util/HoylandController.ts';
 
 const App: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
+    const [port, setPort] = useState<string>("Connect to device");
 
     useEffect(() => {
         const initializeDatabase = async () => {
@@ -19,6 +21,11 @@ const App: React.FC = () => {
 
         initializeDatabase();
     }, []);
+
+    async function reconnectDevice(){
+        const hoyland = new HoylandController()
+        setPort( `Connected to ${await hoyland.reconnectDevice()}`)
+    }
 
     // Callback function to handle showing error messages
     const handleShowError = (newMessage: string) => {
@@ -60,13 +67,18 @@ const App: React.FC = () => {
                         <Route path="/custom" element={<CustomPrograms names={[]} />} />
                         <Route path="/editor" element={<ProgramEditor />} />
                     </Routes>
+                    <div id="console">
+                        <button onClick={simulateError}>Simulate Error</button>
+                        <ClearDatabaseButton/>
+                        <button onClick={reconnectDevice}>{port}</button>
+                    </div>
                 </main>
-                <button onClick={simulateError}>Simulate Error</button>
+
                 <ErrorBar messages={errorMessages} />
                 <footer>
                     <p>
                         Copyright 2024 <a href="http://altered-states.net">altered-states.net</a>
-                    </p>  <ClearDatabaseButton />
+                    </p>
                 </footer>
             </div>
         </Router>

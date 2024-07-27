@@ -8,7 +8,7 @@ import DefaultPrograms from "./tabs/DefaultPrograms.tsx";
 import YourPrograms from "./tabs/YourPrograms.tsx";
 import DebugSettings from "./tabs/DebugSettings.tsx";
 import { Program, ProgramItem } from "./types.ts";
-import FrequencyGenerator from "../src/util/FrequencyGenerator.ts";
+import HoylandController from "../src/util/HoylandController.ts";
 
 const db = new AppDatabase();
 const MAX_AMPLITUDE = 10; // Adjust based on your generator's specifications
@@ -31,7 +31,7 @@ function App() {
   const [progress, setProgress] = useState<number>(0);
   const [currentFrequency, setCurrentFrequency] = useState<number | null>(null);
 
-  const generator = new FrequencyGenerator(selectedPort);
+  const generator = new HoylandController(selectedPort);
 
   const onFrequencyChange = (frequency: number) => {
     console.log(`Frequency changed to: ${frequency}`);

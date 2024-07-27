@@ -1,11 +1,35 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-class FrequencyGenerator {
+class HoylandController {
   intensity: number = 1;
 
   constructor() {
     this.intensity = 1; // Initialize intensity with a default value
   }
+
+
+  async  reconnectDevice():Promise<string> {
+
+    try {
+      const targetDevice = "Hoyland"; // Replace with the actual target device name
+      const baudRate = 115200; // Use the correct baud rate
+
+      const result = await invoke('reconnect_device', {args:{
+        target_device: targetDevice,
+        baud_rate: baudRate,
+      }});
+
+
+
+      console.log("Reconnected:", result);
+      return result as string
+    } catch (error) {
+      console.error("Failed to reconnect device:", error);
+      return ""
+    }
+  }
+
+
 
   async sendInitialCommands() {
     try {
@@ -197,4 +221,4 @@ class FrequencyGenerator {
   }
 }
 
-export default FrequencyGenerator;
+export default HoylandController;
