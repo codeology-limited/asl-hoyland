@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ProgramRunner from '../util/ProgramRunner';
-import AppDatabase from '../util/AppDatabase';
-import HoylandController from '../util/HoylandController.ts';
+import { useAppContext } from '../AppContext';
+import ProgramRunner from '../util/ProgramRunner'; // Ensure this is the correct path to ProgramRunner
 
 interface CustomProgramsProps {
     names: string[];
@@ -14,10 +13,9 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ names }) => {
     const [selectedProgram, setSelectedProgram] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-    const runnerRef = useRef<ProgramRunner | null>(null);
 
-    const database = new AppDatabase();
-    const generator = new HoylandController();
+    const { appDatabase, hoylandController, programRunner } = useAppContext();
+    const runnerRef = useRef<ProgramRunner | null>(programRunner);
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
         setProgress(currentStep);
@@ -27,13 +25,14 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ names }) => {
     useEffect(() => {
         if (runnerRef.current) {
             runnerRef.current.setIntensity(intensity);
+            runnerRef.current.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
 
     const loadProgram = async (programName: string) => {
-        const program = await database.loadData(programName);
+        const program = await appDatabase.loadData(programName);
         if (program) {
-            runnerRef.current = new ProgramRunner(database, generator, handleProgressUpdate);
+            runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
             runnerRef.current.setIntensity(intensity);
         }
     };

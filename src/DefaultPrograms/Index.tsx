@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ProgramRunner from '../util/ProgramRunner';
-import AppDatabase from '../util/AppDatabase';
-import HoylandController from '../util/HoylandController.ts';
+import { useAppContext } from '../AppContext';
+import ProgramRunner from '../util/ProgramRunner'; // Ensure this is the correct path to ProgramRunner
 
 const DefaultPrograms: React.FC = () => {
     const [progress, setProgress] = useState(0);
@@ -11,18 +10,16 @@ const DefaultPrograms: React.FC = () => {
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-    const runnerRef = useRef<ProgramRunner | null>(null);
 
-    const database = new AppDatabase();
-    const generator = new HoylandController();
+    const { appDatabase, hoylandController, programRunner } = useAppContext();
+    const runnerRef = useRef<ProgramRunner | null>(programRunner);
 
     useEffect(() => {
         const loadDefaultPrograms = async () => {
             try {
-                await database.preloadDefaults(); // Ensure defaults are preloaded
-                const programs = await database.getDefaultPrograms();
+                await appDatabase.preloadDefaults(); // Ensure defaults are preloaded
+                const programs = await appDatabase.getDefaultPrograms();
                 const names = programs.map(program => program.name);
-               // console.log('Loaded default programs:', names); // Debug log
                 setProgramNames(names);
             } catch (error) {
                 console.error('Failed to load default programs:', error);
@@ -30,7 +27,7 @@ const DefaultPrograms: React.FC = () => {
         };
 
         loadDefaultPrograms();
-    }, [database]);
+    }, [appDatabase]);
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
         setProgress(currentStep);
@@ -40,13 +37,14 @@ const DefaultPrograms: React.FC = () => {
     useEffect(() => {
         if (runnerRef.current) {
             runnerRef.current.setIntensity(intensity);
+            runnerRef.current.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
 
     const loadProgram = async (programName: string) => {
-        const program = await database.loadData(programName);
+        const program = await appDatabase.loadData(programName);
         if (program) {
-            runnerRef.current = new ProgramRunner(database, generator, handleProgressUpdate);
+            runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
             runnerRef.current.setIntensity(intensity);
         }
     };

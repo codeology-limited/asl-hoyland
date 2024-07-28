@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
 import "./assets/App.css";
-import ErrorBar from "./ErrorBar.tsx";
-import DefaultPrograms from "./DefaultPrograms/Index.tsx";
-import CustomPrograms from "./CustomPrograms/Index.tsx";
-import ProgramEditor from "./ProgramEditor/index.tsx";
-import StatusIndicator from "./StatusIndicator.tsx";
-import AppDatabase from "./util/AppDatabase.ts";
-import ClearDatabaseButton from "./ClearDatabase.tsx";
-import HoylandController from './util/HoylandController.ts';
+import ErrorBar from "./ErrorBar";
+import DefaultPrograms from "./DefaultPrograms/Index";
+import CustomPrograms from "./CustomPrograms/Index";
+import ProgramEditor from "./ProgramEditor";
+import StatusIndicator from "./StatusIndicator";
+import ClearDatabaseButton from "./ClearDatabase";
+import { AppProvider, useAppContext } from './AppContext';
+import AppDatabase from './util/AppDatabase'; // Import AppDatabase
 
 const App: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [port, setPort] = useState<string>("Connect to device");
-    const [status, setStatus] = useState<'success' | 'fail' | null>(null);
+    const [status, ] = useState<'success' | 'fail' | null>(null);
+    const { hoylandController } = useAppContext();
 
     useEffect(() => {
         const initializeDatabase = async () => {
@@ -22,28 +23,29 @@ const App: React.FC = () => {
         };
 
         initializeDatabase();
+
+        reconnectDevice();
     }, []);
 
     async function reconnectDevice() {
-        const hoyland = new HoylandController(setStatus);
-        setPort(`Connected to ${await hoyland.reconnectDevice()} port`);
+        if (hoylandController) {
+            const port = await hoylandController.reconnectDevice();
+            setPort(`Connected to ${port} port`);
+        }
     }
 
-    reconnectDevice()
-
-    // Callback function to handle showing error messages
     const handleShowError = (newMessage: string) => {
         setErrorMessages(prevMessages => {
             if (newMessage && prevMessages.includes(newMessage)) {
-                return prevMessages; // Return the existing array if the message is already present
+                return prevMessages;
             }
-            return newMessage ? [...prevMessages, newMessage] : prevMessages.filter(message => message !== newMessage); // Add the new message to the array or remove it
+            return newMessage ? [...prevMessages, newMessage] : prevMessages.filter(message => message !== newMessage);
         });
 
         if (newMessage) {
             setTimeout(() => {
                 setErrorMessages(prevMessages => prevMessages.filter(message => message !== newMessage));
-            }, 5000); // Remove the error after 5 seconds
+            }, 5000);
         }
     };
 
@@ -73,7 +75,7 @@ const App: React.FC = () => {
                     </Routes>
                     <div id="console">
                         <button onClick={simulateError}>Simulate Error</button>
-                        <ClearDatabaseButton/>
+                        <ClearDatabaseButton />
                         <button onClick={reconnectDevice}>{port}</button>
                     </div>
                     <StatusIndicator status={status} />
@@ -90,4 +92,10 @@ const App: React.FC = () => {
     );
 }
 
-export default App;
+const AppWithProviders: React.FC = () => (
+    <AppProvider>
+        <App />
+    </AppProvider>
+);
+
+export default AppWithProviders;

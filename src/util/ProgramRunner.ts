@@ -27,6 +27,7 @@ class ProgramRunner {
         this.paused = false;
         this.intensity = 1;
         this.progressCallback = progressCallback;
+        console.log(this.intensity)
     }
 
     async loadProgram(name: string): Promise<Program> {
@@ -64,13 +65,7 @@ class ProgramRunner {
         const interval = (program.maxTimeInMinutes * 60 * 1000) / totalSteps;
         console.log("Send initial commands");
         await this.generator.sendInitialCommands();
-       //
-       //
-       // hoyland  ' Set Channel 2 frequency to 3.1 MHz
-       //  strText = "WFF3100000.000000"
-       //
-       //
-        // Set Channel 2 settings
+
         await this.generator.setWaveform(2, 1); // Set Channel 2 to sine wave
         await this.generator.setFrequency(2, 27.1); // Set Channel 2 frequency to 27.1 MHz
         await this.generator.setAmplitude(2, 2); // Set Channel 2 amplitude
@@ -125,7 +120,7 @@ class ProgramRunner {
                 }
                 // Set frequency for the specified channel
                 await this.generator.setFrequency(1, item.frequency);
-               // await this.generator.setFrequency(2, item.frequency);
+                await this.generator.setFrequency(2, item.frequency);
                 currentStep++;
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
