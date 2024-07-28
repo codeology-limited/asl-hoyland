@@ -4,24 +4,47 @@ import { listen, Event } from '@tauri-apps/api/event';
 class HoylandController {
   intensity: number = 1;
   isListening: boolean = false;
+  eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
 
-  constructor() {
+  constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
+    console.log("INITIALIZING HOYLAND CONTROLLER");
     this.intensity = 1; // Initialize intensity with a default value
-console.log("X!X!X!X!")
+
+    if (eventCallback) {
+      this.eventCallback = eventCallback;
+    }
+
     if (!this.isListening) {
       this.setupListeners();
       this.isListening = true;
     }
   }
 
-  setupListeners() {
+  setupListeners(callback?: (event: { type: string; payload: string }) => void) {
+    this.eventCallback = callback || this.eventCallback;
+
     listen('message_success', (event: Event<string>) => {
       console.log("Message sent successfully:", event.payload);
+      this.emitEvent('message_success', event.payload);
     });
 
     listen('message_fail', (event: Event<string>) => {
       console.error("Message failed to send:", event.payload);
+      this.emitEvent('message_fail', event.payload);
     });
+
+    listen('reconnected', (event: Event<string>) => {
+      console.log("Reconnected to send:", event.payload);
+      this.emitEvent('reconnected', event.payload);
+    });
+
+
+  }
+
+  emitEvent(type: string, payload: string) {
+    if (this.eventCallback) {
+      this.eventCallback({ type, payload });
+    }
   }
 
   async reconnectDevice(): Promise<string> {

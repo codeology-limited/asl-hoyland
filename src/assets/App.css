@@ -247,8 +247,8 @@ footer a:hover {
     right: 20px;
     height: 20px;
 width: 20px;
-    background-color:#cccccc;
-    border:3px solid white;
+    background-color:transparent;
+
 }
 .status-indicator.success{background-color:green}
 .status-indicator.fail{background-color:red}

@@ -8,12 +8,12 @@ import ProgramEditor from "./ProgramEditor";
 import StatusIndicator from "./StatusIndicator";
 import ClearDatabaseButton from "./ClearDatabase";
 import { AppProvider, useAppContext } from './AppContext';
-import AppDatabase from './util/AppDatabase'; // Import AppDatabase
+import AppDatabase from './util/AppDatabase';
 
 const App: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [port, setPort] = useState<string>("Connect to device");
-    const [status, ] = useState<'success' | 'fail' | null>(null);
+    const [status,  ] = useState<'success' | 'fail' | null>(null);
     const { hoylandController } = useAppContext();
 
     useEffect(() => {
