@@ -124,6 +124,19 @@ class AppDatabase extends Dexie {
       throw error;
     }
   }
+  async getCustomPrograms(): Promise<Program[]> {
+    try {
+      const programs = await this.programs.where('default').equals(0).toArray();
+      //console.log('Default programs fetched from the database:', programs); // Debug log
+      return programs.map(program => ({
+        ...program,
+        default: false, // Convert number back to boolean
+      }));
+    } catch (error) {
+      console.error('Failed to get default programs:', error);
+      throw error;
+    }
+  }
 }
 
 export default AppDatabase;

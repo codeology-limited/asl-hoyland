@@ -4,17 +4,18 @@ import "./assets/App.css";
 import ErrorBar from "./ErrorBar";
 import DefaultPrograms from "./DefaultPrograms/Index";
 import CustomPrograms from "./CustomPrograms/Index";
-import ProgramEditor from "./ProgramEditor";
+import ProgramEditor from "./ProgramEditor/index.tsx";
 import StatusIndicator from "./StatusIndicator";
 import ClearDatabaseButton from "./ClearDatabase";
 import { AppProvider, useAppContext } from './AppContext';
 import AppDatabase from './util/AppDatabase';
+import { Program, ProgramItem } from './types';
 
 const App: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [port, setPort] = useState<string>("Connect to device");
     const [status,  ] = useState<'success' | 'fail' | null>(null);
-    const { hoylandController } = useAppContext();
+    const { hoylandController, appDatabase } = useAppContext();
 
     useEffect(() => {
         const initializeDatabase = async () => {
@@ -53,6 +54,22 @@ const App: React.FC = () => {
         handleShowError("Simulated Error Message");
     };
 
+    const handleSave = async (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => {
+        const program: Program = {
+            name: programName,
+            data: programData,
+            maxTimeInMinutes: programMaxTime,
+            range: range ? true : false,
+            default: 0
+        };
+        await appDatabase.saveData(program);
+        alert("Program saved successfully!");
+    };
+
+    const handleCancel = () => {
+        alert("Edit cancelled");
+    };
+
     return (
         <Router>
             <div className="container">
@@ -71,7 +88,7 @@ const App: React.FC = () => {
                     <Routes>
                         <Route path="/" element={<DefaultPrograms />} />
                         <Route path="/custom" element={<CustomPrograms names={[]} />} />
-                        <Route path="/editor" element={<ProgramEditor />} />
+                        <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
                     <div id="console">
                         <button onClick={simulateError}>Simulate Error</button>
