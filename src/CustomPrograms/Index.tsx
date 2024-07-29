@@ -2,20 +2,31 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner'; // Ensure this is the correct path to ProgramRunner
 
-interface CustomProgramsProps {
-    names: string[];
-}
-
-const CustomPrograms: React.FC<CustomProgramsProps> = ({ names }) => {
+const CustomPrograms: React.FC = () => {
     const [progress, setProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
     const [intensity, setIntensity] = useState(1);
     const [selectedProgram, setSelectedProgram] = useState('');
+    const [programNames, setProgramNames] = useState<string[]>([]);
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
     const { appDatabase, hoylandController, programRunner } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(programRunner);
+
+    useEffect(() => {
+        const loadCustomPrograms = async () => {
+            try {
+                const programs = await appDatabase.getCustomPrograms();
+                const names = programs.map(program => program.name);
+                setProgramNames(names);
+            } catch (error) {
+                console.error('Failed to load custom programs:', error);
+            }
+        };
+
+        loadCustomPrograms();
+    }, [appDatabase]);
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
         setProgress(currentStep);
@@ -74,7 +85,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ names }) => {
             <div>
                 <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
                     <option value="" disabled>Select custom program</option>
-                    {names.map((name) => (
+                    {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}
                 </select>
