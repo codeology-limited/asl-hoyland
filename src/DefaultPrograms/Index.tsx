@@ -17,7 +17,7 @@ const DefaultPrograms: React.FC = () => {
     useEffect(() => {
         const loadDefaultPrograms = async () => {
             try {
-                await appDatabase.preloadDefaults(); // Ensure defaults are preloaded
+                //await appDatabase.preloadDefaults(); // Ensure defaults are preloaded
                 const programs = await appDatabase.getDefaultPrograms();
                 const names = programs.map(program => program.name);
                 setProgramNames(names);

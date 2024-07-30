@@ -11,8 +11,8 @@ const CustomPrograms: React.FC = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
-    const { appDatabase, hoylandController, programRunner } = useAppContext();
-    const runnerRef = useRef<ProgramRunner | null>(programRunner);
+    const { appDatabase, hoylandController } = useAppContext();
+    const runnerRef = useRef<ProgramRunner | null>(null);
 
     useEffect(() => {
         const loadCustomPrograms = async () => {
@@ -45,6 +45,13 @@ const CustomPrograms: React.FC = () => {
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
             runnerRef.current.setIntensity(intensity);
+
+            const totalSteps = program.range && program.data.length === 2
+                ? program.data[1].frequency - program.data[0].frequency + 1
+                : program.data.length;
+            setTotalSteps(totalSteps);
+        } else {
+            console.error(`Program ${programName} not found`);
         }
     };
 
@@ -55,6 +62,7 @@ const CustomPrograms: React.FC = () => {
             setIsRunning(false);
             setIsPaused(false);
             setProgress(0);
+            setTotalSteps(0); // Reset total steps when stopping
         } else {
             if (selectedProgram) {
                 await loadProgram(selectedProgram);

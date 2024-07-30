@@ -39,46 +39,62 @@ class AppDatabase extends Dexie {
 
   async preloadDefaults() {
     try {
+      console.log("Loading Defaults");
       const response = await fetch('/defaultPrograms.json'); // Adjust the path as necessary
       const defaultPrograms = await response.json();
 
-      const count = await this.programs.count();
+      for (const [name, program] of Object.entries(defaultPrograms)) {
+        let dataWithRunTime: { channel: number; frequency: number; runTime: number }[] = [];
 
-      if (count === 0) {
-        for (const [name, program] of Object.entries(defaultPrograms)) {
-          if (this.isOldFormatProgram(program)) {
-            const dataWithRunTime = program.data.map((frequency) => ({
+        // Type assertion to handle `unknown` type
+        const typedProgram = program as OldFormatProgram | NewFormatProgram;
+
+        if (this.isOldFormatProgram(typedProgram)) {
+          console.log("Loading old style Defaults");
+          if (typedProgram.data) {
+            dataWithRunTime = typedProgram.data.map((frequency) => ({
               channel: 1,
               frequency,
-              runTime: (program.runTimeInMinutes * 60000) / program.data.length,
+              runTime: (typedProgram.runTimeInMinutes * 60000) / typedProgram.data.length,
             }));
-
-            await this.programs.add({
-              name,
-              data: dataWithRunTime,
-              range: program.range ? 1 : 0,
-              default: program.default ? 1 : 0,
-              maxTimeInMinutes: program.runTimeInMinutes,
-              startFrequency: program.startFrequency,
-            });
-          } else if (this.isNewFormatProgram(program)) {
-            const dataWithRunTime = program.data.map((item) => ({
+          }
+        } else if (this.isNewFormatProgram(typedProgram)) {
+          console.log("Loading new style Defaults");
+          if (typedProgram.data) {
+            dataWithRunTime = typedProgram.data.map((item) => ({
               channel: 1,
               frequency: item.f,
               runTime: item.s * 1000, // Assuming 's' is in seconds
             }));
-
-            await this.programs.add({
-              name,
-              data: dataWithRunTime,
-              range: program.range ? 1 : 0,
-              default: program.default ? 1 : 0,
-              maxTimeInMinutes: program.runTimeInMinutes,
-              startFrequency: program.startFrequency,
-            });
           }
         }
+
+        // Always overwrite existing named items
+        const existingProgram = await this.programs.where({ name }).first();
+
+        if (existingProgram) {
+          console.log("Overwrite existing program", name);
+          await this.programs.update(existingProgram.id!, {
+            name,
+            data: dataWithRunTime,
+            range: typedProgram.range ? 1 : 0,
+            default: typedProgram.default ? 1 : 0,
+            maxTimeInMinutes: typedProgram.runTimeInMinutes,
+            startFrequency: typedProgram.startFrequency,
+          });
+        } else {
+          console.log("Create new program", name);
+          await this.programs.add({
+            name,
+            data: dataWithRunTime,
+            range: typedProgram.range ? 1 : 0,
+            default: typedProgram.default ? 1 : 0,
+            maxTimeInMinutes: typedProgram.runTimeInMinutes,
+            startFrequency: typedProgram.startFrequency,
+          });
+        }
       }
+      console.log('Defaults preloaded');
     } catch (error) {
       console.error('Failed to preload defaults:', error);
     }
@@ -105,17 +121,15 @@ class AppDatabase extends Dexie {
   }
 
   async resetData() {
-    await this.programs.clear();
+    await this.clearDatabase();
     await this.preloadDefaults();
   }
 
   async clearDatabase() {
     try {
-      await this.delete();
-      this.version(1).stores({
-        programs: "++id,name,range,data,maxTimeInMinutes,default,startFrequency",
-      });
-      this.programs = this.table("programs");
+      await this.programs.clear();
+      console.log('Database cleared');
+      await this.preloadDefaults();
     } catch (error) {
       console.error('Failed to clear the database:', error);
     }
@@ -137,11 +151,21 @@ class AppDatabase extends Dexie {
 
   async saveData(program: Program): Promise<void> {
     try {
-      await this.programs.put({
-        ...program,
-        range: program.range ? 1 : 0,
-        default: program.default ? 1 : 0, // Convert boolean to number
-      });
+      const existingProgram = await this.programs.where({ name: program.name }).first();
+      if (existingProgram) {
+        await this.programs.update(existingProgram.id!, {
+          ...program,
+          range: program.range ? 1 : 0,
+          default: program.default ? 1 : 0, // Convert boolean to number
+        });
+      } else {
+        await this.programs.put({
+          ...program,
+          range: program.range ? 1 : 0,
+          default: program.default ? 1 : 0, // Convert boolean to number
+        });
+      }
+      console.log(`Program ${program.name} saved successfully`);
     } catch (error) {
       console.error('Failed to save data:', error);
       throw error;
@@ -171,6 +195,16 @@ class AppDatabase extends Dexie {
     } catch (error) {
       console.error('Failed to get custom programs:', error);
       throw error;
+    }
+  }
+
+  async testForProgram(name: string): Promise<boolean> {
+    try {
+      const program = await this.programs.where({ name }).first();
+      return !!program;
+    } catch (error) {
+      console.error('Failed to test for program:', error);
+      return false;
     }
   }
 }

@@ -20,7 +20,7 @@ const App: React.FC = () => {
     useEffect(() => {
         const initializeDatabase = async () => {
             const db = new AppDatabase();
-            await db.preloadDefaults();
+          //  await db.preloadDefaults();
         };
 
         initializeDatabase();

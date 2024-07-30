@@ -1,5 +1,5 @@
 import AppDatabase from './AppDatabase';
-import HoylandController from './HoylandController.ts';
+import HoylandController from './HoylandController';
 
 interface Program {
     id?: number;
@@ -8,6 +8,7 @@ interface Program {
     data: { channel: number; frequency: number; runTime: number }[];
     maxTimeInMinutes: number;
     default: number | boolean;
+    startFrequency: number;
 }
 
 type ProgressCallback = (currentStep: number, totalSteps: number) => void;
@@ -27,27 +28,43 @@ class ProgramRunner {
         this.paused = false;
         this.intensity = 1;
         this.progressCallback = progressCallback;
-        console.log(this.intensity)
+        console.log('ProgramRunner initialized with intensity:', this.intensity);
     }
 
-    async loadProgram(name: string): Promise<Program> {
-        return await this.database.loadData(name);
+    async loadProgram(name: string): Promise<Program | null> {
+        try {
+            const program = await this.database.loadData(name);
+            console.log('Program loaded:', program);
+            return program;
+        } catch (error) {
+            console.error(`Failed to load program: ${error}`);
+            return null;
+        }
     }
 
     async saveProgram(program: Program): Promise<void> {
-        await this.database.saveData(program);
+        try {
+            await this.database.saveData(program);
+            console.log('Program saved:', program);
+        } catch (error) {
+            console.error(`Failed to save program: ${error}`);
+        }
     }
 
     setIntensity(intensity: number) {
         this.intensity = intensity;
+        console.log('Intensity set to:', this.intensity);
     }
 
     setProgressCallback(callback: ProgressCallback) {
         this.progressCallback = callback;
+        console.log('Progress callback set');
     }
 
     async startProgram(programName: string) {
+        console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);
+
         if (!program) {
             console.error(`Program ${programName} not found`);
             return;
@@ -59,11 +76,14 @@ class ProgramRunner {
         const totalSteps = program.range && program.data.length === 2
             ? program.data[1].frequency - program.data[0].frequency + 1
             : program.data.length;
+        console.log('Total steps calculated:', totalSteps);
 
         let currentStep = 0;
 
         const interval = (program.maxTimeInMinutes * 60 * 1000) / totalSteps;
-        console.log("Send initial commands");
+        console.log('Interval between steps:', interval);
+
+        console.log('Sending initial commands...');
         await this.generator.sendInitialCommands();
 
         await this.generator.setWaveform(2, 1); // Set Channel 2 to sine wave
@@ -75,7 +95,6 @@ class ProgramRunner {
         await this.generator.setAttenuation(2, 0); // Set Channel 2 attenuation to 0
         await this.generator.enableOutput(2, true); // Turn Channel 2 on
 
-
         // Set Channel 1 settings
         await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
         await this.generator.setFrequency(1, 0); // Set Channel 1 frequency to 0 Hz
@@ -85,7 +104,6 @@ class ProgramRunner {
         await this.generator.setPhase(1, 0); // Set Channel 1 phase to 0
         await this.generator.setAttenuation(1, 0); // Set Channel 1 attenuation to 0
         await this.generator.enableOutput(1, true); // Turn Channel 1 on
-
 
         // Synchronize voltage output
         await this.generator.synchroniseVoltage();
@@ -101,10 +119,12 @@ class ProgramRunner {
                         await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
                     }
                 }
-                // Set frequency for Channel 1
-                await this.generator.setFrequency(1, frequency);
-                await this.generator.setFrequency(2, frequency);
+                console.log('Setting frequency to:', frequency);
+                await this.generator.setFrequency(1, parseFloat(frequency.toString()));
+                await this.generator.setFrequency(2, parseFloat(frequency.toString()));
                 currentStep++;
+                console.log('Current step:', currentStep);
+
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
                 }
@@ -118,14 +138,16 @@ class ProgramRunner {
                         await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
                     }
                 }
-                // Set frequency for the specified channel
-                await this.generator.setFrequency(1, item.frequency);
-                await this.generator.setFrequency(2, item.frequency);
+                console.log('Setting frequency for item:', item);
+                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+                await this.generator.setFrequency(2, parseFloat(item.frequency.toString()));
                 currentStep++;
+                console.log('Current step:', currentStep);
+
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
                 }
-                await new Promise(resolve => setTimeout(resolve, interval));
+                await new Promise(resolve => setTimeout(resolve, item.runTime)); // Use item.runTime instead of interval
             }
         }
 
@@ -135,17 +157,20 @@ class ProgramRunner {
         this.running = false;
         this.paused = false;
         await this.generator.stopAndReset();
+        console.log('Program completed:', programName);
     }
 
     pauseProgram() {
         if (this.running) {
             this.paused = true;
+            console.log('Program paused');
         }
     }
 
     resumeProgram() {
         if (this.running && this.paused) {
             this.paused = false;
+            console.log('Program resumed');
         }
     }
 
@@ -153,6 +178,7 @@ class ProgramRunner {
         this.running = false;
         this.paused = false;
         this.generator.stop();
+        console.log('Program stopped');
     }
 }
 
