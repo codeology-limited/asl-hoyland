@@ -5,6 +5,7 @@ class HoylandController {
   intensity: number = 1;
   isListening: boolean = false;
   eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
+  delay: number = 1000
 
   constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
     console.log("INITIALIZING HOYLAND CONTROLLER");
@@ -20,23 +21,27 @@ class HoylandController {
     }
   }
 
+  async wait(){
+    await  new Promise(resolve => setTimeout(resolve, this.delay))
+  }
+
   setupListeners(callback?: (event: { type: string; payload: string }) => void) {
     this.eventCallback = callback || this.eventCallback;
 
-    listen('message_success', (event: Event<string>) => {
-      console.log("Message sent successfully:", event.payload);
-      this.emitEvent('message_success', event.payload);
-    });
-
-    listen('message_fail', (event: Event<string>) => {
-      console.error("Message failed to send:", event.payload);
-      this.emitEvent('message_fail', event.payload);
-    });
-
-    listen('reconnected', (event: Event<string>) => {
-      console.log("Reconnected to send:", event.payload);
-      this.emitEvent('reconnected', event.payload);
-    });
+    // listen('message_success', (event: Event<string>) => {
+    //   console.log("Message sent successfully:", event.payload);
+    //   this.emitEvent('message_success', event.payload);
+    // });
+    //
+    // listen('message_fail', (event: Event<string>) => {
+    //   console.error("Message failed to send:", event.payload);
+    //   this.emitEvent('message_fail', event.payload);
+    // });
+    //
+    // listen('reconnected', (event: Event<string>) => {
+    //   console.log("Reconnected to send:", event.payload);
+    //   this.emitEvent('reconnected', event.payload);
+    // });
 
 
   }
@@ -59,6 +64,7 @@ class HoylandController {
         }
       });
 
+      await this.wait()
       console.log("Reconnected:", result);
       return result as string;
     } catch (error) {
@@ -70,6 +76,7 @@ class HoylandController {
   async sendInitialCommands() {
     try {
       const result = await invoke('send_initial_commands');
+      await this.wait()
       if (result) {
         console.log('Initial commands sent successfully');
       } else {
@@ -88,6 +95,7 @@ class HoylandController {
 
     try {
       await invoke('set_waveform', { args });
+      await this.wait()
       console.log(`Waveform set for channel ${channel} to type ${waveformType}`);
     } catch (error) {
       console.error(`Error setting waveform: ${error}`);
@@ -102,6 +110,7 @@ class HoylandController {
 
     try {
       await invoke('set_frequency', { args });
+      await this.wait()
       console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
     } catch (error) {
       console.error(`Error setting frequency: ${error}`);
@@ -117,6 +126,7 @@ class HoylandController {
     try {
       console.log('Invoking set_amplitude with args:', args);
       await invoke('set_amplitude', { args });
+      await this.wait()
       console.log(`Amplitude set to ${amplitude} for channel ${channel}`);
     } catch (error) {
       console.error('Error setting amplitude:', error);
@@ -131,6 +141,7 @@ class HoylandController {
 
     try {
       await invoke('set_offset', { args });
+      await this.wait()
       console.log(`Offset set to ${offset} for channel ${channel}`);
     } catch (error) {
       console.error('Error setting offset:', error);
@@ -145,6 +156,7 @@ class HoylandController {
 
     try {
       await invoke('set_duty_cycle', { args });
+      await this.wait()
       console.log(`Duty cycle set to ${dutyCycle}% for channel ${channel}`);
     } catch (error) {
       console.error('Error setting duty cycle:', error);
@@ -159,6 +171,7 @@ class HoylandController {
 
     try {
       await invoke('set_phase', { args });
+      await this.wait()
       console.log(`Phase set to ${phase} degrees for channel ${channel}`);
     } catch (error) {
       console.error('Error setting phase:', error);
@@ -173,6 +186,7 @@ class HoylandController {
 
     try {
       await invoke('set_attenuation', { args });
+      await this.wait()
       console.log(`Attenuation set to ${attenuation} for channel ${channel}`);
     } catch (error) {
       console.error('Error setting attenuation:', error);
@@ -182,6 +196,7 @@ class HoylandController {
   async synchroniseVoltage() {
     try {
       await invoke('synchronise_voltage', {});
+      await this.wait()
       console.log('Voltage output synchronized');
     } catch (error) {
       console.error('Error synchronizing voltage output:', error);
@@ -197,33 +212,36 @@ class HoylandController {
     try {
       console.log('Invoking enable_output with args:', args);
       await invoke('enable_output', { args });
+      await this.wait()
       console.log(`Output ${enable ? 'enabled' : 'disabled'} for channel ${channel}`);
     } catch (error) {
       console.error('Error enabling output:', error);
     }
   }
 
-  async sendFrequency(channel: number, frequency: number, amplitude: number) {
-    try {
-      if (channel === 1) {
-        await this.setWaveform(1, 1); // Ensure Channel 1 is set to square wave
-      } else if (channel === 2) {
-        await this.setWaveform(2, 0); // Ensure Channel 2 is set to sine wave
-      }
-
-      await this.setFrequency(channel, frequency);
-      await this.setAmplitude(channel, amplitude);
-
-      console.log(`Frequency and amplitude set for channel ${channel}`);
-    } catch (error) {
-      console.error('Error sending frequency:', error);
-    }
-  }
+  // async sendFrequency(channel: number, frequency: number, amplitude: number) {
+  //   try {
+  //     if (channel === 1) {
+  //       await this.setWaveform(1, 1); // Ensure Channel 1 is set to square wave
+  //     } else if (channel === 2) {
+  //       await this.setWaveform(2, 0); // Ensure Channel 2 is set to sine wave
+  //     }
+  //
+  //     await this.setFrequency(channel, frequency);
+  //     await this.setAmplitude(channel, amplitude);
+  //
+  //     console.log(`Frequency and amplitude set for channel ${channel}`);
+  //   } catch (error) {
+  //     console.error('Error sending frequency:', error);
+  //   }
+  // }
 
   async stop() {
     try {
       await this.enableOutput(1, false);
+      await this.wait()
       await this.enableOutput(2, false);
+      await this.wait()
       console.log('Output stopped for all channels');
     } catch (error) {
       console.error('Error stopping output:', error);
@@ -233,6 +251,7 @@ class HoylandController {
   async stopAndReset() {
     try {
       const result = await invoke('stop_and_reset');
+      await this.wait()
       if (result) {
         console.log('Stop and reset commands sent successfully');
       } else {

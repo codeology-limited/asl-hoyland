@@ -119,7 +119,7 @@ fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String>
     }
 
     match serialport::new(&port_name, args.baud_rate)
-        .timeout(Duration::from_millis(10))
+        .timeout(Duration::from_millis(50))
         .data_bits(serialport::DataBits::Eight)
         .parity(serialport::Parity::None)
         .stop_bits(serialport::StopBits::One)
@@ -289,10 +289,13 @@ fn synchronise_voltage(state: State<AppState>, window: Window) -> Result<bool, S
 #[tauri::command]
 fn enable_output(state: State<AppState>, args: EnableOutputArgs, window: Window) -> Result<bool, String> {
     println!("enable_output called with channel: {}, enable: {}", args.channel, args.enable);
-    let cmd = if args.enable {
-        format!("WMN{}", args.channel)
-    } else {
-        format!("WMX{}", args.channel)
+
+    let cmd = match (args.channel, args.enable) {
+        (1, true) => "WMN1\n".to_string(),
+        (1, false) => "WMN0\n".to_string(),
+        (2, true) => "WFN1\n".to_string(),
+        (2, false) => "WFN0\n".to_string(),
+        _ => return Err("Invalid channel".to_string()),
     };
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
@@ -305,7 +308,7 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
     let commands = [
         "UBZ1\n", "UMS0\n", "UUL0\n", "WFW00\n",
         "WFF3100000.000000\n",
-        "WFO00.00\n", "WFD50.0\n", "WFP000\n", "WFT0\n", "WFN1\n"
+        "WFO00.00\n", "WFD50.0\n", "WFP000\n", "WFT0\n", "WFN1\n","WFN0\n","WMN0\n"
     ];
 
     for cmd in &commands {
