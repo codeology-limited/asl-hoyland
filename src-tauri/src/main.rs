@@ -209,9 +209,11 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs, window: Window) 
 
 #[tauri::command]
 fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window) -> Result<bool, String> {
+    println!("set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
+    let frequency_in_hz = args.frequency * 1_000.0; // Convert to Hz from kHz
     let cmd = match args.channel {
-        1 => format!("WMF{:014.6}\n", args.frequency * 1_000_000.0),
-        2 => format!("WFF{:014.6}\n", args.frequency * 1_000_000.0),
+        1 => format!("WMF{:014.6}\n", frequency_in_hz),
+        2 => format!("WFF{:014.6}\n", frequency_in_hz),
         _ => return Err("Invalid channel".to_string()),
     };
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
@@ -244,12 +246,16 @@ fn set_waveform(state: State<AppState>, args: SetWaveformArgs, window: Window) -
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
+
 #[tauri::command]
 fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window) -> Result<bool, String> {
     println!("set_amplitude called with channel: {}, amplitude: {}", args.channel, args.amplitude);
-    let cmd = format!("WMA{}{:05.2}", args.channel, args.amplitude);
+    let scaled_amplitude = args.amplitude * 2.0; // Scale the amplitude
+    let cmd = format!("WMA{:05.2}", scaled_amplitude);
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
+
+
 
 #[tauri::command]
 fn set_offset(state: State<AppState>, args: SetOffsetArgs, window: Window) -> Result<bool, String> {
@@ -306,9 +312,10 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
     println!("send_initial_commands called with port_name: {}", port_name);
 
     let commands = [
-        "UBZ1\n", "UMS0\n", "UUL0\n", "WFW00\n",
-        "WFF3100000.000000\n",
-        "WFO00.00\n", "WFD50.0\n", "WFP000\n", "WFT0\n", "WFN1\n","WFN0\n","WMN0\n"
+         "UMS0\n",  "WMW01\n", "WFW00\n","WFN0\n","WMN0\n"
+//          ,
+//         "WFF3100000.000000\n",
+//         "WFO00.00\n", "WFD50.0\n", "WFP000\n", "WFT0\n", "WFN1\n",
     ];
 
     for cmd in &commands {
@@ -320,7 +327,7 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(300));
+        std::thread::sleep(std::time::Duration::from_millis(500));
     }
 
     Ok(true)
@@ -345,7 +352,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(300));
+        std::thread::sleep(std::time::Duration::from_millis(500));
     }
 
     Ok(true)

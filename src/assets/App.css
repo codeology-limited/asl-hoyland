@@ -39,25 +39,30 @@
 }
 
 
-html, body {
-    height: 100%;
-    width: 100%;
-
-}
-
 html {
-    font-size: 10px;
-    min-width: 640px;
-}
-
-#root {
-    font-size: 1.6rem;
+    height: 100vh;
+    width: 100%;
     background-image: url(/download.webp);
     background-position: 0 0;
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-color:blue;
+}
+
+html {
+    font-size: 10px;
+    min-width: 640px;
+}
+body{
+    position: absolute;
+height: 100%;
+width: 100%;
+ overflow: auto;
+    font-size: 1.6rem;
+
+    box-sizing: border-box;
+    padding-bottom: 10vh;border-bottom: 10px solid pink;
 }
 
 h1 {
@@ -78,14 +83,9 @@ ul, li {
     padding: 0;
     margin: 0;
 }
-.container{
-    overflow: hidden;
 
-}
 
-main {
-    margin-bottom: 10vh;
-}
+
 input,
 button,
 select {
@@ -298,6 +298,7 @@ input[type="range"]::before {
 }
 
 footer {
+    z-index: 1000;
     position: fixed;
     bottom: 0;
     left: 0;

@@ -8,7 +8,7 @@ import ProgramEditor from "./ProgramEditor/index.tsx";
 import StatusIndicator from "./StatusIndicator";
 import ClearDatabaseButton from "./ClearDatabase";
 import { AppProvider, useAppContext } from './AppContext';
-import AppDatabase from './util/AppDatabase';
+
 import { Program, ProgramItem } from './types';
 
 const App: React.FC = () => {
@@ -19,7 +19,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const initializeDatabase = async () => {
-            const db = new AppDatabase();
+        //    const db = new AppDatabase();
           //  await db.preloadDefaults();
         };
 
@@ -60,7 +60,7 @@ const App: React.FC = () => {
             data: programData,
             maxTimeInMinutes: programMaxTime,
             range: range ? true : false,
-            default: 0
+            default: false
         };
         await appDatabase.saveData(program);
         alert("Program saved successfully!");

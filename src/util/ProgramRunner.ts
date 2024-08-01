@@ -51,9 +51,10 @@ class ProgramRunner {
         }
     }
 
-    setIntensity(intensity: number) {
+    async setIntensity(intensity: number) {
         this.intensity = intensity;
         console.log('Intensity set to:', this.intensity);
+        await this.generator.setAmplitude(1, this.intensity); // Set Channel 1 amplitude
     }
 
     setProgressCallback(callback: ProgressCallback) {
@@ -102,13 +103,14 @@ class ProgramRunner {
         await this.generator.setAttenuation(2, 0); // Set Channel 2 attenuation to 0
 
 
-        await this.generator.setWaveform(2, 0); // Set Channel 2 to sine wave
+       // await this.generator.setWaveform(2, 0); // Set Channel 2 to sine wave
         await this.generator.setFrequency(2, 3.1); // Set Channel 2 frequency to 27.1 MHz
-        await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
+      //  await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
         await this.generator.setFrequency(1, 0); // Set Channel 1 frequency to 0 Hz
         await this.generator.enableOutput(1, true); // Turn Channel 1 on
         await this.generator.enableOutput(2, true); // Turn Channel 2 on
         // Synchronize voltage output
+        await this.generator.synchroniseVoltage();
 
         if (program.range && program.data.length === 2) {
             const startFrequency = program.data[0].frequency;
@@ -122,8 +124,9 @@ class ProgramRunner {
                     }
                 }
                 console.log('Setting frequency to:', frequency);
+                await this.generator.setFrequency(1, parseFloat(frequency.toString()));
 
-                // await this.generator.setFrequency(1, parseFloat(frequency.toString()));
+
                 // await this.generator.synchroniseVoltage();
                 currentStep++;
                 console.log('Current step:', currentStep);
@@ -142,9 +145,10 @@ class ProgramRunner {
                     }
                 }
                 console.log('Setting frequency for item:', item);
-
                 await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
-                await this.generator.synchroniseVoltage();
+               // await this.generator.setAmplitude(1, this.intensity); // Set Channel 1 amplitude
+
+              // await this.generator.synchroniseVoltage();
                 currentStep++;
                 console.log('Current step:', currentStep);
 
@@ -160,7 +164,8 @@ class ProgramRunner {
 
         this.running = false;
         this.paused = false;
-        // await this.generator.stopAndReset();
+        await this.generator.stopAndReset();
+        alert(`Your program named "${programName}" has now completed.  \nPlease press ok to choose again`)
         console.log('Program completed:', programName);
     }
 

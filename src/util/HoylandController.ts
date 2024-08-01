@@ -5,7 +5,7 @@ class HoylandController {
   intensity: number = 1;
   isListening: boolean = false;
   eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
-  delay: number = 1000
+  delay: number = 500
 
   constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
     console.log("INITIALIZING HOYLAND CONTROLLER");
@@ -28,20 +28,20 @@ class HoylandController {
   setupListeners(callback?: (event: { type: string; payload: string }) => void) {
     this.eventCallback = callback || this.eventCallback;
 
-    // listen('message_success', (event: Event<string>) => {
-    //   console.log("Message sent successfully:", event.payload);
-    //   this.emitEvent('message_success', event.payload);
-    // });
-    //
-    // listen('message_fail', (event: Event<string>) => {
-    //   console.error("Message failed to send:", event.payload);
-    //   this.emitEvent('message_fail', event.payload);
-    // });
-    //
-    // listen('reconnected', (event: Event<string>) => {
-    //   console.log("Reconnected to send:", event.payload);
-    //   this.emitEvent('reconnected', event.payload);
-    // });
+    listen('message_success', (event: Event<string>) => {
+      console.log("Message sent successfully:", event.payload);
+      this.emitEvent('message_success', event.payload);
+    });
+
+    listen('message_fail', (event: Event<string>) => {
+      console.error("Message failed to send:", event.payload);
+      this.emitEvent('message_fail', event.payload);
+    });
+
+    listen('reconnected', (event: Event<string>) => {
+      console.log("Reconnected to send:", event.payload);
+      this.emitEvent('reconnected', event.payload);
+    });
 
 
   }
@@ -125,7 +125,10 @@ class HoylandController {
 
     try {
       console.log('Invoking set_amplitude with args:', args);
+      await this.wait()
+      await this.wait()
       await invoke('set_amplitude', { args });
+      await this.wait()
       await this.wait()
       console.log(`Amplitude set to ${amplitude} for channel ${channel}`);
     } catch (error) {

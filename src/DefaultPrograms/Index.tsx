@@ -36,8 +36,15 @@ const DefaultPrograms: React.FC = () => {
 
     useEffect(() => {
         if (runnerRef.current) {
-            runnerRef.current.setIntensity(intensity);
-            runnerRef.current.setProgressCallback(handleProgressUpdate);
+
+                if (runnerRef.current instanceof ProgramRunner) {
+                    runnerRef.current.setIntensity(intensity);
+                }
+
+
+            if (runnerRef.current instanceof ProgramRunner) {
+                runnerRef.current.setProgressCallback(handleProgressUpdate);
+            }
         }
     }, [intensity]);
 
@@ -45,7 +52,9 @@ const DefaultPrograms: React.FC = () => {
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-            runnerRef.current.setIntensity(intensity);
+            if (runnerRef.current instanceof ProgramRunner) {
+                runnerRef.current.setIntensity(intensity);
+            }
         }
     };
 
@@ -61,7 +70,9 @@ const DefaultPrograms: React.FC = () => {
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
-                    await runnerRef.current.startProgram(selectedProgram);
+                    if (runnerRef.current instanceof ProgramRunner) {
+                        await runnerRef.current.startProgram(selectedProgram);
+                    }
                     setIsRunning(false);
                     setProgress(0);
                 }

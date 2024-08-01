@@ -121,7 +121,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
                     />
                 </label>
             </div>
-            <div>
+            <div id="range-selector">
                 <label>
                     Range:
                     <input
@@ -129,6 +129,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
                         checked={range}
                         onChange={(e) => setRange(e.target.checked)}
                     />
+
                 </label>
             </div>
             <div>
@@ -136,8 +137,8 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
                     <thead>
                     <tr>
                         <th></th>
-                        <th>Frequency (Hz)</th>
-                        <th>Run Time (ms)</th>
+                        <th>Frequency in Hertz</th>
+                        <th>Time in milliseconds</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -151,14 +152,16 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
                             <td>
                                 <input
                                     type="text"
-                                    value={row.frequency.toString()}
+
+                                    value={row.frequency? row.frequency.toString() : ''}
                                     onChange={(e) => handleInputChange(index, 'frequency', e.target.value)}
                                 />
                             </td>
                             <td>
                                 <input
+
                                     type="text"
-                                    value={row.runTime.toString()}
+                                    value={row.runTime? row.runTime.toString():''}
                                     onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
                                 />
                             </td>
