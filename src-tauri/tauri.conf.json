@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Hoyland Generator 3 by Altered States",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -17,7 +17,8 @@
       {
         "title": "Hoyland Generator 3 by Altered States",
         "width": 1024,
-        "height": 1024
+        "height": 1024,
+        "alwaysOnTop": true
       }
     ],
     "security": {
@@ -25,8 +26,15 @@
     },
     "bundle": {
       "active": true,
-      "targets": "all",
+      "targets": ["nsis"],
+      "resources": ["/Users/forsite/Desktop/asl-hoyland/src-tauri/resources/WebView2Loader.dll"],
       "identifier": "com.hoyland.asl",
+      "windows": {
+        "wix": {
+          "language": "en-US"
+        },
+        "webviewInstallMode": { "type": "embedBootstrapper", "silent": true }
+      },
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",

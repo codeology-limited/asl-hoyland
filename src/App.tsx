@@ -60,7 +60,8 @@ const App: React.FC = () => {
             data: programData,
             maxTimeInMinutes: programMaxTime,
             range: range ? true : false,
-            default: false
+            default: false,
+            startFrequency: 3.1
         };
         await appDatabase.saveData(program);
         alert("Program saved successfully!");
@@ -87,7 +88,7 @@ const App: React.FC = () => {
                 <main>
                     <Routes>
                         <Route path="/" element={<DefaultPrograms />} />
-                        <Route path="/custom" element={<CustomPrograms names={[]} />} />
+                        <Route path="/custom" element={<CustomPrograms />} />
                         <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
                     <div id="console">

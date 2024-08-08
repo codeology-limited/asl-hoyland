@@ -8,8 +8,9 @@ export interface ProgramItem {
 export interface Program {
     id?: number;
     name: string;
-    range: boolean; // Ensure this is strictly boolean
+    range: boolean;
     data: ProgramItem[];
     maxTimeInMinutes: number;
     default: number | boolean;
+    startFrequency: number;  // Add this line
 }

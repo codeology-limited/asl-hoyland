@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner'; // Ensure this is the correct path to ProgramRunner
 
+
+
+
 const CustomPrograms: React.FC = () => {
     const [progress, setProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
