@@ -10,23 +10,38 @@ import ClearDatabaseButton from "./ClearDatabase";
 import { AppProvider, useAppContext } from './AppContext';
 
 import { Program, ProgramItem } from './types';
+import AppDatabase from "./util/AppDatabase.ts";
 
 const App: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [port, setPort] = useState<string>("Connect to device");
     const [status,  ] = useState<'success' | 'fail' | null>(null);
     const { hoylandController, appDatabase } = useAppContext();
+    const [isRunning, setIsRunning] = useState(false);
+
+
 
     useEffect(() => {
+
+        const handleClearDatabase = async () => {
+            const database = new AppDatabase();
+            await database.resetData();
+        };
+
+
         const initializeDatabase = async () => {
-        //    const db = new AppDatabase();
-          //  await db.preloadDefaults();
+            // Initialize database if needed
         };
 
         initializeDatabase();
+        handleClearDatabase()
+
+    });
+
+    useEffect(() => {
 
         reconnectDevice();
-    }, []);
+    },[])
 
     async function reconnectDevice() {
         if (hoylandController) {
@@ -75,36 +90,32 @@ const App: React.FC = () => {
         <Router>
             <div className="container">
                 <header>
-                    <h1>Altered States</h1>
+                    <h1><a href="http://altered-states.net">Altered States</a></h1>
                     <nav className="tabs">
                         <ul className="nav-links">
-                            <li><NavLink to="/" end>Default</NavLink></li>
-                            <li><NavLink to="/custom">Custom</NavLink></li>
-                            <li><NavLink to="/editor">Editor</NavLink></li>
+                            <li><NavLink to="/" end className={isRunning ? 'disabled' : ''} tabIndex={isRunning ? -1 : 0}>Default</NavLink></li>
+                            <li><NavLink to="/custom" className={isRunning ? 'disabled' : ''} tabIndex={isRunning ? -1 : 0}>Custom</NavLink></li>
+                            <li><NavLink to="/editor" className={isRunning ? 'disabled' : ''} tabIndex={isRunning ? -1 : 0}>Editor</NavLink></li>
                         </ul>
                     </nav>
                 </header>
 
                 <main>
                     <Routes>
-                        <Route path="/" element={<DefaultPrograms />} />
-                        <Route path="/custom" element={<CustomPrograms />} />
+                        <Route path="/" element={<DefaultPrograms setIsRunning={setIsRunning} isRunning={isRunning} />} />
+                        <Route path="/custom" element={<CustomPrograms setIsRunning={setIsRunning} isRunning={isRunning} />} />
                         <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
                     <div id="console">
-                        <button onClick={simulateError}>Simulate Error</button>
+                        <button onClick={simulateError} disabled={isRunning}>Simulate Error</button>
                         <ClearDatabaseButton />
-                        <button onClick={reconnectDevice}>{port}</button>
+                        <button onClick={reconnectDevice} disabled={isRunning}>{port}</button>
                     </div>
                     <StatusIndicator status={status} />
                 </main>
 
                 <ErrorBar messages={errorMessages} />
-                <footer>
-                    <p>
-                        Copyright 2024 <a href="http://altered-states.net">altered-states.net</a>
-                    </p>
-                </footer>
+
             </div>
         </Router>
     );

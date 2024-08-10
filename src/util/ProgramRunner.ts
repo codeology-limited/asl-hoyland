@@ -104,7 +104,7 @@ class ProgramRunner {
 
 
        // await this.generator.setWaveform(2, 0); // Set Channel 2 to sine wave
-        await this.generator.setFrequency(2, 3.1); // Set Channel 2 frequency to 27.1 MHz
+        await this.generator.setFrequency(2, program.startFrequency); // Set Channel 2 frequency to 27.1 MHz
       //  await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
         await this.generator.setFrequency(1, 0); // Set Channel 1 frequency to 0 Hz
         await this.generator.enableOutput(1, true); // Turn Channel 1 on

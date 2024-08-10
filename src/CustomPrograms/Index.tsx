@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../AppContext';
-import ProgramRunner from '../util/ProgramRunner'; // Ensure this is the correct path to ProgramRunner
+import ProgramRunner from '../util/ProgramRunner';
 
+interface CustomProgramsProps {
+    setIsRunning: (isRunning: boolean) => void;
+    isRunning: boolean;
+}
 
-
-
-const CustomPrograms: React.FC = () => {
+const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning }) => {
     const [progress, setProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
     const [intensity, setIntensity] = useState(1);
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
-    const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
     const { appDatabase, hoylandController } = useAppContext();
@@ -53,8 +54,6 @@ const CustomPrograms: React.FC = () => {
                 ? program.data[1].frequency - program.data[0].frequency + 1
                 : program.data.length;
             setTotalSteps(totalSteps);
-        } else {
-            console.error(`Program ${programName} not found`);
         }
     };
 
@@ -65,7 +64,7 @@ const CustomPrograms: React.FC = () => {
             setIsRunning(false);
             setIsPaused(false);
             setProgress(0);
-            setTotalSteps(0); // Reset total steps when stopping
+            setTotalSteps(0);
         } else {
             if (selectedProgram) {
                 await loadProgram(selectedProgram);
@@ -94,14 +93,23 @@ const CustomPrograms: React.FC = () => {
     return (
         <div className="tab-body custom-programs">
             <div>
-                <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
+                <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
+                        disabled={isRunning}>
                     <option value="" disabled>Select custom program</option>
                     {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}
                 </select>
 
-                <button className={isRunning ? 'stop' : 'start'} onClick={handleStartStop}>{isRunning ? 'Stop' : 'Start'}</button>
+
+                <button
+                    className={isRunning ? 'stop' : 'start'}
+                    onClick={handleStartStop}
+                    disabled={!selectedProgram && !isRunning} // Only disable when no program is selected and not running
+                >
+                    {isRunning ? 'Stop' : 'Start'}
+                </button>
+
                 <button onClick={handlePauseContinue} disabled={!isRunning}>{isPaused ? 'Continue' : 'Pause'}</button>
             </div>
 
@@ -111,13 +119,14 @@ const CustomPrograms: React.FC = () => {
             </div>
 
             <div>
-                <label>Intensity: {intensity}</label>
+            <label>Intensity: {intensity}</label>
                 <input
                     type="range"
                     min="1"
                     max="10"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
+                    disabled={isRunning}
                 />
             </div>
         </div>

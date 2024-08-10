@@ -385,7 +385,7 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
     for port in available_ports {
         println!("Checking port: {}", port.port_name);
         match serialport::new(&port.port_name, args.baud_rate)
-            .timeout(Duration::from_millis(30))
+            .timeout(Duration::from_millis(500))
             .data_bits(serialport::DataBits::Eight)
             .parity(serialport::Parity::None)
             .stop_bits(serialport::StopBits::One)
@@ -395,7 +395,7 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
                 println!("Opened port: {}", port.port_name);
                 let mut buffer: Vec<u8> = vec![0; 100];
                 serial_port.write_all(b"UMO\r\n").expect("Write failed");
-                std::thread::sleep(std::time::Duration::from_millis(30));
+                std::thread::sleep(std::time::Duration::from_millis(500));
                 match serial_port.read(buffer.as_mut_slice()) {
                     Ok(bytes_read) => {
                         let response = String::from_utf8_lossy(&buffer[..bytes_read]);
