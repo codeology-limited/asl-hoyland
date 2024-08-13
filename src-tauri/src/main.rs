@@ -119,7 +119,7 @@ fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String>
     }
 
     match serialport::new(&port_name, args.baud_rate)
-        .timeout(Duration::from_millis(50))
+        .timeout(Duration::from_millis(500))
         .data_bits(serialport::DataBits::Eight)
         .parity(serialport::Parity::None)
         .stop_bits(serialport::StopBits::One)
@@ -327,7 +327,7 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(500));
+        std::thread::sleep(std::time::Duration::from_millis(100));
     }
 
     Ok(true)
@@ -352,7 +352,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(500));
+        std::thread::sleep(std::time::Duration::from_millis(100));
     }
 
     Ok(true)

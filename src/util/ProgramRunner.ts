@@ -103,9 +103,9 @@ class ProgramRunner {
         await this.generator.setAttenuation(2, 0); // Set Channel 2 attenuation to 0
 
 
-       // await this.generator.setWaveform(2, 0); // Set Channel 2 to sine wave
+        await this.generator.setWaveform(2, 0); // Set Channel 2 to sine wave
         await this.generator.setFrequency(2, program.startFrequency); // Set Channel 2 frequency to 27.1 MHz
-      //  await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
+        await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
         await this.generator.setFrequency(1, 0); // Set Channel 1 frequency to 0 Hz
         await this.generator.enableOutput(1, true); // Turn Channel 1 on
         await this.generator.enableOutput(2, true); // Turn Channel 2 on
@@ -137,7 +137,12 @@ class ProgramRunner {
                 await new Promise(resolve => setTimeout(resolve, interval));
             }
         } else {
+            console.log("PROGRAM ---->>>>>", program)
+            console.log("INTERVAKL ---->>>>>", interval)
+
             for (const item of program.data) {
+
+                console.log("ITEM >>>>>", item)
                 if (!this.running) break;
                 if (this.paused) {
                     while (this.paused) {
@@ -155,7 +160,7 @@ class ProgramRunner {
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
                 }
-                await new Promise(resolve => setTimeout(resolve, item.runTime)); // Use item.runTime instead of interval
+                await new Promise(resolve => setTimeout(resolve, interval)); // Use item.runTime instead of interval
             }
         }
 

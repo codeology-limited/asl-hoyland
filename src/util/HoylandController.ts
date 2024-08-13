@@ -5,7 +5,7 @@ class HoylandController {
   intensity: number = 1;
   isListening: boolean = false;
   eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
-  delay: number = 500
+  delay: number = 100
 
   constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
     console.log("INITIALIZING HOYLAND CONTROLLER");

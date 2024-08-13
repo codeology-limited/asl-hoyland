@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
 import "./assets/App.css";
-import ErrorBar from "./ErrorBar";
 import DefaultPrograms from "./DefaultPrograms/Index";
 import CustomPrograms from "./CustomPrograms/Index";
 import ProgramEditor from "./ProgramEditor/index.tsx";
 import StatusIndicator from "./StatusIndicator";
-import ClearDatabaseButton from "./ClearDatabase";
 import { AppProvider, useAppContext } from './AppContext';
 
 import { Program, ProgramItem } from './types';
 import AppDatabase from "./util/AppDatabase.ts";
 
 const App: React.FC = () => {
-    const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [port, setPort] = useState<string>("Connect to device");
     const [status,  ] = useState<'success' | 'fail' | null>(null);
     const { hoylandController, appDatabase } = useAppContext();
@@ -50,24 +47,24 @@ const App: React.FC = () => {
         }
     }
 
-    const handleShowError = (newMessage: string) => {
-        setErrorMessages(prevMessages => {
-            if (newMessage && prevMessages.includes(newMessage)) {
-                return prevMessages;
-            }
-            return newMessage ? [...prevMessages, newMessage] : prevMessages.filter(message => message !== newMessage);
-        });
+    // const handleShowError = (newMessage: string) => {
+    //     setErrorMessages(prevMessages => {
+    //         if (newMessage && prevMessages.includes(newMessage)) {
+    //             return prevMessages;
+    //         }
+    //         return newMessage ? [...prevMessages, newMessage] : prevMessages.filter(message => message !== newMessage);
+    //     });
+    //
+    //     if (newMessage) {
+    //         setTimeout(() => {
+    //             setErrorMessages(prevMessages => prevMessages.filter(message => message !== newMessage));
+    //         }, 5000);
+    //     }
+    // };
 
-        if (newMessage) {
-            setTimeout(() => {
-                setErrorMessages(prevMessages => prevMessages.filter(message => message !== newMessage));
-            }, 5000);
-        }
-    };
-
-    const simulateError = () => {
-        handleShowError("Simulated Error Message");
-    };
+    // const simulateError = () => {
+    //     handleShowError("Simulated Error Message");
+    // };
 
     const handleSave = async (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => {
         const program: Program = {
@@ -107,14 +104,10 @@ const App: React.FC = () => {
                         <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
                     <div id="console">
-                        <button onClick={simulateError} disabled={isRunning}>Simulate Error</button>
-                        <ClearDatabaseButton />
                         <button onClick={reconnectDevice} disabled={isRunning}>{port}</button>
                     </div>
                     <StatusIndicator status={status} />
                 </main>
-
-                <ErrorBar messages={errorMessages} />
 
             </div>
         </Router>
