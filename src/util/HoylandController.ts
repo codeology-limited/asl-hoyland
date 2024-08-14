@@ -76,7 +76,7 @@ class HoylandController {
   async sendInitialCommands() {
     try {
       const result = await invoke('send_initial_commands');
-      await this.wait()
+
       if (result) {
         console.log('Initial commands sent successfully');
       } else {
@@ -94,8 +94,8 @@ class HoylandController {
     };
 
     try {
-      await invoke('set_waveform', { args });
-      await this.wait()
+      // await invoke('set_waveform', { args });
+      // await this.wait()
       console.log(`Waveform set for channel ${channel} to type ${waveformType}`);
     } catch (error) {
       console.error(`Error setting waveform: ${error}`);
@@ -109,7 +109,10 @@ class HoylandController {
     };
 
     try {
+      await this.wait()
+      await this.wait()
       await invoke('set_frequency', { args });
+      await this.wait()
       await this.wait()
       console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
     } catch (error) {
@@ -214,9 +217,9 @@ class HoylandController {
 
     try {
       console.log('Invoking enable_output with args:', args);
-      await invoke('enable_output', { args });
-      await this.wait()
-      console.log(`Output ${enable ? 'enabled' : 'disabled'} for channel ${channel}`);
+    //  await invoke('enable_output', { args });
+     // await this.wait()
+      //console.log(`Output ${enable ? 'enabled' : 'disabled'} for channel ${channel}`);
     } catch (error) {
       console.error('Error enabling output:', error);
     }

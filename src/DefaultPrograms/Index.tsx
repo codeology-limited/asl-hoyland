@@ -29,8 +29,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             }
         };
 
-        loadDefaultPrograms();
-    }, [appDatabase]);
+        // Check if defaults are preloaded before loading programs
+        if (appDatabase.preloadDone) {
+            loadDefaultPrograms();
+        }
+    }, [appDatabase.preloadDone]); // Include preloadDone in the dependency array
+
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
         setProgress(currentStep);
@@ -39,8 +43,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     useEffect(() => {
         if (runnerRef.current) {
-            runnerRef.current.setIntensity(intensity);
-            runnerRef.current.setProgressCallback(handleProgressUpdate);
+           // runnerRef.current?.setIntensity(intensity);
+            runnerRef.current?.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
 
@@ -48,7 +52,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-            runnerRef.current.setIntensity(intensity);
+            //runnerRef.current?.setIntensity(intensity);
         }
     };
 
@@ -64,7 +68,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
-                    await runnerRef.current.startProgram(selectedProgram);
+                    await runnerRef.current?.startProgram(selectedProgram);
                     setIsRunning(false);
                     setProgress(0);
                 }
@@ -95,7 +99,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     ))}
                 </select>
 
-
                 <button
                     className={isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
@@ -103,7 +106,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 >
                     {isRunning ? 'Stop' : 'Start'}
                 </button>
-
 
                 <button onClick={handlePauseContinue} disabled={!isRunning}>{isPaused ? 'Continue' : 'Pause'}</button>
             </div>
@@ -114,14 +116,13 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             </div>
 
             <div>
-            <label>Intensity: {intensity}</label>
+                <label>Intensity: {intensity}</label>
                 <input
                     type="range"
                     min="1"
                     max="10"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
-                    disabled={isRunning}
                 />
             </div>
         </div>

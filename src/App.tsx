@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
 import "./assets/App.css";
 import DefaultPrograms from "./DefaultPrograms/Index";
@@ -8,37 +8,30 @@ import StatusIndicator from "./StatusIndicator";
 import { AppProvider, useAppContext } from './AppContext';
 
 import { Program, ProgramItem } from './types';
-import AppDatabase from "./util/AppDatabase.ts";
 
 const App: React.FC = () => {
     const [port, setPort] = useState<string>("Connect to device");
     const [status,  ] = useState<'success' | 'fail' | null>(null);
     const { hoylandController, appDatabase } = useAppContext();
     const [isRunning, setIsRunning] = useState(false);
-
-
-
+    const isInitialized = useRef(false); // Use useRef to track initialization
+    // useRef to ensure the initialization runs only once
+    const initializationRef = useRef(false);
     useEffect(() => {
+        if (!initializationRef.current) {
+            initializationRef.current = true;  // Set the ref to true after initialization
+            const handleClearDatabase = async () => {
+                await appDatabase.resetData();
+                console.log("Database initialized and cleared.");
+            };
 
-        const handleClearDatabase = async () => {
-            const database = new AppDatabase();
-            await database.resetData();
-        };
+            console.log("XXXXXXXXXXX", appDatabase.preloadDone);
+
+            handleClearDatabase();
 
 
-        const initializeDatabase = async () => {
-            // Initialize database if needed
-        };
-
-        initializeDatabase();
-        handleClearDatabase()
-
-    });
-
-    useEffect(() => {
-
-        reconnectDevice();
-    },[])
+        }
+    }, []);
 
     async function reconnectDevice() {
         if (hoylandController) {
@@ -46,6 +39,11 @@ const App: React.FC = () => {
             setPort(`Connected to ${port} port`);
         }
     }
+    useEffect(() => {
+        reconnectDevice();
+    }, [hoylandController]); // Only run when hoylandController is available
+
+
 
     // const handleShowError = (newMessage: string) => {
     //     setErrorMessages(prevMessages => {

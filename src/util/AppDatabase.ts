@@ -28,6 +28,7 @@ interface NewFormatProgram {
 
 class AppDatabase extends Dexie {
   programs: Dexie.Table<Program, number>;
+  preloadDone: boolean = false; // Add a flag to track preload completion
 
   constructor() {
     super("AppDatabase");
@@ -94,6 +95,7 @@ class AppDatabase extends Dexie {
           });
         }
       }
+      this.preloadDone = true; // Set the flag to true once done
       console.log('Defaults preloaded');
     } catch (error) {
       console.error('Failed to preload defaults:', error);
@@ -122,7 +124,6 @@ class AppDatabase extends Dexie {
 
   async resetData() {
     await this.clearDatabase();
-    await this.preloadDefaults();
   }
 
   async clearDatabase() {

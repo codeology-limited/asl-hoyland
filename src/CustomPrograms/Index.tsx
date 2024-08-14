@@ -126,7 +126,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     max="10"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
-                    disabled={isRunning}
+
                 />
             </div>
         </div>

@@ -8,7 +8,10 @@ use std::collections::HashMap;
 use std::io::Write;
 use serde::{Serialize, Deserialize};
 use std::io::Read;
-
+const COMMAND_PREFIX_CHANNEL_1: &str = "WMF";
+const COMMAND_PREFIX_CHANNEL_2: &str = "WFF";
+const MIN_FREQUENCY: u64 = 0;  // 1 MHz
+const MAX_FREQUENCY: u64 = 1_000_000_000;  // 1 GHz
 #[macro_use]
 extern crate lazy_static;
 
@@ -193,7 +196,7 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs, window: Window) 
     } else {
         match perform_real_port_write(&state.ports, &args.data) {
             Ok(_) => {
-                println!("Command '{}' sent successfully", args.data);
+                println!("Command '{}' sent successfully by write to port", args.data);
                 emit_event("message_success", format!("Message sent to {}: {}", port_name, args.data));
             },
             Err(e) => {
@@ -207,43 +210,85 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs, window: Window) 
     Ok(true)
 }
 
+// #[tauri::command]
+// fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window) -> Result<bool, String> {
+//     println!("set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
+//     // No conversion; use the frequency as provided
+//     let frequency = args.frequency;
+//     let cmd = match args.channel {
+//         1 => format!("WMF{:014.6}\n", frequency),
+//         2 => format!("WFF{:014.6}\n", frequency),
+//         _ => return Err("Invalid channel".to_string()),
+//     };
+//     write_to_port(state, WriteToPortArgs { data: cmd }, window);
+//         std::thread::sleep(std::time::Duration::from_millis(100));
+//         Ok(true)
+// }
+
+
 #[tauri::command]
 fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window) -> Result<bool, String> {
-    println!("set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
-    let frequency_in_hz = args.frequency * 1_000.0; // Convert to Hz from kHz
-    let cmd = match args.channel {
-        1 => format!("WMF{:014.6}\n", frequency_in_hz),
-        2 => format!("WFF{:014.6}\n", frequency_in_hz),
-        _ => return Err("Invalid channel".to_string()),
+    // Log the incoming request
+    println!("XXX Incoming request: set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
+
+    // Convert the frequency to an integer in Hz
+    let frequency_hz = args.frequency as u64;
+
+    // Log the converted frequency
+    println!("Converted frequency to Hz: {}", frequency_hz);
+
+    // Calculate the MHz part and the fractional part in Hz
+    let mhz_part = frequency_hz / 1_000_000;
+    let hz_part = frequency_hz % 1_000_000;
+
+    // Select the appropriate command prefix based on the channel
+    let prefix = match args.channel {
+        1 => "WMF", // COMMAND_PREFIX_CHANNEL_1
+        2 => "WFF", // COMMAND_PREFIX_CHANNEL_2
+        _ => return Err("Invalid channel. Must be 1 or 2".to_string()),
     };
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+
+    // Format the command to match the desired output
+    let cmd = format!("{}{:01}{:06}.{:06}\n", prefix, mhz_part, hz_part, 0);
+
+    // Log the command being sent for verification
+    println!("Outgoing command: {}", cmd);
+
+    // Send the command to the port
+    match write_to_port(state, WriteToPortArgs { data: cmd.clone() }, window) {
+        Ok(_) => println!("Command '{}'frequency sent successfully to the port", cmd.trim()),
+        Err(e) => return Err(format!("Failed to send command: {}", e)),
+    }
+
+    // Sleep for 100 ms
+    std::thread::sleep(std::time::Duration::from_millis(100));
+
+    // Return success
+    Ok(true)
 }
 
-#[tauri::command]
-fn set_waveform(state: State<AppState>, args: SetWaveformArgs, window: Window) -> Result<bool, String> {
-    let waveform_description = match args.waveform_type {
-        0 => "Sine Wave",
-        1 => "Square Wave",
-        2 => "Triangle Wave",
-        3 => "Sawtooth Wave",
-        4 => "Reverse Sawtooth Wave",
-        5 => "Pulse Wave",
-        6 => "Arbitrary Waveform",
-        _ => "Unknown Waveform",
-    };
 
-    let cmd = match args.channel {
-        1 => {
-            println!("Setting Channel 1 to waveform type: {} ({})", args.waveform_type, waveform_description);
-            format!("WMW{:02}\n", args.waveform_type) // Command for Channel 1 waveform
-        },
-        2 => {
-            println!("Setting Channel 2 to waveform type: {} ({})", args.waveform_type, waveform_description);
-            format!("WFW{:02}\n", args.waveform_type) // Command for Channel 2 waveform
-        },
-        _ => return Err("Invalid channel".to_string()),
-    };
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+
+
+#[tauri::command]
+fn set_waveform(state: State<AppState>, _args: SetWaveformArgs, window: Window) -> Result<bool, String> {
+//     let _waveform_description = match _args.waveform_type {
+//         0 => "Sine Wave",
+//         1 => "Square Wave",
+//         2 => "Triangle Wave",
+//         3 => "Sawtooth Wave",
+//         4 => "Reverse Sawtooth Wave",
+//         5 => "Pulse Wave",
+//         6 => "Arbitrary Waveform",
+//         _ => "Unknown Waveform",
+//     };
+//
+//
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WFW00\n".to_string() }, window.clone())?;
+//     std::thread::sleep(std::time::Duration::from_millis(500));
+//     write_to_port(state.clone(), WriteToPortArgs { data: "WMW01\n".to_string() }, window.clone())?;
+
+    Ok(true)
 }
 
 
@@ -296,38 +341,63 @@ fn synchronise_voltage(state: State<AppState>, window: Window) -> Result<bool, S
 fn enable_output(state: State<AppState>, args: EnableOutputArgs, window: Window) -> Result<bool, String> {
     println!("enable_output called with channel: {}, enable: {}", args.channel, args.enable);
 
-    let cmd = match (args.channel, args.enable) {
-        (1, true) => "WMN1\n".to_string(),
-        (1, false) => "WMN0\n".to_string(),
-        (2, true) => "WFN1\n".to_string(),
-        (2, false) => "WFN0\n".to_string(),
-        _ => return Err("Invalid channel".to_string()),
-    };
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+//     let cmd = match (args.channel, args.enable) {
+//         (1, true) => "WMN1\n".to_string(),
+//         (1, false) => "WMN0\n".to_string(),
+//         (2, true) => "WFN1\n".to_string(),
+//         (2, false) => "WFN0\n".to_string(),
+//         _ => return Err("Invalid channel".to_string()),
+//     };
+
+    // Using cloned state and window
+    write_to_port(state.clone(), WriteToPortArgs { data: "WMN1\n".to_string() }, window.clone())?;
+    std::thread::sleep(std::time::Duration::from_millis(500));
+    write_to_port(state, WriteToPortArgs { data: "WFN1\n".to_string() }, window)?;
+
+    Ok(true) // Return Ok with true to match the expected type
 }
+
 
 #[tauri::command]
 fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
     let port_name = PORT_NAME.lock().unwrap().clone();
     println!("send_initial_commands called with port_name: {}", port_name);
 
-    let commands = [
-         "UMS0\n",  "WMW01\n", "WFW00\n","WFN0\n","WMN0\n"
-//          ,
-//         "WFF3100000.000000\n",
-//         "WFO00.00\n", "WFD50.0\n", "WFP000\n", "WFT0\n", "WFN1\n",
-    ];
+
+let commands = [
+    "WFN0\n",       // Set Channel 2 off
+    "WMN0\n",       // Set Channel 1 off
+    "USD2\n",       // Specific command, likely setting or reading a mode/state
+    "UMS0\n",       // Specific command, likely setting or reading a mode/state
+    "UUL0\n",       // Specific command, likely setting or reading a mode/state
+    "WMF0000\n",    // Set Channel 1 frequency to 0
+    "WFF0000\n",  // Set Channel 2 frequency to 3.1 MHz
+    "WMW01\n",      // Set Channel 1 to square wave
+    "WFW00\n",      // Set Channel 2 to sine wave
+
+    "WFD50.0\n",      // Set Channel 2 duty cycle to 50%
+    "WFO00.00\n",     // Set Channel 2 offset to 0
+    "WMO00.00\n",     // Set Channel 1 offset to 0
+    "WMD50.0\n",      // Set Channel 1 duty cycle to 50%
+    "WMP000\n",       // Set Channel 1 phase to 0
+    "WFP000\n",       // Set Channel 2 phase to 0
+    "WFT0\n",         // Set Channel 2 attenuation to 0
+   // "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
+    "USA2\n",        // Specific command, likely setting or reading a mode/state
+    "WFN1\n",       // Set Channel 2 on
+    "WMN1\n",       // Set Channel 1 on
+];
 
     for cmd in &commands {
         println!("Sending command: {}", cmd);
         match write_to_port(state.clone(), WriteToPortArgs { data: cmd.to_string() }, window.clone()) {
-            Ok(_) => println!("Command '{}' sent successfully", cmd),
+            Ok(_) => println!("Command '{}' initial command sent successfully", cmd),
             Err(e) => {
                 println!("Failed to send command '{}': {}", cmd, e);
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(500));
     }
 
     Ok(true)
@@ -340,19 +410,19 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
     println!("stop_and_reset called with port_name: {}", port_name);
 
     let commands = [
-        "WFN0\n", "WMN0\n", "USD2\n"
+        "WFN0\n", "WMN0\n", "WFN0\n","WMN0\n","USD2\n"
     ];
 
     for cmd in &commands {
         println!("Sending command: {}", cmd);
         match write_to_port(state.clone(), WriteToPortArgs { data: cmd.to_string() }, window.clone()) {
-            Ok(_) => println!("Command '{}' sent successfully", cmd),
+            Ok(_) => println!("Command '{}' stop command sent successfully", cmd),
             Err(e) => {
                 println!("Failed to send command '{}': {}", cmd, e);
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(300));
     }
 
     Ok(true)

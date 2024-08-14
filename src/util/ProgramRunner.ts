@@ -86,86 +86,95 @@ class ProgramRunner {
 
         console.log('Sending initial commands...');
         await this.generator.sendInitialCommands();
-     //
 
-        // Set Channel 1 settings
+        await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to 27.1 MHz
+        await new Promise(resolve => setTimeout(resolve, 700)); // Wait while paused
 
-        await this.generator.setAmplitude(1, 2); // Set Channel 1 amplitude
-        await this.generator.setOffset(1, 0); // Set Channel 1 offset to 0
-        await this.generator.setDutyCycle(1, 50); // Set Channel 1 duty cycle to 50%
-        await this.generator.setPhase(1, 0); // Set Channel 1 phase to 0
-        await this.generator.setAttenuation(1, 0); // Set Channel 1 attenuation to 0
-
-        await this.generator.setAmplitude(2, 2); // Set Channel 2 amplitude
-        await this.generator.setOffset(2, 0); // Set Channel 2 offset to 0
-        await this.generator.setDutyCycle(2, 50); // Set Channel 2 duty cycle to 50%
-        await this.generator.setPhase(2, 0); // Set Channel 2 phase to 0
-        await this.generator.setAttenuation(2, 0); // Set Channel 2 attenuation to 0
-
-
-        await this.generator.setWaveform(2, 0); // Set Channel 2 to sine wave
-        await this.generator.setFrequency(2, program.startFrequency); // Set Channel 2 frequency to 27.1 MHz
-        await this.generator.setWaveform(1, 1); // Set Channel 1 to square wave
-        await this.generator.setFrequency(1, 0); // Set Channel 1 frequency to 0 Hz
-        await this.generator.enableOutput(1, true); // Turn Channel 1 on
-        await this.generator.enableOutput(2, true); // Turn Channel 2 on
-        // Synchronize voltage output
-        await this.generator.synchroniseVoltage();
 
         if (program.range && program.data.length === 2) {
             const startFrequency = program.data[0].frequency;
             const endFrequency = program.data[1].frequency;
-
+            this.generator.delay = 100;
             for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
-                if (!this.running) break;
+                if (!this.running) break; // Immediately exit if not running
                 if (this.paused) {
                     while (this.paused) {
                         await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
+                        if (!this.running) return; // Exit if not running
                     }
                 }
-                console.log('Setting frequency to:', frequency);
-                await this.generator.setFrequency(1, parseFloat(frequency.toString()));
+                console.log('Setting frequency to:', frequency, "delay", this.generator.delay);
+                await this.generator.setFrequency(1, parseFloat(frequency.toString()) * 1000);
 
-
-                // await this.generator.synchroniseVoltage();
                 currentStep++;
                 console.log('Current step:', currentStep);
 
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
                 }
-                await new Promise(resolve => setTimeout(resolve, interval));
+
+                // Use a custom timeout that can be cleared and resolved immediately
+                await new Promise(resolve => {
+                    const timeoutId = setTimeout(() => {
+                        resolve();
+                    }, interval);
+
+                    const checkRunning = setInterval(() => {
+                        if (!this.running) {
+                            clearTimeout(timeoutId);
+                            clearInterval(checkRunning);
+                            resolve(); // Resolve immediately if running is false
+                        }
+                    }, 10); // Check every 10ms
+                });
+
+                if (!this.running) break; // Immediately exit if not running
             }
         } else {
-            console.log("PROGRAM ---->>>>>", program)
-            console.log("INTERVAKL ---->>>>>", interval)
+            console.log("PROGRAM ---->>>>>", program);
+            console.log("INTERVAKL ---->>>>>", interval);
 
             for (const item of program.data) {
-
-                console.log("ITEM >>>>>", item)
-                if (!this.running) break;
+                if (!this.running) break; // Immediately exit if not running
                 if (this.paused) {
                     while (this.paused) {
                         await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
+                        if (!this.running) return; // Exit if not running
                     }
                 }
                 console.log('Setting frequency for item:', item);
-                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
-               // await this.generator.setAmplitude(1, this.intensity); // Set Channel 1 amplitude
+                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()) * 1000);
 
-              // await this.generator.synchroniseVoltage();
                 currentStep++;
                 console.log('Current step:', currentStep);
 
                 if (this.progressCallback) {
                     this.progressCallback(currentStep, totalSteps);
                 }
-                await new Promise(resolve => setTimeout(resolve, interval)); // Use item.runTime instead of interval
+
+                // Use a custom timeout that can be cleared and resolved immediately
+                await new Promise(resolve => {
+                    const timeoutId = setTimeout(() => {
+                        resolve();
+                    }, interval);
+
+                    const checkRunning = setInterval(() => {
+                        if (!this.running) {
+                            clearTimeout(timeoutId);
+                            clearInterval(checkRunning);
+                            resolve(); // Resolve immediately if running is false
+                        }
+                    }, 10); // Check every 10ms
+                });
+
+                if (!this.running) break; // Immediately exit if not running
             }
         }
 
-        await this.generator.enableOutput(1, false); // Turn Channel 1 off
-        await this.generator.enableOutput(2, false); // Turn Channel 2 off
+        
+
+        // await this.generator.enableOutput(1, false); // Turn Channel 1 off
+        // await this.generator.enableOutput(2, false); // Turn Channel 2 off
 
         this.running = false;
         this.paused = false;
