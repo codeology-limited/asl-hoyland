@@ -23,13 +23,17 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             try {
                 const programs = await appDatabase.getCustomPrograms();
                 const names = programs.map(program => program.name);
+
+
                 setProgramNames(names);
             } catch (error) {
                 console.error('Failed to load custom programs:', error);
             }
         };
 
-        loadCustomPrograms();
+        if (appDatabase) {
+            loadCustomPrograms();
+        }
     }, [appDatabase]);
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
@@ -39,8 +43,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
     useEffect(() => {
         if (runnerRef.current) {
-            runnerRef.current.setIntensity(intensity);
-            runnerRef.current.setProgressCallback(handleProgressUpdate);
+            runnerRef.current?.setIntensity(intensity);
+            runnerRef.current?.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
 
@@ -48,7 +52,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-            runnerRef.current.setIntensity(intensity);
+            runnerRef.current?.setIntensity(intensity);
 
             const totalSteps = program.range && program.data.length === 2
                 ? program.data[1].frequency - program.data[0].frequency + 1
@@ -70,7 +74,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
-                    await runnerRef.current.startProgram(selectedProgram);
+                    await runnerRef.current?.startProgram(selectedProgram);
                     setIsRunning(false);
                     setProgress(0);
                 }
@@ -95,7 +99,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             <div>
                 <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
                         disabled={isRunning}>
-                    <option value="" disabled>Select custom program</option>
+                    <option value="" disabled>Choose</option>
                     {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}
@@ -123,10 +127,9 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 <input
                     type="range"
                     min="1"
-                    max="10"
+                    max="20"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
-
                 />
             </div>
         </div>

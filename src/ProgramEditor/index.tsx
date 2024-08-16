@@ -103,7 +103,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
         <div id="editor" className="tab-body editor">
             <div>
                 <select onChange={(e) => handleLoadProgram(e.target.value)}>
-                    <option value="">Choose existing or create a new Program</option>
+                    <option value="">Choose Existing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
                     {customPrograms.map(name => (
                         <option key={name} value={name}>{name}</option>
                     ))}

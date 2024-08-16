@@ -104,7 +104,7 @@ class ProgramRunner {
                     }
                 }
                 console.log('Setting frequency to:', frequency, "delay", this.generator.delay);
-                await this.generator.setFrequency(1, parseFloat(frequency.toString()) * 1000);
+                await this.generator.setFrequency(1, parseFloat(frequency.toString()) );
 
                 currentStep++;
                 console.log('Current step:', currentStep);
@@ -114,7 +114,7 @@ class ProgramRunner {
                 }
 
                 // Use a custom timeout that can be cleared and resolved immediately
-                await new Promise(resolve => {
+                await new Promise<void>(resolve => {
                     const timeoutId = setTimeout(() => {
                         resolve();
                     }, interval);
@@ -126,7 +126,7 @@ class ProgramRunner {
                             resolve(); // Resolve immediately if running is false
                         }
                     }, 10); // Check every 10ms
-                });
+                })
 
                 if (!this.running) break; // Immediately exit if not running
             }
@@ -143,7 +143,7 @@ class ProgramRunner {
                     }
                 }
                 console.log('Setting frequency for item:', item);
-                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()) * 1000);
+                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()) );
 
                 currentStep++;
                 console.log('Current step:', currentStep);
@@ -153,7 +153,7 @@ class ProgramRunner {
                 }
 
                 // Use a custom timeout that can be cleared and resolved immediately
-                await new Promise(resolve => {
+                await new Promise<void>(resolve => {
                     const timeoutId = setTimeout(() => {
                         resolve();
                     }, interval);
@@ -171,7 +171,7 @@ class ProgramRunner {
             }
         }
 
-        
+
 
         // await this.generator.enableOutput(1, false); // Turn Channel 1 off
         // await this.generator.enableOutput(2, false); // Turn Channel 2 off

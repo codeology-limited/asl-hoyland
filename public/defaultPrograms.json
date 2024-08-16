@@ -17,6 +17,15 @@
     "runTimeInMinutes": 60,
     "startFrequency": 3.1
   },
+  "ultrasound": {
+    "default":true,
+    "range": true,
+    "data": [
+      500000, 670000
+    ],
+    "runTimeInMinutes": 5.67,
+    "startFrequency": 3.1
+  },
     "herpes": {
       "default":true,
       "data": [
@@ -49,7 +58,16 @@
           1873.477, 2221.323, 6350.333, 10456.383, 10, 450, 712, 728, 784, 2008, 660, 880, 2128, 1552, 20, 1640000, 11780000
         ],
         "runTimeInMinutes": 1,
-        "startFrequency": 27.1
-      }
+        "startFrequency": 3.1
+      },
+  "tumors2": {
+    "default": true,
+    "data": [
+      0.5, 10, 20, 2950, 322, 476, 589, 664, 785, 822, 895, 935, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748,
+      1873.477, 2221.323, 6350.333, 10456.383, 10, 450, 712, 728, 784, 2008, 660, 880, 2128, 1552, 20, 1640000, 11780000
+    ],
+    "runTimeInMinutes": 1,
+    "startFrequency": 27.12
+  }
   }
   

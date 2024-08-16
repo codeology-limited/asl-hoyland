@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import AppDatabase from './util/AppDatabase';
 import HoylandController from './util/HoylandController';
 import ProgramRunner from './util/ProgramRunner';

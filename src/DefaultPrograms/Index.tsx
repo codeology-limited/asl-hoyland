@@ -29,7 +29,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             }
         };
 
-        // Check if defaults are preloaded before loading programs
         if (appDatabase.preloadDone) {
             loadDefaultPrograms();
         }
@@ -43,7 +42,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     useEffect(() => {
         if (runnerRef.current) {
-           // runnerRef.current?.setIntensity(intensity);
+            runnerRef.current?.setIntensity(intensity);
             runnerRef.current?.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
@@ -52,7 +51,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-            //runnerRef.current?.setIntensity(intensity);
+            runnerRef.current?.setIntensity(intensity);
         }
     };
 
@@ -93,11 +92,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             <div>
                 <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
                         disabled={isRunning}>
-                    <option value="" disabled>Select default program</option>
+                    <option value="" disabled>Choose</option>
                     {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}
                 </select>
+
 
                 <button
                     className={isRunning ? 'stop' : 'start'}
@@ -120,7 +120,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <input
                     type="range"
                     min="1"
-                    max="10"
+                    max="20"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
                 />

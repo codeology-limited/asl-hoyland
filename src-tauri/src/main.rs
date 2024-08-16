@@ -1,5 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use tauri::{self, Manager, State, Window};
+use std::process::Command;
+use std::path::PathBuf;
+use log::LevelFilter;
+ use log::{info, warn, error};
+ use env_logger::Env;
+
 
 use serialport::{self, SerialPort};
 use std::sync::Mutex;
@@ -91,6 +97,63 @@ struct ReconnectArgs {
     target_device: String,
     baud_rate: u32,
 }
+fn get_resource_path(resource_name: &str) -> PathBuf {
+    PathBuf::from("src-tauri").join(resource_name)
+}
+
+
+
+
+// Installers should only run on Windows
+#[cfg(target_os = "windows")]
+fn install_driver(driver_path: &str) {
+    match Command::new(driver_path)
+        .arg("/silent") // Adjust as needed for your installers
+        .spawn() {
+        Ok(_) => println!("Successfully started installer for {}", driver_path),
+        Err(e) => eprintln!("Failed to run driver installer for {}: {}", driver_path, e),
+    }
+}
+
+// Installers should only run on Windows
+#[cfg(target_os = "windows")]
+fn install_webview2() {
+    let webview2_installer = get_resource_path("webview/webview2.exe");
+    Command::new(webview2_installer)
+        .arg("/silent")
+        .spawn()
+        .expect("Failed to run WebView2 installer");
+}
+
+// Installers should only run on Windows
+#[cfg(target_os = "windows")]
+fn install_all_resources() {
+    // Detect system architecture
+    let arch = std::env::consts::ARCH;
+
+    // Install appropriate drivers based on architecture
+    if arch == "x86_64" {
+        println!("64-bit system detected. Installing 64-bit drivers...");
+        install_driver(&get_resource_path("drivers/CH340/CH34164.EXE").to_string_lossy());
+        install_driver(&get_resource_path("drivers/CP210x/CP21064.exe").to_string_lossy());
+    } else if arch == "x86" {
+        println!("32-bit system detected. Installing 32-bit drivers...");
+        install_driver(&get_resource_path("drivers/CH340/CH34032.EXE").to_string_lossy());
+        install_driver(&get_resource_path("drivers/CP210x/CP21086.exe").to_string_lossy());
+    } else {
+        println!("Unknown system architecture: {}. Skipping driver installation.", arch);
+    }
+
+    // Install WebView2 (This installer typically handles architecture internally)
+    install_webview2();
+}
+
+// On non-Windows platforms, these functions do nothing
+#[cfg(not(target_os = "windows"))]
+fn install_all_resources() {
+    // Do nothing on non-Windows platforms
+}
+
 
 #[tauri::command]
 fn list_ports() -> Vec<String> {
@@ -229,7 +292,7 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs, window: Window) 
 #[tauri::command]
 fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window) -> Result<bool, String> {
     // Log the incoming request
-    println!("XXX Incoming request: set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
+    println!("Incoming request: set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
 
     // Convert the frequency to an integer in Hz
     let frequency_hz = args.frequency as u64;
@@ -261,7 +324,7 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
     }
 
     // Sleep for 100 ms
-    std::thread::sleep(std::time::Duration::from_millis(100));
+  //  std::thread::sleep(std::time::Duration::from_millis(100));
 
     // Return success
     Ok(true)
@@ -270,8 +333,8 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
 
 
 
-#[tauri::command]
-fn set_waveform(state: State<AppState>, _args: SetWaveformArgs, window: Window) -> Result<bool, String> {
+// #[tauri::command]
+// fn set_waveform(state: State<AppState>, _args: SetWaveformArgs, window: Window) -> Result<bool, String> {
 //     let _waveform_description = match _args.waveform_type {
 //         0 => "Sine Wave",
 //         1 => "Square Wave",
@@ -284,18 +347,18 @@ fn set_waveform(state: State<AppState>, _args: SetWaveformArgs, window: Window) 
 //     };
 //
 //
-//     write_to_port(state.clone(), WriteToPortArgs { data: "WFW00\n".to_string() }, window.clone())?;
-//     std::thread::sleep(std::time::Duration::from_millis(500));
+//     //write_to_port(state.clone(), WriteToPortArgs { data: "WFW00\n".to_string() }, window.clone())?;
+//     //std::thread::sleep(std::time::Duration::from_millis(500));
 //     write_to_port(state.clone(), WriteToPortArgs { data: "WMW01\n".to_string() }, window.clone())?;
-
-    Ok(true)
-}
+//
+//     Ok(true)
+// }
 
 
 #[tauri::command]
 fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window) -> Result<bool, String> {
     println!("set_amplitude called with channel: {}, amplitude: {}", args.channel, args.amplitude);
-    let scaled_amplitude = args.amplitude * 2.0; // Scale the amplitude
+    let scaled_amplitude = args.amplitude; // Scale the amplitude
     let cmd = format!("WMA{:05.2}", scaled_amplitude);
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
@@ -371,7 +434,7 @@ let commands = [
     "UMS0\n",       // Specific command, likely setting or reading a mode/state
     "UUL0\n",       // Specific command, likely setting or reading a mode/state
     "WMF0000\n",    // Set Channel 1 frequency to 0
-    "WFF0000\n",  // Set Channel 2 frequency to 3.1 MHz
+    "WFF0000\n",  // Set Channel 2 frequency to 0
     "WMW01\n",      // Set Channel 1 to square wave
     "WFW00\n",      // Set Channel 2 to sine wave
 
@@ -382,7 +445,7 @@ let commands = [
     "WMP000\n",       // Set Channel 1 phase to 0
     "WFP000\n",       // Set Channel 2 phase to 0
     "WFT0\n",         // Set Channel 2 attenuation to 0
-   // "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
+    "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
     "USA2\n",        // Specific command, likely setting or reading a mode/state
     "WFN1\n",       // Set Channel 2 on
     "WMN1\n",       // Set Channel 1 on
@@ -397,7 +460,7 @@ let commands = [
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(500));
+        std::thread::sleep(std::time::Duration::from_millis(600));
     }
 
     Ok(true)
@@ -505,12 +568,19 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
 }
 
 fn main() {
+
+   // Install necessary resources before the app starts
+    install_all_resources();
+
     tauri::Builder::default()
         .setup(|app| {
             app.manage(AppState {
                 ports: Mutex::new(HashMap::new()),
             });
+  env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
+
+            log::info!("Application started");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -528,7 +598,7 @@ fn main() {
             enable_output,
             stop_and_reset,
             write_to_port,
-            set_waveform,
+          //  set_waveform,
             reconnect_device
         ])
         .run(tauri::generate_context!())

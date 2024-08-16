@@ -88,10 +88,10 @@ class HoylandController {
   }
 
   async setWaveform(channel: number, waveformType: number) {
-    const args = {
-      channel: channel,
-      waveform_type: waveformType,
-    };
+    // const args = {
+    //   channel: channel,
+    //   waveform_type: waveformType,
+    // };
 
     try {
       // await invoke('set_waveform', { args });
@@ -109,11 +109,10 @@ class HoylandController {
     };
 
     try {
-      await this.wait()
-      await this.wait()
+
+
       await invoke('set_frequency', { args });
-      await this.wait()
-      await this.wait()
+
       console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
     } catch (error) {
       console.error(`Error setting frequency: ${error}`);

@@ -14,7 +14,7 @@ const App: React.FC = () => {
     const [status,  ] = useState<'success' | 'fail' | null>(null);
     const { hoylandController, appDatabase } = useAppContext();
     const [isRunning, setIsRunning] = useState(false);
-    const isInitialized = useRef(false); // Use useRef to track initialization
+
     // useRef to ensure the initialization runs only once
     const initializationRef = useRef(false);
     useEffect(() => {
@@ -25,9 +25,7 @@ const App: React.FC = () => {
                 console.log("Database initialized and cleared.");
             };
 
-            console.log("XXXXXXXXXXX", appDatabase.preloadDone);
-
-            handleClearDatabase();
+           handleClearDatabase();
 
 
         }

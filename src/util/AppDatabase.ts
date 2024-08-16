@@ -44,6 +44,7 @@ class AppDatabase extends Dexie {
       const response = await fetch('/defaultPrograms.json'); // Adjust the path as necessary
       const defaultPrograms = await response.json();
 
+
       for (const [name, program] of Object.entries(defaultPrograms)) {
         let dataWithRunTime: { channel: number; frequency: number; runTime: number }[] = [];
 
@@ -128,8 +129,11 @@ class AppDatabase extends Dexie {
 
   async clearDatabase() {
     try {
-      await this.programs.clear();
-      console.log('Database cleared');
+      // Delete only the default programs
+      await this.programs.where('default').equals(1).delete();
+      console.log('Default programs cleared');
+
+      // Preload default programs again
       await this.preloadDefaults();
     } catch (error) {
       console.error('Failed to clear the database:', error);
@@ -188,6 +192,9 @@ class AppDatabase extends Dexie {
 
   async getCustomPrograms(): Promise<Program[]> {
     try {
+      const allPrograms = await this.programs.toArray(); // Get all programs in the database
+      console.log("Current contents of the database:", allPrograms); // Log the entire contents
+
       const programs = await this.programs.where('default').equals(0).toArray();
       return programs.map(program => ({
         ...program,
