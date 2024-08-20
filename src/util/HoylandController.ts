@@ -112,7 +112,7 @@ class HoylandController {
 
 
       await invoke('set_frequency', { args });
-
+      await this.wait()
       console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
     } catch (error) {
       console.error(`Error setting frequency: ${error}`);

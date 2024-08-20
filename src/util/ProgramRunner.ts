@@ -81,8 +81,8 @@ class ProgramRunner {
 
         let currentStep = 0;
 
-        const interval = (program.maxTimeInMinutes * 60 * 1000) / totalSteps;
-        console.log('Interval between steps:', interval);
+       //  let interval =  ( program.maxTimeInMinutes   * 60 * 1000) / totalSteps;
+        //  console.log('Interval between steps:', interval);
 
         console.log('Sending initial commands...');
         await this.generator.sendInitialCommands();
@@ -94,6 +94,7 @@ class ProgramRunner {
         if (program.range && program.data.length === 2) {
             const startFrequency = program.data[0].frequency;
             const endFrequency = program.data[1].frequency;
+            const interval = (program.data[0].runTime * 60_000 )/ totalSteps;
             this.generator.delay = 100;
             for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
                 if (!this.running) break; // Immediately exit if not running
@@ -131,9 +132,6 @@ class ProgramRunner {
                 if (!this.running) break; // Immediately exit if not running
             }
         } else {
-            console.log("PROGRAM ---->>>>>", program);
-            console.log("INTERVAKL ---->>>>>", interval);
-
             for (const item of program.data) {
                 if (!this.running) break; // Immediately exit if not running
                 if (this.paused) {
@@ -156,7 +154,7 @@ class ProgramRunner {
                 await new Promise<void>(resolve => {
                     const timeoutId = setTimeout(() => {
                         resolve();
-                    }, interval);
+                    }, item.runTime);//maxtime in minutes not used for non range programs
 
                     const checkRunning = setInterval(() => {
                         if (!this.running) {
@@ -176,10 +174,14 @@ class ProgramRunner {
         // await this.generator.enableOutput(1, false); // Turn Channel 1 off
         // await this.generator.enableOutput(2, false); // Turn Channel 2 off
 
+
+        if ( this.running){
+            this.generator.stopAndReset();
+        }
+
         this.running = false;
         this.paused = false;
-        await this.generator.stopAndReset();
-        alert(`Your program named "${programName}" has now completed.  \nPlease press ok to choose again`)
+       // alert(`Your program named "${programName}" has now completed.  \nPlease press ok to choose again`)
         console.log('Program completed:', programName);
     }
 
@@ -197,10 +199,10 @@ class ProgramRunner {
         }
     }
 
-    stopProgram() {
+    async stopProgram() {
+        await this.generator.stopAndReset();
         this.running = false;
         this.paused = false;
-        this.generator.stop();
         console.log('Program stopped');
     }
 }

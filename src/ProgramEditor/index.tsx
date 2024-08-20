@@ -90,29 +90,46 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
         }
     };
 
-    const handleLoadProgram = async (programName: string) => {
-        const program = await appDatabase.loadData(programName);
-        if (program) {
-            setProgramName(program.name);
-            setRange(!!program.range);
-            setRows(program.data);
+    useEffect(() => {
+        if (programName) {
+            const loadProgramData = async () => {
+                const program = await appDatabase.loadData(programName);
+                if (program) {
+                    setRows(program.data);
+                }
+            };
+            loadProgramData();
         }
+    }, [programName]);
+
+    const handleLoadProgram = async (programName: string) => {
+         const program = await appDatabase.loadData(programName);
+        //
+         if (program) {
+            setProgramName(programName);
+            setRange(!!program.range);
+        //
+        //     console.log(program)
+        //     setRows(program.data);
+         }
     };
 
     return (
         <div id="editor" className="tab-body editor">
             <div>
+                <label>
+                    New program or Choose Program:<br />
                 <select onChange={(e) => handleLoadProgram(e.target.value)}>
-                    <option value="">Choose Existing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+                    <option value="">New Program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
                     {customPrograms.map(name => (
                         <option key={name} value={name}>{name}</option>
                     ))}
                 </select>
-                <button type="button">Edit</button>
+                </label>
             </div>
             <div>
                 <label>
-                    Program Name:
+                    Program Name:<br />
                     <input
                         type="text"
                         placeholder="Enter program name"
@@ -123,8 +140,8 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
             </div>
             <div id="range-selector">
                 <label>
-                    Range:
-                    <input
+                    If this program is a range you must supply a start and an end point.  Tick this box to make a ranged program:<br />
+                    Set this program as a range: <input
                         type="checkbox"
                         checked={range}
                         onChange={(e) => setRange(e.target.checked)}
@@ -133,12 +150,12 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
                 </label>
             </div>
             <div>
-                <table>
+                <table className={range?'range':''} >
                     <thead>
                     <tr>
                         <th></th>
                         <th>Frequency in Hertz</th>
-                        <th>Time in milliseconds</th>
+                        <th>Time in {range ? 'minutes': 'milliseconds'}</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -158,10 +175,10 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
                                 />
                             </td>
                             <td>
-                                <input
+                                <input className='time'
 
                                     type="text"
-                                    value={row.runTime? row.runTime.toString():''}
+                                    value={row.runTime?   row.runTime.toString():''}
                                     onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
                                 />
                             </td>

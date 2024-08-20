@@ -324,7 +324,7 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
     }
 
     // Sleep for 100 ms
-  //  std::thread::sleep(std::time::Duration::from_millis(100));
+  // std::thread::sleep(std::time::Duration::from_millis(100));
 
     // Return success
     Ok(true)

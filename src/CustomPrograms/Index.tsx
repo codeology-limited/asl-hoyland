@@ -14,6 +14,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isPaused, setIsPaused] = useState(false);
+    const [isStopping, setIsStopping] = useState(false);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -63,12 +64,15 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
     const handleStartStop = async () => {
         if (isRunning) {
-            runnerRef.current?.stopProgram();
-            runnerRef.current = null;
+            setIsStopping(true)
+            await runnerRef.current?.stopProgram();
+            setIsStopping(false)
             setIsRunning(false);
             setIsPaused(false);
             setProgress(0);
             setTotalSteps(0);
+
+           runnerRef.current = null;
         } else {
             if (selectedProgram) {
                 await loadProgram(selectedProgram);
@@ -107,11 +111,11 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
 
                 <button
-                    className={isRunning ? 'stop' : 'start'}
+                    className={isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
                     disabled={!selectedProgram && !isRunning} // Only disable when no program is selected and not running
                 >
-                    {isRunning ? 'Stop' : 'Start'}
+                    {isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                 </button>
 
                 <button onClick={handlePauseContinue} disabled={!isRunning}>{isPaused ? 'Continue' : 'Pause'}</button>

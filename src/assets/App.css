@@ -14,6 +14,7 @@
     --tab-active-bg-color: #fefefe;
     --footer-bg-color: #d1d1d1;
     --footer-font-color: #000000;
+    --stopping-state-color: #ff4444; /* A bright red for stopping state */
     --footer-hover-color: #ff0000;
     --slider-thumb-color: #007bff;
     --slider-thumb-hover-color: #0056b3;
@@ -331,6 +332,10 @@ footer a:hover {
     color: var(--secondary-font-color);
 }
 
+.stopping {
+    background-color: var(--stopping-state-color);
+    color: var(--secondary-font-color);
+}
 .start {
     background-color: var(--success-color);
     color: var(--secondary-font-color);
@@ -398,3 +403,25 @@ input:disabled {
     pointer-events: none;
     opacity: 0.5;
 }
+.editor table.range {
+
+}
+
+.editor {
+    display:flex;
+    justify-content: flex-start;
+
+    flex-direction:column;
+
+}
+.editor > div {
+    position:static;
+    border-bottom: 1px dotted #d1d1d1;
+    display:block;
+}
+.editor label{
+    position:static
+}
+
+.editor .range .time { visibility: hidden}
+.editor .range tr:first-child .time { visibility: visible}
