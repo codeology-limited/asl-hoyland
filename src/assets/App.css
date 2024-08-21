@@ -1,6 +1,6 @@
 :root {
-    --primary-bg-color: #FFFFFF;             /* Pure white for the highest contrast background */
-    --primary-font-color: #000000;           /* Pure black for the highest contrast text */
+
+    --primary-font-color: #444;           /* Pure white for high contrast text */
     --secondary-font-color: #FFFFFF;         /* White for contrast on darker backgrounds */
     --button-bg-color: #003366;              /* Dark navy blue for strong contrast */
     --button-bg-hover-color: #002244;        /* Even darker navy blue for hover effect */
@@ -17,33 +17,39 @@
     --footer-font-color: #FFFFFF;            /* White to stand out against the dark footer */
     --stopping-state-color: #CC0000;         /* Same as fail color, for consistency */
     --footer-hover-color: #FF4500;           /* Bright orange-red for a noticeable hover effect */
-    --slider-thumb-color: #003366;           /* Matches button background color */
-    --slider-thumb-hover-color: #002244;     /* Matches button hover color */
-    --slider-thumb-active-color: #001122;    /* Matches button active color */
+    --slider-thumb-color: #336699;           /* A brighter navy blue, still in keeping with the theme */
+    --slider-thumb-hover-color: #224477;     /* Slightly lighter for the hover state */
+    --slider-thumb-active-color: #112255;    /* A deeper shade, but still brighter than before */
 
+    --font-family: 'Arial', sans-serif;      /* A more readable font */
+    --font-size-base: 1rem;                  /* Base font size */
+    --font-size-small: 0.8rem;               /* Small font size */
+    --font-size-medium: 1.2rem;              /* Medium font size */
+    --font-size-large: 1.8rem;               /* Large font size */
+    --line-height-base: 1.5;                 /* Base line height */
+    --letter-spacing: 0.06em;                /* Added letter spacing for better readability */
+    --border-radius: 8px;                    /* Standard border radius */
+    --box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); /* Standard box shadow */
+    --transition-duration: 0.3s;             /* Standard transition duration */
+    --input-padding: 5px 20px;               /* Standard input and button padding */
+}
 
-    background-color: var(--primary-bg-color);
+body {
     color: var(--primary-font-color);
-    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 24px;
-    font-weight: 400;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-text-size-adjust: 100%;
-    box-sizing: content-box;
+    font-family: var(--font-family);
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-base);
+    letter-spacing: var(--letter-spacing);
+    box-sizing: border-box;
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }
-
-
-.nav-links .disabled {
-    pointer-events: none; /* Prevents clicking */
-    cursor: not-allowed; /* Shows a not-allowed cursor */
-    color: grey; /* Changes the color to indicate it's disabled */
-}
-
 
 html {
+    font-size: 10px;
+    min-width: 640px;
     height: 100vh;
     width: 100%;
     background-image: url(/download.webp);
@@ -51,22 +57,6 @@ html {
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background-color:blue;
-}
-
-html {
-    font-size: 10px;
-    min-width: 640px;
-}
-body{
-    position: absolute;
-height: 100%;
-width: 100%;
- overflow: auto;
-    font-size: 1.6rem;
-
-    box-sizing: border-box;
-
 }
 
 h1 {
@@ -88,21 +78,19 @@ ul, li {
     margin: 0;
 }
 
-
-
 input,
 button,
 select {
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     border: 1px solid rgba(209, 209, 209, 0.5);
-    padding:  5px 20px;
-    font-size: 1rem;
-    font-weight: normal;
+    padding: var(--input-padding);
+    font-size: var(--font-size-base);
     font-family: inherit;
+    letter-spacing: var(--letter-spacing);
     color: #0f0f0f;
     background-color: var(--secondary-font-color);
-    transition: border-color 0.25s;
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+    transition: border-color var(--transition-duration);
+    box-shadow: var(--box-shadow);
     outline: none;
     font-weight: bold;
 }
@@ -113,7 +101,7 @@ select {
     margin-right: 10px;
     border: 1px solid var(--button-border-color);
     text-transform: uppercase;
-    line-height: 1.5;
+    line-height: var(--line-height-base);
 }
 
 button:hover,
@@ -140,10 +128,6 @@ select {
 .custom-programs select,
 .default-programs select {
     width: 350px;
-
-
-
-
 }
 
 input[type=range] {
@@ -154,7 +138,7 @@ input[type=range] {
 input[type="range"] {
     -webkit-appearance: none;
     width: 100%;
-    height: 1px;
+    height: 4px; /* Slightly increased height for better visibility */
     background: #ddd;
     border-radius: 5px;
     outline: none;
@@ -162,6 +146,7 @@ input[type="range"] {
     margin: 0;
 }
 
+/* For WebKit browsers (Chrome, Safari, etc.) */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -171,26 +156,52 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
     border-radius: 50%;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s ease-in-out;
+    transition: background var(--transition-duration) ease-in-out;
     position: relative;
 }
 
-input[type="range"]::-ms-thumb:hover,
+/* For Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--slider-thumb-color);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: background var(--transition-duration) ease-in-out;
+    position: relative;
+}
+
+/* For Internet Explorer and Edge */
+input[type="range"]::-ms-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--slider-thumb-color);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    transition: background var(--transition-duration) ease-in-out;
+    position: relative;
+}
+
+/* Hover states */
+input[type="range"]::-webkit-slider-thumb:hover,
 input[type="range"]::-moz-range-thumb:hover,
-input[type="range"]::-webkit-slider-thumb:hover {
+input[type="range"]::-ms-thumb:hover {
     background: var(--slider-thumb-hover-color);
 }
 
-input[type="range"]::-ms-thumb:active,
+/* Active states */
+input[type="range"]::-webkit-slider-thumb:active,
 input[type="range"]::-moz-range-thumb:active,
-input[type="range"]::-webkit-slider-thumb:active {
+input[type="range"]::-ms-thumb:active {
     background: var(--slider-thumb-active-color);
 }
 
+/* Remove outline in Firefox */
 input[type="range"]::-moz-focus-outer {
     border: 0;
 }
-
 
 .custom-programs > div,
 .default-programs > div {
@@ -205,7 +216,6 @@ input[type="range"]::-moz-focus-outer {
     background-color: var(--progress-bg-color);
     border-radius: 10px;
     overflow: hidden;
-    margin-top: 10px;
     appearance: none; /* Remove default styling */
 }
 
@@ -232,7 +242,6 @@ progress::-ms-fill {
     border-radius: 10px;
 }
 
-
 .tabs {
     height: 32px;
 }
@@ -244,10 +253,6 @@ progress::-ms-fill {
     height: 30px;
 }
 
-.tabs .nav-links {
-
-}
-
 .tabs a {
     display: inline-block;
     text-decoration: none;
@@ -256,23 +261,19 @@ progress::-ms-fill {
     border-left: 1px solid var(--button-border-color);
     border-right: 1px solid var(--button-border-color);
     background-color: var(--tab-bg-color);
-    border-radius: 0;
-    xmargin-bottom: -1px;
     line-height: 30px;
     height: 30px;
     padding: 0 10px;
     cursor: pointer;
     text-transform: uppercase;
-    font-size: 1.2rem;
+    font-size: var(--font-size-medium);
     font-weight: bold;
+    letter-spacing: var(--letter-spacing);
     outline: none;
-    transition: background-color 0.3s;
+    transition: background-color var(--transition-duration);
 }
 
-.tabs a.active {
-    background-color: var(--tab-active-bg-color);
-}
-
+.tabs a.active,
 .tabs a:hover {
     background-color: var(--tab-active-bg-color);
 }
@@ -289,7 +290,7 @@ progress::-ms-fill {
     position: relative;
     display: flex;
     flex-direction: row;
-    padding: 20px 20px 10px 20px;
+    padding: 20px;
 }
 
 .tab-body label {
@@ -297,9 +298,10 @@ progress::-ms-fill {
     left: 50%;
     top: 10%;
     transform: translate(-50%, -50%);
-    line-height: 1.2;
-    font-size: .8rem;
+    line-height: var(--line-height-base);
+    font-size: var(--font-size-small);
     font-weight: bold;
+    letter-spacing: var(--letter-spacing);
     text-transform: uppercase;
 }
 
@@ -312,14 +314,16 @@ progress::-ms-fill {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
 }
+
 #console p {
-    padding:0;
-    margin:0;
+    padding: 0;
+    margin: 0;
 }
+
 footer {
     z-index: 1000;
-
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -335,6 +339,7 @@ footer {
 footer a {
     padding: 0 10px;
     text-transform: uppercase;
+    letter-spacing: var(--letter-spacing);
 }
 
 footer a:hover {
@@ -367,17 +372,16 @@ footer a:hover {
     background-color: var(--stopping-state-color);
     color: var(--secondary-font-color);
 }
+
 .start {
     background-color: var(--success-color);
     color: var(--secondary-font-color);
 }
 
-
 table {
     width: 100%;
     border-collapse: collapse;
 }
-
 
 td {
     box-sizing: content-box;
@@ -417,7 +421,7 @@ table tr:first-child .delete-frequency-btn {
 }
 
 table tr td:first-child,
-table tr td:last-child{
+table tr td:last-child {
     width: 30px;
     text-align: center;
     cursor: grab;
@@ -434,25 +438,27 @@ input:disabled {
     pointer-events: none;
     opacity: 0.5;
 }
-.editor table.range {
-
-}
 
 .editor {
-    display:flex;
+    display: flex;
     justify-content: flex-start;
-
-    flex-direction:column;
-
+    flex-direction: column;
 }
+
 .editor > div {
-    position:static;
+    position: static;
     border-bottom: 1px dotted #d1d1d1;
-    display:block;
-}
-.editor label{
-    position:static
+    display: block;
 }
 
-.editor .range .time { visibility: hidden}
-.editor .range tr:first-child .time { visibility: visible}
+.editor label {
+    position: static;
+}
+
+.editor .range .time {
+    visibility: hidden;
+}
+
+.editor .range tr:first-child .time {
+    visibility: visible;
+}
