@@ -1,29 +1,32 @@
 :root {
-    --primary-bg-color: #f6f6f6;
-    --primary-font-color: #000000;
-    --secondary-font-color: #ffffff;
-    --button-bg-color: #007bff;
-    --button-bg-hover-color: #0056b3;
-    --button-bg-active-color: #003f7f;
-    --button-border-color: #cccccc;
-    --button-border-hover-color: #396cd8;
-    --progress-bg-color: #e0e0e0;
-    --success-color: #007bff; /* Blue for success */
-    --fail-color: #ff6600; /* Orange for failure */
-    --tab-bg-color: #ccc;
-    --tab-active-bg-color: #fefefe;
-    --footer-bg-color: #d1d1d1;
-    --footer-font-color: #000000;
-    --stopping-state-color: #ff4444; /* A bright red for stopping state */
-    --footer-hover-color: #ff0000;
-    --slider-thumb-color: #007bff;
-    --slider-thumb-hover-color: #0056b3;
-    --slider-thumb-active-color: #003f7f;
+    --primary-bg-color: #FFFFFF;             /* Pure white for the highest contrast background */
+    --primary-font-color: #000000;           /* Pure black for the highest contrast text */
+    --secondary-font-color: #FFFFFF;         /* White for contrast on darker backgrounds */
+    --button-bg-color: #003366;              /* Dark navy blue for strong contrast */
+    --button-bg-hover-color: #002244;        /* Even darker navy blue for hover effect */
+    --button-bg-active-color: #001122;       /* Almost black for active state */
+    --button-border-color: #000000;          /* Black to maintain high contrast around buttons */
+    --button-border-hover-color: #003366;    /* Matches button background color for consistency */
+    --progress-bg-color: #BFBFBF;            /* Mid grey to provide contrast with progress value color */
+    --progress-color: #AFFF00;               /* Fel magic color, bright and eye-catching */
+    --success-color: #007F00;                /* Dark green for high contrast against light backgrounds */
+    --fail-color: #CC0000;                   /* Dark red for strong visibility */
+    --tab-bg-color: #CCCCCC;                 /* Light grey for inactive tabs, higher contrast than mid grey */
+    --tab-active-bg-color: #FFFFFF;          /* White for active tabs */
+    --footer-bg-color: #333333;              /* Dark grey for footer, ensuring text contrast */
+    --footer-font-color: #FFFFFF;            /* White to stand out against the dark footer */
+    --stopping-state-color: #CC0000;         /* Same as fail color, for consistency */
+    --footer-hover-color: #FF4500;           /* Bright orange-red for a noticeable hover effect */
+    --slider-thumb-color: #003366;           /* Matches button background color */
+    --slider-thumb-hover-color: #002244;     /* Matches button hover color */
+    --slider-thumb-active-color: #001122;    /* Matches button active color */
+
+
+    background-color: var(--primary-bg-color);
+    color: var(--primary-font-color);
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
     line-height: 24px;
     font-weight: 400;
-    background-color: var(--primary-bg-color);
-    color: var(--primary-font-color);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -203,7 +206,32 @@ input[type="range"]::-moz-focus-outer {
     border-radius: 10px;
     overflow: hidden;
     margin-top: 10px;
+    appearance: none; /* Remove default styling */
 }
+
+/* For WebKit (Chrome, Safari, etc.) */
+progress::-webkit-progress-bar {
+    background-color: var(--progress-bg-color);
+    border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+    background-color: var(--progress-color); /* Fel magic color */
+    border-radius: 10px; /* Ensure the progress value has the same border-radius */
+}
+
+/* For Firefox */
+progress::-moz-progress-bar {
+    background-color: var(--progress-color); /* Fel magic color */
+    border-radius: 10px;
+}
+
+/* For Internet Explorer/Edge */
+progress::-ms-fill {
+    background-color: var(--progress-color); /* Fel magic color */
+    border-radius: 10px;
+}
+
 
 .tabs {
     height: 32px;
@@ -285,7 +313,10 @@ input[type="range"]::-moz-focus-outer {
     flex-direction: row;
     flex-wrap: wrap;
 }
-
+#console p {
+    padding:0;
+    margin:0;
+}
 footer {
     z-index: 1000;
 

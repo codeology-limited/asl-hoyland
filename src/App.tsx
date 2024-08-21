@@ -76,7 +76,7 @@ const App: React.FC = () => {
     };
 
     const handleCancel = () => {
-        alert("Edit cancelled");
+        //alert("Edit cancelled");
     };
 
     return (
@@ -100,7 +100,7 @@ const App: React.FC = () => {
                         <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
                     <div id="console">
-                        <button onClick={reconnectDevice} disabled={isRunning}>{port}</button>
+                        <button onClick={reconnectDevice} disabled={isRunning}>Connect</button> <p>{port}</p>
                     </div>
                     <StatusIndicator status={status} />
                 </main>

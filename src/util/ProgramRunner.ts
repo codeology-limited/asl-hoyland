@@ -94,7 +94,7 @@ class ProgramRunner {
         if (program.range && program.data.length === 2) {
             const startFrequency = program.data[0].frequency;
             const endFrequency = program.data[1].frequency;
-            const interval = (program.data[0].runTime * 60_000 )/ totalSteps;
+            const interval = (program.data[0].runTime  )/ totalSteps;
             this.generator.delay = 100;
             for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
                 if (!this.running) break; // Immediately exit if not running

@@ -140,12 +140,12 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
             </div>
             <div id="range-selector">
                 <label>
-                    If this program is a range you must supply a start and an end point.  Tick this box to make a ranged program:<br />
-                    Set this program as a range: <input
+                    If this program is a range you must supply a start and an end point.  <br />
+                     <input
                         type="checkbox"
                         checked={range}
                         onChange={(e) => setRange(e.target.checked)}
-                    />
+                    />&nbsp;&nbsp;This is a ranged program
 
                 </label>
             </div>
@@ -203,7 +203,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
             </div>
             <div>
                 <button type="button" onClick={handleSave}>Save</button>
-                <button type="button" onClick={onCancel}>Cancel</button>
+
             </div>
         </div>
     );
