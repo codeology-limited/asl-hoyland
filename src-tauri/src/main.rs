@@ -1,9 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use tauri::{self, Manager, State, Window};
-use std::process::Command;
+
+use crate::tauri::api::process::Command;
+// use std::process::Command;
 use std::path::PathBuf;
-use log::LevelFilter;
- use log::{info, warn, error};
+// use log::LevelFilter;
+//  use log::{info, warn, error};
  use env_logger::Env;
 
 
@@ -14,10 +16,10 @@ use std::collections::HashMap;
 use std::io::Write;
 use serde::{Serialize, Deserialize};
 use std::io::Read;
-const COMMAND_PREFIX_CHANNEL_1: &str = "WMF";
-const COMMAND_PREFIX_CHANNEL_2: &str = "WFF";
-const MIN_FREQUENCY: u64 = 0;  // 1 MHz
-const MAX_FREQUENCY: u64 = 1_000_000_000;  // 1 GHz
+// const COMMAND_PREFIX_CHANNEL_1: &str = "WMF";
+// const COMMAND_PREFIX_CHANNEL_2: &str = "WFF";
+// const MIN_FREQUENCY: u64 = 0;  // 1 MHz
+// const MAX_FREQUENCY: u64 = 1_000_000_000;  // 1 GHz
 #[macro_use]
 extern crate lazy_static;
 

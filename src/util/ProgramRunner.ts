@@ -68,7 +68,7 @@ class ProgramRunner {
         this.running = true;
         this.paused = false;
 
-        const cycleDuration = 200; // 100 ms for each frequency (total 200 ms per cycle)
+       // const cycleDuration = 200; // 100 ms for each frequency (total 200 ms per cycle)
         const totalDurationMs =  9 * 60 * 1000; // 9 minutes in milliseconds
         const startTime = Date.now(); // Record the start time
 

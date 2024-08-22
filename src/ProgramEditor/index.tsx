@@ -17,7 +17,7 @@ interface Program {
     startFrequency: number;
 }
 
-const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave, onCancel }) => {
+const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
     const [rows, setRows] = useState<ProgramItem[]>([{ channel: 1, frequency: 0, runTime: 0 }]);
