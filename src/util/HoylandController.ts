@@ -107,7 +107,7 @@ class HoylandController {
       channel: channel,
       frequency: frequency,
     };
-
+console.log("SETTING FREQUENCY>>>",frequency)
     try {
 
 

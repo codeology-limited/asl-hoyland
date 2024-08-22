@@ -62,6 +62,48 @@ class ProgramRunner {
         console.log('Progress callback set');
     }
 
+    async runSpecialCase() {
+        console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
+
+        this.running = true;
+        this.paused = false;
+
+        const cycleDuration = 200; // 100 ms for each frequency (total 200 ms per cycle)
+        const totalDurationMs =  9 * 60 * 1000; // 9 minutes in milliseconds
+        const startTime = Date.now(); // Record the start time
+
+        while (this.running && (Date.now() - startTime) < totalDurationMs) {
+            if (this.paused) {
+                while (this.paused) {
+                    await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
+                    if (!this.running) return; // Exit if not running
+                }
+            }
+
+            // Set frequency to 0.5 MHz
+            await this.generator.setFrequency(1, 0.5 * 1_000_000);
+            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 ms
+
+            // Set frequency to 0.67 MHz
+            await this.generator.setFrequency(1, 0.67 * 1_000_000);
+            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 ms
+
+            // Calculate progress based on time elapsed
+            const elapsedMs = Date.now() - startTime;
+            const percentageComplete = (elapsedMs / totalDurationMs) * 100;
+
+            if (this.progressCallback) {
+                this.progressCallback(percentageComplete, 100); // Update progress based on elapsed time
+            }
+        }
+
+        // Stop the generator after the loop completes
+        await this.generator.stopAndReset();
+        console.log('Special case program completed');
+        this.running = false;
+    }
+
+
     async startProgram(programName: string) {
         console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);
@@ -90,86 +132,89 @@ class ProgramRunner {
         await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to 27.1 MHz
         await new Promise(resolve => setTimeout(resolve, 700)); // Wait while paused
 
-
-        if (program.range && program.data.length === 2) {
-            const startFrequency = program.data[0].frequency;
-            const endFrequency = program.data[1].frequency;
-            const interval = (program.data[0].runTime  )/ totalSteps;
-            this.generator.delay = 100;
-            for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
-                if (!this.running) break; // Immediately exit if not running
-                if (this.paused) {
-                    while (this.paused) {
-                        await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
-                        if (!this.running) return; // Exit if not running
-                    }
-                }
-                console.log('Setting frequency to:', frequency, "delay", this.generator.delay);
-                await this.generator.setFrequency(1, parseFloat(frequency.toString()) );
-
-                currentStep++;
-                console.log('Current step:', currentStep);
-
-                if (this.progressCallback) {
-                    this.progressCallback(currentStep, totalSteps);
-                }
-
-                // Use a custom timeout that can be cleared and resolved immediately
-                await new Promise<void>(resolve => {
-                    const timeoutId = setTimeout(() => {
-                        resolve();
-                    }, interval);
-
-                    const checkRunning = setInterval(() => {
-                        if (!this.running) {
-                            clearTimeout(timeoutId);
-                            clearInterval(checkRunning);
-                            resolve(); // Resolve immediately if running is false
-                        }
-                    }, 10); // Check every 10ms
-                })
-
-                if (!this.running) break; // Immediately exit if not running
-            }
+        if ( program.name === "ultrasound"){
+            await this.runSpecialCase()
         } else {
-            for (const item of program.data) {
-                if (!this.running) break; // Immediately exit if not running
-                if (this.paused) {
-                    while (this.paused) {
-                        await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
-                        if (!this.running) return; // Exit if not running
-                    }
-                }
-                console.log('Setting frequency for item:', item);
-                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()) );
 
-                currentStep++;
-                console.log('Current step:', currentStep);
-
-                if (this.progressCallback) {
-                    this.progressCallback(currentStep, totalSteps);
-                }
-
-                // Use a custom timeout that can be cleared and resolved immediately
-                await new Promise<void>(resolve => {
-                    const timeoutId = setTimeout(() => {
-                        resolve();
-                    }, item.runTime);//maxtime in minutes not used for non range programs
-
-                    const checkRunning = setInterval(() => {
-                        if (!this.running) {
-                            clearTimeout(timeoutId);
-                            clearInterval(checkRunning);
-                            resolve(); // Resolve immediately if running is false
+            if (program.range && program.data.length === 2) {
+                const startFrequency = program.data[0].frequency;
+                const endFrequency = program.data[1].frequency;
+                const interval = (program.data[0].runTime  )/ totalSteps;
+                this.generator.delay = 100;
+                for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
+                    if (!this.running) break; // Immediately exit if not running
+                    if (this.paused) {
+                        while (this.paused) {
+                            await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
+                            if (!this.running) return; // Exit if not running
                         }
-                    }, 10); // Check every 10ms
-                });
+                    }
+                    console.log('Setting frequency to:', frequency, "delay", this.generator.delay);
+                    await this.generator.setFrequency(1, parseFloat(frequency.toString()) );
 
-                if (!this.running) break; // Immediately exit if not running
+                    currentStep++;
+                    console.log('Current step:', currentStep);
+
+                    if (this.progressCallback) {
+                        this.progressCallback(currentStep, totalSteps);
+                    }
+
+                    // Use a custom timeout that can be cleared and resolved immediately
+                    await new Promise<void>(resolve => {
+                        const timeoutId = setTimeout(() => {
+                            resolve();
+                        }, interval);
+
+                        const checkRunning = setInterval(() => {
+                            if (!this.running) {
+                                clearTimeout(timeoutId);
+                                clearInterval(checkRunning);
+                                resolve(); // Resolve immediately if running is false
+                            }
+                        }, 10); // Check every 10ms
+                    })
+
+                    if (!this.running) break; // Immediately exit if not running
+                }
+            } else {
+                for (const item of program.data) {
+                    if (!this.running) break; // Immediately exit if not running
+                    if (this.paused) {
+                        while (this.paused) {
+                            await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
+                            if (!this.running) return; // Exit if not running
+                        }
+                    }
+                    console.log('Setting frequency for item:', item);
+                    await this.generator.setFrequency(1, parseFloat(item.frequency.toString()) );
+
+                    currentStep++;
+                    console.log('Current step:', currentStep);
+
+                    if (this.progressCallback) {
+                        this.progressCallback(currentStep, totalSteps);
+                    }
+
+                    // Use a custom timeout that can be cleared and resolved immediately
+                    await new Promise<void>(resolve => {
+                        const timeoutId = setTimeout(() => {
+                            resolve();
+                        }, item.runTime);//maxtime in minutes not used for non range programs
+
+                        const checkRunning = setInterval(() => {
+                            if (!this.running) {
+                                clearTimeout(timeoutId);
+                                clearInterval(checkRunning);
+                                resolve(); // Resolve immediately if running is false
+                            }
+                        }, 10); // Check every 10ms
+                    });
+
+                    if (!this.running) break; // Immediately exit if not running
+                }
             }
+
         }
-
-
 
         // await this.generator.enableOutput(1, false); // Turn Channel 1 off
         // await this.generator.enableOutput(2, false); // Turn Channel 2 off

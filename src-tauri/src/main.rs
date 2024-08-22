@@ -288,21 +288,17 @@ fn write_to_port(state: State<AppState>, args: WriteToPortArgs, window: Window) 
 //         Ok(true)
 // }
 
-
 #[tauri::command]
 fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window) -> Result<bool, String> {
     // Log the incoming request
     println!("Incoming request: set_frequency called with channel: {}, frequency: {}", args.channel, args.frequency);
 
-    // Convert the frequency to an integer in Hz
-    let frequency_hz = args.frequency as u64;
+    // Convert the frequency to MHz and fractional part
+    let mhz_part = args.frequency.trunc() as u64;
+    let fractional_part = (args.frequency.fract() * 1_000_000.0).round() as u64;
 
-    // Log the converted frequency
-    println!("Converted frequency to Hz: {}", frequency_hz);
-
-    // Calculate the MHz part and the fractional part in Hz
-    let mhz_part = frequency_hz / 1_000_000;
-    let hz_part = frequency_hz % 1_000_000;
+    // Log the calculated parts
+    println!("MHz part: {}, Fractional part: {}", mhz_part, fractional_part);
 
     // Select the appropriate command prefix based on the channel
     let prefix = match args.channel {
@@ -312,23 +308,21 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
     };
 
     // Format the command to match the desired output
-    let cmd = format!("{}{:01}{:06}.{:06}\n", prefix, mhz_part, hz_part, 0);
+    let cmd = format!("{}{:07}.{:06}\n", prefix, mhz_part, fractional_part);
 
     // Log the command being sent for verification
     println!("Outgoing command: {}", cmd);
 
     // Send the command to the port
     match write_to_port(state, WriteToPortArgs { data: cmd.clone() }, window) {
-        Ok(_) => println!("Command '{}'frequency sent successfully to the port", cmd.trim()),
+        Ok(_) => println!("Command '{}' frequency sent successfully to the port", cmd.trim()),
         Err(e) => return Err(format!("Failed to send command: {}", e)),
     }
-
-    // Sleep for 100 ms
-  // std::thread::sleep(std::time::Duration::from_millis(100));
 
     // Return success
     Ok(true)
 }
+
 
 
 

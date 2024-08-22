@@ -117,11 +117,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
             <div>
                 <progress className="progress-bar" value={progress} max={totalSteps}></progress>
-                <label>Step {progress} of {totalSteps} steps</label>
+                <label>{totalSteps > 0 ? (((progress || 0) / totalSteps) * 100).toFixed(0) : 0}% complete</label>
+
             </div>
 
             <div>
-                <label>Intensity: {intensity}</label>
+                <label>Intensity: {((intensity||0)/20) * 100}%</label>
                 <input
                     type="range"
                     min="1"
