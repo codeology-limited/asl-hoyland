@@ -10,11 +10,13 @@ interface DefaultProgramsProps {
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning }) => {
     const [progress, setProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
-    const [intensity, setIntensity] = useState(1);
+    const [intensity, setIntensity] = useState(5);
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isPaused, setIsPaused] = useState(false);
     const [isStopping, setIsStopping] = useState(false);
+
+    const [tmp, setTmp] = useState(1);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -42,7 +44,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     };
 
     useEffect(() => {
-        if (runnerRef.current) {
+        if (runnerRef.current && isRunning) {
             runnerRef.current?.setIntensity(intensity);
             runnerRef.current?.setProgressCallback(handleProgressUpdate);
         }
@@ -59,11 +61,14 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const handleStartStop = async () => {
         if (isRunning) {
             setIsStopping(true)
+            setIntensity(5);
             await runnerRef.current?.stopProgram();
+
             setIsStopping(false)
             setIsRunning(false);
             setIsPaused(false);
             setProgress(0);
+
 
             runnerRef.current = null;
 
@@ -71,6 +76,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             if (selectedProgram) {
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
+                    setIntensity(20);
                     setIsRunning(true);
                     await runnerRef.current?.startProgram(selectedProgram);
                     setIsRunning(false);
@@ -91,6 +97,14 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             setIsPaused(true);
         }
     };
+
+    const handleChange = (e:any) => {
+        setTmp(parseInt(e.target.value, 10))
+    }
+
+    const handleFinalChange =() =>{
+        setIntensity(tmp)
+    }
 
     return (
         <div className="tab-body default-programs">
@@ -125,10 +139,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <label>Intensity: {((intensity||0)/20) * 100}%</label>
                 <input
                     type="range"
+                   
                     min="1"
                     max="20"
                     value={intensity}
-                    onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
+                    onChange={handleChange}
+                    onMouseUp={handleFinalChange}
                 />
             </div>
         </div>

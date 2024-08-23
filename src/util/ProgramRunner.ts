@@ -131,7 +131,9 @@ class ProgramRunner {
 
         await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to 27.1 MHz
         await new Promise(resolve => setTimeout(resolve, 700)); // Wait while paused
-
+        await this.generator.setAmplitude(1,20)
+        await this.generator.setAmplitude(2,20)
+      
         if ( program.name === "ultrasound"){
             await this.runSpecialCase()
         } else {
@@ -221,11 +223,15 @@ class ProgramRunner {
 
 
         if ( this.running){
-            this.generator.stopAndReset();
+            await this.generator.stopAndReset();
         }
 
         this.running = false;
         this.paused = false;
+
+        await this.generator.setAmplitude(1,5)
+        await this.generator.setAmplitude(2,5)
+
        // alert(`Your program named "${programName}" has now completed.  \nPlease press ok to choose again`)
         console.log('Program completed:', programName);
     }

@@ -1,8 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{self, Manager, State, Window};
-use tauri::api::process::Command;
-use std::path::PathBuf;
+// use tauri::api::process::Command;
+// use std::path::PathBuf;
 use env_logger::Env;
 use serialport::{self, SerialPort};
 use std::sync::Mutex;
@@ -92,60 +92,74 @@ struct ReconnectArgs {
     baud_rate: u32,
 }
 
-fn get_resource_path(resource_name: &str) -> PathBuf {
-    PathBuf::from("src-tauri").join(resource_name)
-}
+// fn get_resource_path(resource_name: &str) -> PathBuf {
+//     let full_path = std::env::current_dir().unwrap().join(resource_name);
+//     println!("Full path: {}", full_path.display());
+//     full_path
+// }
 
-// Installers should only run on Windows
-#[cfg(target_os = "windows")]
-fn install_driver(driver_path: &str) {
-    match Command::new(driver_path)
-        .args(&["/silent"]) // Corrected from `.arg` to `.args`
-        .spawn() {
-        Ok(_) => println!("Successfully started installer for {}", driver_path),
-        Err(e) => eprintln!("Failed to run driver installer for {}: {}", driver_path, e),
-    }
-}
+// fn install_driver(driver_path: &str) {
+//     let path = PathBuf::from(driver_path);
 
-// Installers should only run on Windows
-#[cfg(target_os = "windows")]
-fn install_webview2() {
-    let webview2_installer = get_resource_path("webview/webview2.exe");
-    let installer_str = webview2_installer.to_string_lossy(); // Convert PathBuf to String
-    Command::new(installer_str.as_ref()) // Pass as str
-        .args(&["/silent"]) // Corrected from `.arg` to `.args`
-        .spawn()
-        .expect("Failed to run WebView2 installer");
-}
+//     // Check if the path exists
+//     if path.exists() {
+//         println!("File exists: {}", path.display());
 
-// Installers should only run on Windows
-#[cfg(target_os = "windows")]
-fn install_all_resources() {
-    // Detect system architecture
-    let arch = std::env::consts::ARCH;
+//         // Convert PathBuf to &str
+//         let path_str = path.to_str().expect("Failed to convert path to string");
 
-    // Install appropriate drivers based on architecture
-    if arch == "x86_64" {
-        println!("64-bit system detected. Installing 64-bit drivers...");
-        install_driver(&get_resource_path("drivers/CH340/CH34164.EXE").to_string_lossy());
-        install_driver(&get_resource_path("drivers/CP210x/CP21064.exe").to_string_lossy());
-    } else if arch == "x86" {
-        println!("32-bit system detected. Installing 32-bit drivers...");
-        install_driver(&get_resource_path("drivers/CH340/CH34032.EXE").to_string_lossy());
-        install_driver(&get_resource_path("drivers/CP210x/CP21086.exe").to_string_lossy());
-    } else {
-        println!("Unknown system architecture: {}. Skipping driver installation.", arch);
-    }
+//         // Run the command
+//         match Command::new(path_str)
+//             .args(&["/silent"])
+//             .spawn() {
+//             Ok(_) => println!("Successfully started installer for {}", path.display()),
+//             Err(e) => eprintln!("Failed to run driver installer for {}: {}", path.display(), e),
+//         }
+//     } else {
+//         eprintln!("Driver file not found at path: {}", path.display());
+//     }
+// }
 
-    // Install WebView2 (This installer typically handles architecture internally)
-    install_webview2();
-}
 
-// On non-Windows platforms, these functions do nothing
-#[cfg(not(target_os = "windows"))]
-fn install_all_resources() {
-    // Do nothing on non-Windows platforms
-}
+// // Installers should only run on Windows
+// #[cfg(target_os = "windows")]
+// fn install_webview2() {
+//     let webview2_installer = get_resource_path("webview/webview2.exe");
+//     let installer_str = webview2_installer.to_string_lossy(); // Convert PathBuf to String
+//     Command::new(installer_str.as_ref()) // Pass as str
+//         .args(&["/silent"]) // Corrected from `.arg` to `.args
+//         .spawn()
+//         .expect("Failed to run WebView2 installer");
+// }
+
+// // Installers should only run on Windows
+// #[cfg(target_os = "windows")]
+// fn install_all_resources() {
+//     // Detect system architecture
+//     let arch = std::env::consts::ARCH;
+
+//     // Install appropriate drivers based on architecture
+//     if arch == "x86_64" {
+//         println!("64-bit system detected. Installing 64-bit drivers...");
+//         install_driver(&get_resource_path("drivers/CH340/CH34164.EXE").to_string_lossy());
+//         install_driver(&get_resource_path("drivers/CP210x/CP21064.exe").to_string_lossy());
+//     } else if arch == "x86" {
+//         println!("32-bit system detected. Installing 32-bit drivers...");
+//         install_driver(&get_resource_path("drivers/CH340/CH34032.EXE").to_string_lossy());
+//         install_driver(&get_resource_path("drivers/CP210x/CP21086.exe").to_string_lossy());
+//     } else {
+//         println!("Unknown system architecture: {}. Skipping driver installation.", arch);
+//     }
+
+//     // Install WebView2 (This installer typically handles architecture internally)
+//     install_webview2();
+// }
+
+// // On non-Windows platforms, these functions do nothing
+// #[cfg(not(target_os = "windows"))]
+// fn install_all_resources() {
+//     // Do nothing on non-Windows platforms
+// }
 
 #[tauri::command]
 fn list_ports() -> Vec<String> {
@@ -228,6 +242,7 @@ fn perform_real_port_write(ports: &Mutex<HashMap<String, PortHandle>>, data: &st
                 println!("Failed to flush port: {}", e);
                 e.to_string()
             })?;
+            std::thread::sleep(std::time::Duration::from_millis(20));
             return Ok(true);
         }
     }
@@ -304,8 +319,14 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
 fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window) -> Result<bool, String> {
     println!("set_amplitude called with channel: {}, amplitude: {}", args.channel, args.amplitude);
     let scaled_amplitude = args.amplitude; // Scale the amplitude
+    
     let cmd = format!("WMA{:05.2}", scaled_amplitude);
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+    write_to_port(state.clone(), WriteToPortArgs { data: cmd }, window.clone())?; // Send first command
+    std::thread::sleep(std::time::Duration::from_millis(120));
+    let cmd2 = format!("WFA{:05.2}", scaled_amplitude);
+    write_to_port(state, WriteToPortArgs { data: cmd2 }, window)?; // Send second command
+    std::thread::sleep(std::time::Duration::from_millis(120));
+    Ok(true) // Return success
 }
 
 #[tauri::command]
@@ -381,6 +402,9 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
         "USA2\n",       // Specific command, likely setting or reading a mode/state
         "WFN1\n",       // Set Channel 2 on
         "WMN1\n",       // Set Channel 1 on
+        "WMA20.00\n",       // Set Channel 1 on
+        "WFA20.00\n"       // Set Channel 2 on
+
     ];
 
     for cmd in &commands {
@@ -404,7 +428,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
     println!("stop_and_reset called with port_name: {}", port_name);
 
     let commands = [
-        "WFN0\n", "WMN0\n", "WFN0\n", "WMN0\n", "USD2\n"
+        "WFN0\n", "WMN0\n", "WFN0\n", "WMN0\n", "USD2\n",  "WFA05.00\n", "WMA05.00\n"
     ];
 
     for cmd in &commands {
@@ -499,7 +523,7 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
 
 fn main() {
     // Install necessary resources before the app starts
-    install_all_resources();
+    // install_all_resources();
 
     tauri::Builder::default()
         .setup(|app| {

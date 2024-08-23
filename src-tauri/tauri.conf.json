@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "Hoyland Generator 3 by Altered States",
+    "productName": "Hoyland3-AlteredStates",
     "version": "0.0.1"
   },
   "tauri": {
@@ -15,9 +15,9 @@
     },
     "windows": [
       {
-        "title": "Hoyland Generator 3 by Altered States",
-        "width": 640,
-        "height": 480,
+        "title": "HoylandGenerator3",
+        "width": 1200,
+        "height": 700,
         "alwaysOnTop": false
       }
     ],
