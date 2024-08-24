@@ -77,11 +77,6 @@ struct OpenPortArgs {
     baud_rate: u32,
 }
 
-#[derive(serde::Deserialize)]
-struct SetWaveformArgs {
-    channel: u8,
-    waveform_type: u8,
-}
 
 #[derive(Serialize, Deserialize)]
 struct ClosePortArgs {}

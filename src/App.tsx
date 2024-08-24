@@ -63,16 +63,17 @@ const App: React.FC = () => {
     // };
 
     const handleSave = async (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => {
-        // const program: Program = {
-        //     name: programName,
-        //     data: programData,
-        //     maxTimeInMinutes: programMaxTime,
-        //     range: range ? true : false,
-        //     default: false,
-        //     startFrequency: 3.1
-        // };
+        const program: Program = {
+            name: programName,
+            data: programData,
+            maxTimeInMinutes: programMaxTime,
+            range: range ? true : false,
+            default: false,
+            startFrequency: 3.1
+        };
         // await appDatabase.saveData(program);
-        alert("Program saved successfully!");
+        console.log(program)
+        alert("Program saved successfully!" );
     };
 
     const handleCancel = () => {
