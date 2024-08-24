@@ -252,10 +252,6 @@ class HoylandController {
 
   async stop() {
     try {
-      await this.enableOutput(1, false);
-      await this.wait()
-      await this.enableOutput(2, false);
-      await this.wait()
       console.log('Output stopped for all channels');
     } catch (error) {
       console.error('Error stopping output:', error);
@@ -265,7 +261,6 @@ class HoylandController {
   async stopAndReset() {
     try {
       const result = await invoke('stop_and_reset');
-      await this.wait()
       if (result) {
         console.log('Stop and reset commands sent successfully');
       } else {

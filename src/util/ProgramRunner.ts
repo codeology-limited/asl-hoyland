@@ -44,15 +44,6 @@ class ProgramRunner {
         }
     }
 
-    async saveProgram(program: Program): Promise<void> {
-        try {
-            await this.database.saveData(program);
-            console.log('Program saved:', program);
-        } catch (error) {
-            console.error(`Failed to save program: ${error}`);
-        }
-    }
-
     async setIntensity(intensity: number) {
         this.intensity = intensity;
         console.log('Intensity set to:', this.intensity);
