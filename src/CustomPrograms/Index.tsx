@@ -24,8 +24,6 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             try {
                 const programs = await appDatabase.getCustomPrograms();
                 const names = programs.map(program => program.name);
-
-
                 setProgramNames(names);
             } catch (error) {
                 console.error('Failed to load custom programs:', error);
@@ -44,8 +42,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
     useEffect(() => {
         if (runnerRef.current) {
-            runnerRef.current?.setIntensity(intensity);
-            runnerRef.current?.setProgressCallback(handleProgressUpdate);
+            runnerRef.current.setIntensity(intensity);
+            runnerRef.current.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
 
@@ -63,26 +61,18 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
     const handleStartStop = async () => {
         if (isRunning) {
-            setIsStopping(true)
+            setIsStopping(true);
             await runnerRef.current?.stopProgram();
-            setIsStopping(false)
-            setIsRunning(false);
-            setIsPaused(false);
-            setProgress(0);
-            setTotalSteps(0);
-
-           runnerRef.current = null;
+            resetUI();
         } else {
             if (selectedProgram) {
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
-                    await runnerRef.current?.initProgram();
+                    await runnerRef.current.initProgram();
                     setIntensity(20);
-                    await runnerRef.current?.startProgram(selectedProgram);
-                    setIntensity(5);
-                    setIsRunning(false);
-                    setProgress(0);
+                    await runnerRef.current.startProgram(selectedProgram);
+                    resetUI();
                 }
             } else {
                 alert('Please select a program');
@@ -100,44 +90,54 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         }
     };
 
+    const resetUI = () => {
+        setIsStopping(false);
+        setIsRunning(false);
+        setIsPaused(false);
+        setProgress(0);
+        setTotalSteps(0);
+        setSelectedProgram('');
+        setIntensity(5);
+        runnerRef.current = null;
+    };
+
     return (
         <div className="tab-body custom-programs">
             <div>
-                <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
-                        disabled={isRunning}>
+                <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} disabled={isRunning}>
                     <option value="" disabled>Choose</option>
                     {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}
                 </select>
 
-
                 <button
                     className={isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
-                    disabled={!selectedProgram && !isRunning} // Only disable when no program is selected and not running
+                    disabled={!selectedProgram && !isRunning} // Disable when no program is selected and not running
                 >
-                    {isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
+                    {isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>
 
-                <button onClick={handlePauseContinue} disabled={!isRunning}>{isPaused ? 'Continue' : 'Pause'}</button>
+                <button onClick={handlePauseContinue} disabled={!isRunning}>
+                    {isPaused ? 'Continue' : 'Pause'}
+                </button>
             </div>
 
             <div>
                 <progress className="progress-bar" value={progress} max={totalSteps}></progress>
                 <label>{totalSteps > 0 ? `${Math.floor((progress / totalSteps) * 100)}% complete` : '0% complete'}</label>
-
-
             </div>
 
             <div>
-                <label>Intensity: {Math.floor(((intensity||0)/20) * 100)}%</label>
+                <label>Intensity: {Math.floor(((intensity || 0) / 20) * 100)}%</label>
                 <input
                     type="range"
                     min="1"
                     max="20"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
+                    disabled={isStopping}
                 />
             </div>
         </div>

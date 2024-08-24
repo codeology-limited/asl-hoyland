@@ -33,8 +33,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (appDatabase.preloadDone) {
             loadDefaultPrograms();
         }
-    }, [appDatabase.preloadDone]); // Include preloadDone in the dependency array
-
+    }, [appDatabase.preloadDone]);
 
     const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
         setProgress(currentStep);
@@ -43,8 +42,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     useEffect(() => {
         if (runnerRef.current) {
-            runnerRef.current?.setIntensity(intensity);
-            runnerRef.current?.setProgressCallback(handleProgressUpdate);
+            runnerRef.current.setIntensity(intensity);
+            runnerRef.current.setProgressCallback(handleProgressUpdate);
         }
     }, [intensity]);
 
@@ -57,26 +56,18 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     const handleStartStop = async () => {
         if (isRunning) {
-            setIsStopping(true)
+            setIsStopping(true);
             await runnerRef.current?.stopProgram();
-            setIsStopping(false)
-            setIsRunning(false);
-            setIsPaused(false);
-            setProgress(0);
-
-            runnerRef.current = null;
-
+            resetUI();
         } else {
             if (selectedProgram) {
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
-                    await runnerRef.current?.initProgram()
+                    await runnerRef.current.initProgram();
                     setIntensity(20);
-                    await runnerRef.current?.startProgram(selectedProgram);
-                    setIsRunning(false);
-                    setIntensity(5);
-                    setProgress(0);
+                    await runnerRef.current.startProgram(selectedProgram);
+                    resetUI();
                 }
             } else {
                 alert('Please select a program');
@@ -94,6 +85,16 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         }
     };
 
+    const resetUI = () => {
+        setIsStopping(false);
+        setIsRunning(false);
+        setIsPaused(false);
+        setProgress(0);
+        setSelectedProgram('');
+        setIntensity(5);
+        runnerRef.current = null;
+    };
+
     return (
         <div className="tab-body default-programs">
             <div>
@@ -105,16 +106,17 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     ))}
                 </select>
 
-
                 <button
                     className={isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
-                    disabled={!selectedProgram && !isRunning} // Only disable when no program is selected and not running
+                    disabled={(!selectedProgram && !isRunning) || isStopping}
                 >
-                    {isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
+                    {isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>
 
-                <button onClick={handlePauseContinue} disabled={!isRunning}>{isPaused ? 'Continue' : 'Pause'}</button>
+                <button onClick={handlePauseContinue} disabled={!isRunning}>
+                    {isPaused ? 'Continue' : 'Pause'}
+                </button>
             </div>
 
             <div>
@@ -130,6 +132,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     max="20"
                     value={intensity}
                     onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
+                    disabled={isStopping}
                 />
             </div>
         </div>

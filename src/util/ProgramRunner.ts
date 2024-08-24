@@ -58,7 +58,7 @@ class ProgramRunner {
     async runSpecialCase() {
         console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
 
-        await this.generator.sinewave()
+        await this.generator.sinewave();
         await new Promise(resolve => setTimeout(resolve, 700)); // Initial delay
         this.running = true;
         this.paused = false;
@@ -101,11 +101,9 @@ class ProgramRunner {
             await this.generator.setFrequency(1, 0.5 * 1_000_000);
             await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 ms
 
-
             // Set frequency to 0.67 MHz
             await this.generator.setFrequency(1, 0.67 * 1_000_000);
             await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 ms
-
 
             // Update the progress bar
             updateProgress();
