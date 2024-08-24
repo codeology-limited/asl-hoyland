@@ -156,26 +156,40 @@ class AppDatabase extends Dexie {
 
   async saveData(program: Program): Promise<void> {
     try {
-      const existingProgram = await this.programs.where({ name: program.name }).first();
-      if (existingProgram) {
-        await this.programs.update(existingProgram.id!, {
-          ...program,
-          range: program.range ? 1 : 0,
-          default: program.default ? 1 : 0, // Convert boolean to number
-        });
-      } else {
-        await this.programs.put({
-          ...program,
-          range: program.range ? 1 : 0,
-          default: program.default ? 1 : 0, // Convert boolean to number
-        });
+
+      if ( !program ){
+        return
       }
-      console.log(`Program ${program.name} saved successfully`);
+      console.log(`Saving program: ${program.name} - Start`);
+
+      const existingProgram = await this.programs.where({ name: program.name }).first();
+      console.log("IN DB PROGRAM --->", existingProgram,program);
+
+      const saveData: Omit<Program, 'id'> = {
+        name: program.name,
+        range: program.range ? 1 : 0,
+        data: program.data,
+        maxTimeInMinutes: program.maxTimeInMinutes,
+        default: program.default ? 1 : 0, // Convert boolean to number
+        startFrequency: program.startFrequency,
+      };
+
+      if (existingProgram) {
+        console.log(`Updating existing program: ${program.name}`);
+        await this.programs.update(existingProgram.id!, saveData);
+        console.log(`Program ${program.name} updated successfully`);
+      } else {
+        console.log(`Creating new program: ${program.name}`);
+        await this.programs.put(saveData as Program);
+        console.log(`Program ${program.name} created successfully`);
+      }
     } catch (error) {
       console.error('Failed to save data:', error);
       throw error;
     }
   }
+
+
 
   async getDefaultPrograms(): Promise<Program[]> {
     try {

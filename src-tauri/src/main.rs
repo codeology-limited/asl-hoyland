@@ -113,7 +113,7 @@ fn install_webview2() {
     let webview2_installer = get_resource_path("webview/webview2.exe");
     let installer_str = webview2_installer.to_string_lossy(); // Convert PathBuf to String
     Command::new(installer_str.as_ref()) // Pass as str
-        .args(&["/silent"]) // Corrected from `.arg` to `.args`
+//         .args(&["/silent"]) // Corrected from `.arg` to `.args`
         .spawn()
         .expect("Failed to run WebView2 installer");
 }
@@ -128,11 +128,11 @@ fn install_all_resources() {
     if arch == "x86_64" {
         println!("64-bit system detected. Installing 64-bit drivers...");
         install_driver(&get_resource_path("drivers/CH340/CH34164.EXE").to_string_lossy());
-        install_driver(&get_resource_path("drivers/CP210x/CP21064.exe").to_string_lossy());
+       // install_driver(&get_resource_path("drivers/CP210x/CP21064.exe").to_string_lossy());
     } else if arch == "x86" {
         println!("32-bit system detected. Installing 32-bit drivers...");
         install_driver(&get_resource_path("drivers/CH340/CH34032.EXE").to_string_lossy());
-        install_driver(&get_resource_path("drivers/CP210x/CP21086.exe").to_string_lossy());
+        //install_driver(&get_resource_path("drivers/CP210x/CP21086.exe").to_string_lossy());
     } else {
         println!("Unknown system architecture: {}. Skipping driver installation.", arch);
     }
@@ -295,7 +295,7 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
         Ok(_) => println!("Command '{}' frequency sent successfully to the port", cmd.trim()),
         Err(e) => return Err(format!("Failed to send command: {}", e)),
     }
-
+    std::thread::sleep(std::time::Duration::from_millis(50));
     // Return success
     Ok(true)
 }
@@ -303,45 +303,72 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
 #[tauri::command]
 fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window) -> Result<bool, String> {
     println!("set_amplitude called with channel: {}, amplitude: {}", args.channel, args.amplitude);
+
     let scaled_amplitude = args.amplitude; // Scale the amplitude
-    let cmd = format!("WMA{:05.2}", scaled_amplitude);
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+    let commands = [
+        format!("WMA{:05.2}\n", scaled_amplitude), // Command for amplitude
+   //     format!("WFA{:05.2}\n", scaled_amplitude), // Command for amplitude
+    ];
+
+    for cmd in &commands {
+        match write_to_port(state.clone(), WriteToPortArgs { data: cmd.to_string() }, window.clone()) {
+            Ok(_) => {
+                println!("Command '{}' sent successfully", cmd);
+            },
+            Err(e) => {
+                println!("Failed to send command '{}': {}", cmd, e);
+                return Err(format!("Failed to send command '{}': {}", cmd, e));
+            },
+        }
+        std::thread::sleep(std::time::Duration::from_millis(200)); // Delay between commands
+    }
+
+    Ok(true)
 }
+
 
 #[tauri::command]
 fn set_offset(state: State<AppState>, args: SetOffsetArgs, window: Window) -> Result<bool, String> {
     println!("set_offset called with channel: {}, offset: {}", args.channel, args.offset);
-    let cmd = format!("WMO{:05.2}", args.offset);
+    let cmd = format!("WMO{:05.2}\n", args.offset);
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
 #[tauri::command]
 fn set_duty_cycle(state: State<AppState>, args: SetDutyCycleArgs, window: Window) -> Result<bool, String> {
     println!("set_duty_cycle called with channel: {}, duty_cycle: {}", args.channel, args.duty_cycle);
-    let cmd = format!("WMD{:04.1}", args.duty_cycle);
+    let cmd = format!("WMD{:04.1}\n", args.duty_cycle);
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
 #[tauri::command]
 fn set_phase(state: State<AppState>, args: SetPhaseArgs, window: Window) -> Result<bool, String> {
     println!("set_phase called with channel: {}, phase: {}", args.channel, args.phase);
-    let cmd = format!("WMP{:03}", args.phase);
+    let cmd = format!("WMP{:03}\n", args.phase);
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
 #[tauri::command]
 fn set_attenuation(state: State<AppState>, args: SetAttenuationArgs, window: Window) -> Result<bool, String> {
     println!("set_attenuation called with channel: {}, attenuation: {}", args.channel, args.attenuation);
-    let cmd = format!("WMT{:01}", args.attenuation);
+    let cmd = format!("WMT{:01}\n", args.attenuation);
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
 #[tauri::command]
 fn synchronise_voltage(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!("synchronise_voltage called");
-    let cmd = format!("USA2");
+    let cmd = format!("USA2\n");
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
+
+#[tauri::command]
+fn sine_wave(state: State<AppState>, window: Window) -> Result<bool, String> {
+    println!("synchronise_voltage called");
+    let cmd = format!("WMW00\n");
+    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+}
+
 
 #[tauri::command]
 fn enable_output(state: State<AppState>, args: EnableOutputArgs, window: Window) -> Result<bool, String> {
@@ -404,7 +431,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
     println!("stop_and_reset called with port_name: {}", port_name);
 
     let commands = [
-        "WFN0\n", "WMN0\n", "WFN0\n", "WMN0\n", "USD2\n"
+        "WFN0\n", "WMN0\n", "WFN0\n", "WMN0\n", "USD2\n", "WMA05.00\n"
     ];
 
     for cmd in &commands {
@@ -525,7 +552,8 @@ fn main() {
             enable_output,
             stop_and_reset,
             write_to_port,
-            reconnect_device
+            reconnect_device,
+            sine_wave
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

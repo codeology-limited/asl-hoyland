@@ -10,7 +10,7 @@ interface CustomProgramsProps {
 const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning }) => {
     const [progress, setProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
-    const [intensity, setIntensity] = useState(1);
+    const [intensity, setIntensity] = useState(5);
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isPaused, setIsPaused] = useState(false);
@@ -53,7 +53,6 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-            runnerRef.current?.setIntensity(intensity);
 
             const totalSteps = program.range && program.data.length === 2
                 ? program.data[1].frequency - program.data[0].frequency + 1
@@ -78,7 +77,10 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
+                    await runnerRef.current?.initProgram();
+                    setIntensity(20);
                     await runnerRef.current?.startProgram(selectedProgram);
+                    setIntensity(5);
                     setIsRunning(false);
                     setProgress(0);
                 }

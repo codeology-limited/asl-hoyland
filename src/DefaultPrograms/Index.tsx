@@ -10,7 +10,7 @@ interface DefaultProgramsProps {
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning }) => {
     const [progress, setProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
-    const [intensity, setIntensity] = useState(1);
+    const [intensity, setIntensity] = useState(5);
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isPaused, setIsPaused] = useState(false);
@@ -52,7 +52,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-            runnerRef.current?.setIntensity(intensity);
         }
     };
 
@@ -72,8 +71,11 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 await loadProgram(selectedProgram);
                 if (runnerRef.current) {
                     setIsRunning(true);
+                    await runnerRef.current?.initProgram()
+                    setIntensity(20);
                     await runnerRef.current?.startProgram(selectedProgram);
                     setIsRunning(false);
+                    setIntensity(5);
                     setProgress(0);
                 }
             } else {

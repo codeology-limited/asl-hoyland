@@ -72,7 +72,19 @@ class HoylandController {
       return "";
     }
   }
+  async sinewave() {
+    try {
+      const result = await invoke('sine_wave');
 
+      if (result) {
+        console.log('sinewave   sent successfully');
+      } else {
+        console.error('Failed to send sinewave commands');
+      }
+    } catch (error) {
+      console.error('Error sending sinewave commands:', error);
+    }
+  }
   async sendInitialCommands() {
     try {
       const result = await invoke('send_initial_commands');
@@ -107,12 +119,9 @@ class HoylandController {
       channel: channel,
       frequency: frequency,
     };
-console.log("SETTING FREQUENCY>>>",frequency)
+
     try {
-
-
       await invoke('set_frequency', { args });
-      await this.wait()
       console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
     } catch (error) {
       console.error(`Error setting frequency: ${error}`);

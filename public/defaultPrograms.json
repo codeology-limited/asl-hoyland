@@ -5,7 +5,7 @@
     "data": [
       1, 40000
     ],
-    "runTimeInMinutes": 60,
+    "runTimeInMinutes": 90,
     "startFrequency": 3.1
   },
   "ultrasound": {
@@ -14,8 +14,8 @@
     "data": [
       500000, 670000
     ],
-    "runTimeInMinutes": 60,
-    "startFrequency": 3.1
+    "runTimeInMinutes": 9,
+    "startFrequency": 0.500000
   },
     "herpes": {
       "default":true,

@@ -63,15 +63,15 @@ const App: React.FC = () => {
     // };
 
     const handleSave = async (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => {
-        const program: Program = {
-            name: programName,
-            data: programData,
-            maxTimeInMinutes: programMaxTime,
-            range: range ? true : false,
-            default: false,
-            startFrequency: 3.1
-        };
-        await appDatabase.saveData(program);
+        // const program: Program = {
+        //     name: programName,
+        //     data: programData,
+        //     maxTimeInMinutes: programMaxTime,
+        //     range: range ? true : false,
+        //     default: false,
+        //     startFrequency: 3.1
+        // };
+        // await appDatabase.saveData(program);
         alert("Program saved successfully!");
     };
 
@@ -94,11 +94,15 @@ const App: React.FC = () => {
                 </header>
 
                 <main>
+                    <div className='xxx'>
+
+
                     <Routes>
                         <Route path="/" element={<DefaultPrograms setIsRunning={setIsRunning} isRunning={isRunning} />} />
                         <Route path="/custom" element={<CustomPrograms setIsRunning={setIsRunning} isRunning={isRunning} />} />
                         <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
+                </div>
                     <div id="console">
                         <button onClick={reconnectDevice} disabled={isRunning}>Connect</button> <p>{port}</p>
                     </div>

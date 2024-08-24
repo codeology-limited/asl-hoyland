@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ProgramItem } from '../types';
+import { Program, ProgramItem } from '../types';
 import { useAppContext } from '../AppContext';
 
 interface ProgramEditorProps {
@@ -7,21 +7,13 @@ interface ProgramEditorProps {
     onCancel: () => void;
 }
 
-interface Program {
-    id?: number;
-    name: string;
-    range: boolean;
-    data: ProgramItem[];
-    maxTimeInMinutes: number;
-    default: boolean;
-    startFrequency: number;
-}
-
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
     const [rows, setRows] = useState<ProgramItem[]>([{ channel: 1, frequency: 0, runTime: 0 }]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
+
     const { appDatabase } = useAppContext();
 
     useEffect(() => {
@@ -64,54 +56,47 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     };
 
     const handleSave = async () => {
+        if (isSaving) return; // Prevent multiple calls
+        setIsSaving(true);
+
+        // Calculate maxTimeInMinutes directly from the rows
+        const maxTimeInMinutes = rows.reduce((total, item) => total + item.runTime, 0); // The rows already store time in minutes
+
+        const data = rows.map( row =>{
+            return {...row, runTime: row.runTime * 60_000}
+        })
         const program: Program = {
             name: programName,
             range,
-            data: rows,
-            maxTimeInMinutes: 0, // Adjust this as needed
+            data, // Keep runTime in minutes in the UI
+            maxTimeInMinutes,
             default: false,
-            startFrequency: 0 // Adjust this as needed
+            startFrequency: 3.1 // Adjust this as needed
         };
 
         try {
-            // Check if the program already exists
-            const existingProgram = await appDatabase.testForProgram(programName);
-            if (existingProgram) {
-                // Overwrite the existing program
-                console.log("Program exists overwriting")
-            }
-
-            console.log('Saving program:', program);
+            console.log('Saving program:', JSON.stringify(program));
             await appDatabase.saveData(program);
             console.log('Program saved successfully');
-            onSave(programName, rows, 0, range); // Adjust the parameters as needed
+
+            onSave(programName, rows, maxTimeInMinutes, range);
         } catch (error) {
             console.error('Error saving program:', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    useEffect(() => {
-        if (programName) {
-            const loadProgramData = async () => {
-                const program = await appDatabase.loadData(programName);
-                if (program) {
-                    setRows(program.data);
-                }
-            };
-            loadProgramData();
-        }
-    }, [programName]);
-
     const handleLoadProgram = async (programName: string) => {
-         const program = await appDatabase.loadData(programName);
-        //
-         if (program) {
+        const program = await appDatabase.loadData(programName);
+        if (program) {
+            const data = program.data.map( row =>{ console.log(">>>>>", row.runTime)
+                return {...row, runTime: row.runTime / 60_000}
+            })
             setProgramName(programName);
             setRange(!!program.range);
-        //
-        //     console.log(program)
-        //     setRows(program.data);
-         }
+            setRows(data);
+        }
     };
 
     return (
@@ -119,12 +104,12 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             <div>
                 <label>
                     New program or Choose Program:<br />
-                <select onChange={(e) => handleLoadProgram(e.target.value)}>
-                    <option value="">New Program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-                    {customPrograms.map(name => (
-                        <option key={name} value={name}>{name}</option>
-                    ))}
-                </select>
+                    <select onChange={(e) => handleLoadProgram(e.target.value)}>
+                        <option value="">New Program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+                        {customPrograms.map(name => (
+                            <option key={name} value={name}>{name}</option>
+                        ))}
+                    </select>
                 </label>
             </div>
             <div>
@@ -140,22 +125,21 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             </div>
             <div id="range-selector">
                 <label>
-                    If this program is a range you must supply a start and an end point.  <br />
-                     <input
+                    If this program is a range you must supply a start and an end frequency.  <br />
+                    <input
                         type="checkbox"
                         checked={range}
                         onChange={(e) => setRange(e.target.checked)}
                     />&nbsp;&nbsp;This is a ranged program
-
                 </label>
             </div>
-            <div>
-                <table className={range?'range':''} >
+            <div className='program-table'>
+                <table className={range ? 'range' : ''} >
                     <thead>
                     <tr>
                         <th></th>
                         <th>Frequency in Hertz</th>
-                        <th>Time in {range ? 'minutes': 'milliseconds'}</th>
+                        <th>Minutes per frequency</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -169,17 +153,15 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                             <td>
                                 <input
                                     type="text"
-
-                                    value={row.frequency? row.frequency.toString() : ''}
+                                    value={row.frequency ? row.frequency.toString() : ''}
                                     onChange={(e) => handleInputChange(index, 'frequency', e.target.value)}
                                 />
                             </td>
                             <td>
                                 <input className='time'
-
-                                    type="text"
-                                    value={row.runTime?   row.runTime.toString():''}
-                                    onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
+                                       type="text"
+                                       value={row.runTime ? row.runTime.toString() : ''} // Time is now directly in minutes
+                                       onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
                                 />
                             </td>
                             <td className="add-frequency-btn">
@@ -202,8 +184,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                 </table>
             </div>
             <div>
-                <button type="button" onClick={handleSave}>Save</button>
-
+                <button type="button" onClick={handleSave} disabled={isSaving}>Save</button>
             </div>
         </div>
     );
