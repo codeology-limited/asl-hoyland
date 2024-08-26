@@ -1,68 +1,71 @@
 ; Name of the installer
-Outfile "HoylandGenerator3asl.exe"
+OutFile "Hoyland3-AlteredStates-Setup.exe"
 
-; Default installation directory
+; Set the default installation directory
 InstallDir $PROGRAMFILES\Hoyland3-AlteredStates
 
-; Page definitions
-Page directory
-Page instfiles
+; Request admin privileges
+RequestExecutionLevel admin
 
-; Main installation section
+; Set up the installer sections
 Section "MainSection" SEC01
+  ; Set the output path to the installation directory
+  SetOutPath "$INSTDIR"
 
-  ; Debugging: Start installation
-  MessageBox MB_OK "Starting installation..."
+  ; Install the main application
+  File "src-tauri\release\Hoyland3-AlteredStates.exe"
 
-  ; Set output path to the installation directory
-  SetOutPath $INSTDIR
+  ; Install the icons
+  SetOutPath "$INSTDIR\icons"
+  File "src-tauri\icons\*.png"
+  File "src-tauri\icons\icon.icns"
+  File "src-tauri\icons\icon.ico"
 
-  ; Include all files in the NSIS bundle directory
-  File /r "src-tauri/target/release/bundle/nsis/*.*"
+  ; Install the WebView2Loader.dll
+  SetOutPath "$INSTDIR"
+  File "src-tauri\resources\WebView2Loader.dll"
 
-  ; Copy WebView2 installer
-  File /r "src-tauri/webview/webview2.exe"
+SectionEnd
 
-  ; Copy CH340 drivers
-  File /r "src-tauri/drivers/CH340/CH34032.exe"
-  File /r "src-tauri/drivers/CH340/CH34164.EXE"
+Section "Install CH340 Driver" SEC02
+  ; Determine the system architecture
+  System::Call 'kernel32::IsWow64Process(i $R0, *i .r1)'
+  StrCmp $1 1 +2
+  StrCpy $R2 "CH34164.EXE" ; 64-bit system
+  StrCmp $1 0 +2
+  StrCpy $R2 "CH34032.exe" ; 32-bit system
 
-  ; Create a shortcut on the Desktop
-  CreateShortcut "$DESKTOP\Hoyland3-AlteredStates.lnk" "$INSTDIR\Hoyland3-AlteredStates.exe"
+  ; Install the CH340 driver silently
+  ExecWait '"$INSTDIR\drivers\CH340\$R2" /silent'
 
-  ; Create a Start Menu shortcut
+SectionEnd
+
+; Create uninstaller
+Section "Uninstall"
+  Delete "$INSTDIR\Hoyland3-AlteredStates.exe"
+  Delete "$INSTDIR\WebView2Loader.dll"
+  Delete "$INSTDIR\icons\*.*"
+  RMDir "$INSTDIR\icons"
+  RMDir "$INSTDIR"
+
+  ; Optionally, uninstall the CH340 driver
+  ; ExecWait '"$INSTDIR\drivers\CH340\$R2" /uninstall /silent'
+SectionEnd
+
+; Shortcuts
+Section "Shortcuts" SEC03
   CreateDirectory "$SMPROGRAMS\Hoyland3-AlteredStates"
-  CreateShortcut "$SMPROGRAMS\Hoyland3-AlteredStates\Hoyland3-AlteredStates.lnk" "$INSTDIR\Hoyland3-AlteredStates.exe"
-
-  ; Debugging: Finished copying files and creating shortcuts
-  MessageBox MB_OK "Finished copying files and creating shortcuts."
-
+  CreateShortCut "$SMPROGRAMS\Hoyland3-AlteredStates\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+  CreateShortCut "$SMPROGRAMS\Hoyland3-AlteredStates\Hoyland3-AlteredStates.lnk" "$INSTDIR\Hoyland3-AlteredStates.exe"
 SectionEnd
 
-; Install WebView2 runtime silently
-Section "Install WebView2"
-  MessageBox MB_OK "Installing WebView2..."
-  ExecWait '"$INSTDIR\webview/webview2.exe" /silent /install'
-  MessageBox MB_OK "WebView2 installation complete."
-SectionEnd
+; Page settings
+Page instfiles
+UninstPage uninstConfirm
+UninstPage instfiles
 
-; Install CH340 drivers based on system architecture
-Section "Install CH340 Drivers"
-  MessageBox MB_OK "Starting CH340 driver installation..."
-  
-  ; Check if the system is 64-bit
-  ${If} ${RunningX64}
-    MessageBox MB_OK "64-bit system detected. Installing 64-bit driver..."
-    ExecWait '"$INSTDIR\drivers\CH340\CH34164.EXE" /S'
-  ${Else}
-    MessageBox MB_OK "32-bit system detected. Installing 32-bit driver..."
-    ExecWait '"$INSTDIR\drivers\CH340\CH34032.exe" /S'
-  ${EndIf}
+; Default installation path
+InstallDir "$PROGRAMFILES\Hoyland3-AlteredStates"
 
-  MessageBox MB_OK "CH340 driver installation complete."
-SectionEnd
-
-; Debugging: Installation complete
-Section "FinalSection"
-  MessageBox MB_OK "Installation process complete!"
-SectionEnd
+; Show the finish page
+!insertmacro MUI_PAGE_FINISH
