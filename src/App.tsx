@@ -34,7 +34,12 @@ const App: React.FC = () => {
     async function reconnectDevice() {
         if (hoylandController) {
             const port = await hoylandController.reconnectDevice();
-            setPort(`Connected to ${port} port`);
+            if ( port === "TEST") {
+                setPort(`Not Connected`);
+            } else {
+                setPort(`Connected to ${port} port`);
+            }
+
         }
     }
     useEffect(() => {
@@ -109,7 +114,7 @@ const App: React.FC = () => {
                     </div>
                     <StatusIndicator status={status} />
                 </main>
-
+<footer>Copyright &copy; 2024 Altered States Limited</footer>
             </div>
         </Router>
     );

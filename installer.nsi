@@ -13,7 +13,7 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
 
   ; Install the main application
-  File "src-tauri\release\Hoyland3-AlteredStates.exe"
+  File "target\release\bundle\nsis\Hoyland3-AlteredStates.exe"
 
   ; Install the icons
   SetOutPath "$INSTDIR\icons"
@@ -21,7 +21,7 @@ Section "MainSection" SEC01
   File "src-tauri\icons\icon.icns"
   File "src-tauri\icons\icon.ico"
 
-  ; Install the WebView2Loader.dll
+  ; Force the installation of the WebView2Loader.dll
   SetOutPath "$INSTDIR"
   File "src-tauri\resources\WebView2Loader.dll"
 
@@ -35,8 +35,21 @@ Section "Install CH340 Driver" SEC02
   StrCmp $1 0 +2
   StrCpy $R2 "CH34032.exe" ; 32-bit system
 
-  ; Install the CH340 driver silently
-  ExecWait '"$INSTDIR\drivers\CH340\$R2" /silent'
+  ; Force the installation of the CH340 driver silently
+  ExecWait '"$INSTDIR\drivers\CH340\$R2" /S' $0
+  ; Check if the installation was successful
+  StrCmp $0 0 +2
+  MessageBox MB_OK "CH340 Driver installation failed."
+
+SectionEnd
+
+; Force the installation of WebView2 Runtime
+Section "Install WebView2 Runtime" SEC03
+  ; Install WebView2 silently
+  ExecWait '"$INSTDIR\webview\webview2.exe" /S' $0
+  ; Check if the installation was successful
+  StrCmp $0 0 +2
+  MessageBox MB_OK "WebView2 Runtime installation failed."
 
 SectionEnd
 
@@ -46,14 +59,15 @@ Section "Uninstall"
   Delete "$INSTDIR\WebView2Loader.dll"
   Delete "$INSTDIR\icons\*.*"
   RMDir "$INSTDIR\icons"
+  RMDir "$INSTDIR\drivers\CH340"
   RMDir "$INSTDIR"
 
   ; Optionally, uninstall the CH340 driver
-  ; ExecWait '"$INSTDIR\drivers\CH340\$R2" /uninstall /silent'
+  ; ExecWait '"$INSTDIR\drivers\CH340\$R2" /uninstall /S'
 SectionEnd
 
 ; Shortcuts
-Section "Shortcuts" SEC03
+Section "Shortcuts" SEC04
   CreateDirectory "$SMPROGRAMS\Hoyland3-AlteredStates"
   CreateShortCut "$SMPROGRAMS\Hoyland3-AlteredStates\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   CreateShortCut "$SMPROGRAMS\Hoyland3-AlteredStates\Hoyland3-AlteredStates.lnk" "$INSTDIR\Hoyland3-AlteredStates.exe"

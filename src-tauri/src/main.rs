@@ -1,4 +1,3 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{self, Manager, State, Window};
 use tauri::api::process::Command;
@@ -85,61 +84,6 @@ struct ClosePortArgs {}
 struct ReconnectArgs {
     target_device: String,
     baud_rate: u32,
-}
-
-fn get_resource_path(resource_name: &str) -> PathBuf {
-    PathBuf::from("src-tauri").join(resource_name)
-}
-
-// Installers should only run on Windows
-#[cfg(target_os = "windows")]
-fn install_driver(driver_path: &str) {
-    match Command::new(driver_path)
-        .args(&["/silent"]) // Corrected from `.arg` to `.args`
-        .spawn() {
-        Ok(_) => println!("Successfully started installer for {}", driver_path),
-        Err(e) => eprintln!("Failed to run driver installer for {}: {}", driver_path, e),
-    }
-}
-
-// Installers should only run on Windows
-#[cfg(target_os = "windows")]
-fn install_webview2() {
-    let webview2_installer = get_resource_path("webview/webview2.exe");
-    let installer_str = webview2_installer.to_string_lossy(); // Convert PathBuf to String
-    Command::new(installer_str.as_ref()) // Pass as str
-//         .args(&["/silent"]) // Corrected from `.arg` to `.args`
-        .spawn()
-        .expect("Failed to run WebView2 installer");
-}
-
-// Installers should only run on Windows
-#[cfg(target_os = "windows")]
-fn install_all_resources() {
-    // Detect system architecture
-    let arch = std::env::consts::ARCH;
-
-    // Install appropriate drivers based on architecture
-    if arch == "x86_64" {
-        println!("64-bit system detected. Installing 64-bit drivers...");
-        install_driver(&get_resource_path("drivers/CH340/CH34164.EXE").to_string_lossy());
-       // install_driver(&get_resource_path("drivers/CP210x/CP21064.exe").to_string_lossy());
-    } else if arch == "x86" {
-        println!("32-bit system detected. Installing 32-bit drivers...");
-        install_driver(&get_resource_path("drivers/CH340/CH34032.EXE").to_string_lossy());
-        //install_driver(&get_resource_path("drivers/CP210x/CP21086.exe").to_string_lossy());
-    } else {
-        println!("Unknown system architecture: {}. Skipping driver installation.", arch);
-    }
-
-    // Install WebView2 (This installer typically handles architecture internally)
-    install_webview2();
-}
-
-// On non-Windows platforms, these functions do nothing
-#[cfg(not(target_os = "windows"))]
-fn install_all_resources() {
-    // Do nothing on non-Windows platforms
 }
 
 #[tauri::command]
@@ -521,7 +465,7 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
 
 fn main() {
     // Install necessary resources before the app starts
-    install_all_resources();
+    //install_all_resources();
 
     tauri::Builder::default()
         .setup(|app| {

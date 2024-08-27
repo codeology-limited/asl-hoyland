@@ -13,8 +13,8 @@
     --fail-color: #CC0000;                   /* Dark red for strong visibility */
     --tab-bg-color: #CCCCCC;                 /* Light grey for inactive tabs, higher contrast than mid grey */
     --tab-active-bg-color: #FFFFFF;          /* White for active tabs */
-    --footer-bg-color: #333333;              /* Dark grey for footer, ensuring text contrast */
-    --footer-font-color: #FFFFFF;            /* White to stand out against the dark footer */
+    --footer-bg-color: rgba(0,0,0,0.3);              /* Dark grey for footer, ensuring text contrast */
+    --footer-font-color: #444444;            /* White to stand out against the dark footer */
     --stopping-state-color: #CC0000;         /* Same as fail color, for consistency */
     --footer-hover-color: #FF4500;           /* Bright orange-red for a noticeable hover effect */
     --slider-thumb-color: #336699;           /* A brighter navy blue, still in keeping with the theme */
@@ -333,11 +333,11 @@ footer {
     display: flex;
     flex-direction: row;
     padding: 0;
-    border-top: 1px solid var(--primary-font-color);
+
     height: 50px;
     align-items: center;
     justify-content: center;
-    background-color: var(--footer-bg-color);
+
     color: var(--footer-font-color);
 }
 
