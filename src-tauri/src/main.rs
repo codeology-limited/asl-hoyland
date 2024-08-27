@@ -1,4 +1,4 @@
-
+#![windows_subsystem = "windows"]
 use tauri::{self, Manager, State, Window};
 use tauri::api::process::Command;
 use std::path::PathBuf;
