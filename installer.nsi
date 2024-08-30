@@ -25,6 +25,11 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   File "src-tauri\resources\WebView2Loader.dll"
 
+  ; Copy the CH340 driver files to the target machine
+  SetOutPath "$INSTDIR\drivers\CH340"
+  File "src-tauri\drivers\CH340\CH34032.exe"
+  File "src-tauri\drivers\CH340\CH34164.EXE"
+
 SectionEnd
 
 Section "Install CH340 Driver" SEC02
