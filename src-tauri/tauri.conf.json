@@ -35,13 +35,6 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "macOS": {
-        "frameworks": [],
-        "minimumSystemVersion": "",
-        "exceptionDomain": "",
-        "signingIdentity": null,
-        "entitlements": null
-      },
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -52,6 +45,10 @@
         "webviewInstallMode": {
           "type": "embedBootstrapper",
           "silent": true
+        },
+        "nsis": {
+          "installerIcon": "icons/icon.ico",
+          "script": "./custom.nsi"
         }
       }
     }
