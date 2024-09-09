@@ -110,11 +110,15 @@ const App: React.FC = () => {
                     </Routes>
                 </div>
                     <div id="console">
-                        <button onClick={reconnectDevice} disabled={isRunning}>Connect</button> <p>{port}</p>
+                        <button className={port === "Not Connected" ? 'sparkly-border' : ''} onClick={reconnectDevice}
+                                disabled={isRunning}>
+                            Connect
+                        </button>
+                        <p>{port}</p>
                     </div>
-                    <StatusIndicator status={status} />
+                    <StatusIndicator status={status}/>
                 </main>
-<footer>Copyright &copy; 2024 Altered States Limited</footer>
+                <footer>Copyright &copy; 2024 Altered States Limited</footer>
             </div>
         </Router>
     );

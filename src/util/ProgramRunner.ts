@@ -11,7 +11,8 @@ interface Program {
     startFrequency: number;
 }
 
-type ProgressCallback = (currentStep: number, totalSteps: number) => void;
+type ProgressCallback = (currentStep: number, totalSteps: number, currentFrequency: number) => void;
+
 
 class ProgramRunner {
     private database: AppDatabase;
@@ -74,7 +75,7 @@ class ProgramRunner {
             if (percentageComplete > lastReportedPercentage) {
                 lastReportedPercentage = percentageComplete;
                 if (this.progressCallback) {
-                    this.progressCallback(percentageComplete, 100);
+                    this.progressCallback(percentageComplete, 100, (totalDurationMs-elapsedMs) / 60_000);
                 }
             }
         };
@@ -151,7 +152,7 @@ class ProgramRunner {
                 const percentageComplete = (elapsedMs / totalDurationMs) * 100;
 
                 if (this.progressCallback) {
-                    this.progressCallback(percentageComplete, 100); // Update progress every second
+                    this.progressCallback(percentageComplete, 100, (totalDurationMs-elapsedMs) / 60_000); // Update progress every second
                 }
 
                 if (elapsedMs >= totalDurationMs) {

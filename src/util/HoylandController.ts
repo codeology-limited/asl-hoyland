@@ -3,6 +3,7 @@ import { listen, Event } from '@tauri-apps/api/event';
 
 class HoylandController {
   intensity: number = 1;
+  currentFrequency: number = 0;
   isListening: boolean = false;
   eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
   delay: number = 100
@@ -10,6 +11,7 @@ class HoylandController {
   constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
     console.log("INITIALIZING HOYLAND CONTROLLER");
     this.intensity = 1; // Initialize intensity with a default value
+    this.currentFrequency = 0 //for display only
 
     if (eventCallback) {
       this.eventCallback = eventCallback;
@@ -121,6 +123,7 @@ class HoylandController {
     };
 
     try {
+      this.currentFrequency=frequency
       await invoke('set_frequency', { args });
       console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
     } catch (error) {
@@ -252,6 +255,7 @@ class HoylandController {
 
   async stop() {
     try {
+      this.currentFrequency=0
       console.log('Output stopped for all channels');
     } catch (error) {
       console.error('Error stopping output:', error);

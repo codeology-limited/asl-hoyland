@@ -326,28 +326,31 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
     let port_name = PORT_NAME.lock().unwrap().clone();
     println!("send_initial_commands called with port_name: {}", port_name);
 
-    let commands = [
-        "WFN0\n",       // Set Channel 2 off
-        "WMN0\n",       // Set Channel 1 off
-        "USD2\n",       // Specific command, likely setting or reading a mode/state
-        "UMS0\n",       // Specific command, likely setting or reading a mode/state
-        "UUL0\n",       // Specific command, likely setting or reading a mode/state
-        "WMF0000\n",    // Set Channel 1 frequency to 0
-        "WFF0000\n",    // Set Channel 2 frequency to 0
-        "WMW01\n",      // Set Channel 1 to square wave
-        "WFW00\n",      // Set Channel 2 to sine wave
-        "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
-        "WFO00.00\n",   // Set Channel 2 offset to 0
-        "WMO00.00\n",   // Set Channel 1 offset to 0
-        "WMD50.0\n",    // Set Channel 1 duty cycle to 50%
-        "WMP000\n",     // Set Channel 1 phase to 0
-        "WFP000\n",     // Set Channel 2 phase to 0
-        "WFT0\n",       // Set Channel 2 attenuation to 0
-        "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
-        "USA2\n",       // Specific command, likely setting or reading a mode/state
-        "WFN1\n",       // Set Channel 2 on
-        "WMN1\n",       // Set Channel 1 on
-    ];
+        let channel0 = vec![
+           // "WMN0\n",       // Set Channel 1 off
+         //   "WMF0000\n",    // Set Channel 1 frequency to 0
+            "WMW01\n",      // Set Channel 1 to square wave
+            "WMO00.00\n",   // Set Channel 1 offset to 0
+            "WMD50.0\n",    // Set Channel 1 duty cycle to 50%
+            "WMP000\n",     // Set Channel 1 phase to 0
+            "WMT0\n",       // Set Channel 1 attenuation to 0
+            "WMN1\n"        // Set Channel 1 on
+        ];
+
+        let channel1 = vec![
+            //"WFN0\n",       // Set Channel 2 off
+            "WFW00\n",      // Set Channel 2 to sine wave
+            "WFO00.00\n",   // Set Channel 2 offset to 0
+            "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
+            "WFP000\n",     // Set Channel 2 phase to 0
+            "WFT0\n",       // Set Channel 2 attenuation to 0
+           // "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
+            "WFN1\n"        // Set Channel 2 on
+        ];
+
+        let mut commands = channel0.clone();  // Start with channel0
+        commands.extend(channel1);  // Extend with channel1
+
 
     for cmd in &commands {
         println!("Sending command: {}", cmd);
@@ -370,7 +373,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
     println!("stop_and_reset called with port_name: {}", port_name);
 
     let commands = [
-        "WFN0\n", "WMN0\n", "WFN0\n", "WMN0\n", "USD2\n", "WMA05.00\n"
+        "WFN0\n", "WMN0\n"//, "USD2\n", "WMA05.00\n"
     ];
 
     for cmd in &commands {

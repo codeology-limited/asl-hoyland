@@ -7,14 +7,22 @@ interface DefaultProgramsProps {
     isRunning: boolean;
 }
 
+function convertToMinutesAndSeconds(decimalMinutes: number): string {
+    const minutes = Math.floor(decimalMinutes);
+    const seconds = Math.floor((decimalMinutes - minutes) * 60);
+    return `${minutes} minutes and ${seconds} seconds`;
+}
+
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning }) => {
     const [progress, setProgress] = useState(0);
+    const [currentFrequency, setCurrentFrequency] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
     const [intensity, setIntensity] = useState(5);
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isPaused, setIsPaused] = useState(false);
     const [isStopping, setIsStopping] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -35,9 +43,10 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         }
     }, [appDatabase.preloadDone]);
 
-    const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
+    const handleProgressUpdate = (currentStep: number, totalSteps: number, currentF: number) => {
         setProgress(currentStep);
         setTotalSteps(totalSteps);
+        setCurrentFrequency(currentF);
     };
 
     useEffect(() => {
@@ -49,9 +58,21 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     const loadProgram = async (programName: string) => {
         const program = await appDatabase.loadData(programName);
+
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
         }
+
+        setTimeout(function(){
+            hoylandController.reconnectDevice().then(function(port){
+                if ( port === "TEST"){
+                    setIsConnected(false)
+                } else {
+                    setIsConnected(true)
+                }
+            })
+        },0)
+
     };
 
     const handleStartStop = async () => {
@@ -96,10 +117,11 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     };
 
     return (
-        <div className="tab-body default-programs">
+        <div className={`${isConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
+
             <div>
-                <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
-                        disabled={isRunning}>
+                <select disabled={isRunning} value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
+                      >
                     <option value="" disabled>Choose</option>
                     {programNames.map((name) => (
                         <option key={name} value={name}>{name}</option>
@@ -119,9 +141,10 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 </button>
             </div>
 
-            <div>
+            <div className="progress-bar-wrapper">
                 <progress className="progress-bar" value={progress} max={totalSteps}></progress>
                 <label>{totalSteps > 0 ? `${Math.floor((progress / totalSteps) * 100)}% complete` : '0% complete'}</label>
+                <span>{currentFrequency > 0 ? `${convertToMinutesAndSeconds(currentFrequency)} remain` : null}</span>
             </div>
 
             <div>

@@ -6,15 +6,22 @@ interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
 }
+function convertToMinutesAndSeconds(decimalMinutes: number): string {
+    const minutes = Math.floor(decimalMinutes);
+    const seconds = Math.floor((decimalMinutes - minutes) * 60);
+    return `${minutes} minutes and ${seconds} seconds`;
+}
 
 const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning }) => {
     const [progress, setProgress] = useState(0);
+    const [currentFrequency, setCurrentFrequency] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
     const [intensity, setIntensity] = useState(5);
     const [selectedProgram, setSelectedProgram] = useState('');
     const [programNames, setProgramNames] = useState<string[]>([]);
     const [isPaused, setIsPaused] = useState(false);
     const [isStopping, setIsStopping] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -25,20 +32,24 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 const programs = await appDatabase.getCustomPrograms();
                 const names = programs.map(program => program.name);
                 setProgramNames(names);
+
             } catch (error) {
                 console.error('Failed to load custom programs:', error);
             }
         };
+
 
         if (appDatabase) {
             loadCustomPrograms();
         }
     }, [appDatabase]);
 
-    const handleProgressUpdate = (currentStep: number, totalSteps: number) => {
+    const handleProgressUpdate = (currentStep: number, totalSteps: number, currentF: number) => {
         setProgress(currentStep);
         setTotalSteps(totalSteps);
+        setCurrentFrequency(currentF);
     };
+
 
     useEffect(() => {
         if (runnerRef.current) {
@@ -57,6 +68,17 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 : program.data.length;
             setTotalSteps(totalSteps);
         }
+
+        setTimeout(function(){
+            hoylandController.reconnectDevice().then(function(port){
+                if ( port === "TEST"){
+                    setIsConnected(false)
+                } else {
+                    setIsConnected(true)
+                }
+            })
+        },0)
+
     };
 
     const handleStartStop = async () => {
@@ -102,46 +124,50 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     };
 
     return (
-        <div className="tab-body custom-programs">
-            <div>
-                <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} disabled={isRunning}>
-                    <option value="" disabled>Choose</option>
-                    {programNames.map((name) => (
-                        <option key={name} value={name}>{name}</option>
-                    ))}
-                </select>
+        <div className={`${isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
+                <div>
 
-                <button
-                    className={isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
-                    onClick={handleStartStop}
-                    disabled={!selectedProgram && !isRunning} // Disable when no program is selected and not running
-                >
-                    {isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
-                </button>
 
-                <button onClick={handlePauseContinue} disabled={!isRunning}>
-                    {isPaused ? 'Continue' : 'Pause'}
-                </button>
+                        <select disabled={isRunning} value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
+                        <option value="" disabled>Choose Custom</option>
+                        {programNames.map((name) => (
+                            <option key={name} value={name}>{name}</option>
+                        ))}
+                    </select>
+
+                    <button
+                        className={isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
+                        onClick={handleStartStop}
+                        disabled={!selectedProgram && !isRunning} // Disable when no program is selected and not running
+                    >
+                        {isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
+                    </button>
+
+                    <button onClick={handlePauseContinue} disabled={!isRunning}>
+                        {isPaused ? 'Continue' : 'Pause'}
+                    </button>
+                </div>
+
+
+                <div className="progress-bar-wrapper">
+                    <progress className="progress-bar" value={progress} max={totalSteps}></progress>
+                    <label>{totalSteps > 0 ? `${Math.floor((progress / totalSteps) * 100)}% complete` : '0% complete'}</label>
+                    <span>{currentFrequency > 0 ? `${convertToMinutesAndSeconds(currentFrequency)} remain` : null}</span>
+                </div>
+
+                <div>
+                    <label>Intensity: {Math.floor(((intensity || 0) / 20) * 100)}%</label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        value={intensity}
+                        onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
+                        disabled={isStopping}
+                    />
+                </div>
             </div>
+            );
+            };
 
-            <div>
-                <progress className="progress-bar" value={progress} max={totalSteps}></progress>
-                <label>{totalSteps > 0 ? `${Math.floor((progress / totalSteps) * 100)}% complete` : '0% complete'}</label>
-            </div>
-
-            <div>
-                <label>Intensity: {Math.floor(((intensity || 0) / 20) * 100)}%</label>
-                <input
-                    type="range"
-                    min="1"
-                    max="20"
-                    value={intensity}
-                    onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
-                    disabled={isStopping}
-                />
-            </div>
-        </div>
-    );
-};
-
-export default CustomPrograms;
+            export default CustomPrograms;
