@@ -139,7 +139,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                     <tr>
                         <th></th>
                         <th>Frequency in Hertz</th>
-                        <th>Minutes per frequency</th>
+                        <th>{range ? 'Total run time':'Minutes per frequency'}</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -155,6 +155,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                                     type="text"
                                     value={row.frequency ? row.frequency.toString() : ''}
                                     onChange={(e) => handleInputChange(index, 'frequency', e.target.value)}
+                                    placeholder={range ? ( index === 0 ? 'Start Frequency':'End Frequency' ):'Frequency'}
                                 />
                             </td>
                             <td>
@@ -162,6 +163,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                                        type="text"
                                        value={row.runTime ? row.runTime.toString() : ''} // Time is now directly in minutes
                                        onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
+                                       placeholder="Time in minutes"
                                 />
                             </td>
                             <td className="add-frequency-btn">
