@@ -27,16 +27,17 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
 
+    const loadDefaultPrograms = async () => {
+        try {
+            const programs = await appDatabase.getDefaultPrograms();
+            const names = programs.map(program => program.name);
+            setProgramNames(names);
+        } catch (error) {
+            console.error('Failed to load default programs:', error);
+        }
+    };
     useEffect(() => {
-        const loadDefaultPrograms = async () => {
-            try {
-                const programs = await appDatabase.getDefaultPrograms();
-                const names = programs.map(program => program.name);
-                setProgramNames(names);
-            } catch (error) {
-                console.error('Failed to load default programs:', error);
-            }
-        };
+
 
         if (appDatabase.preloadDone) {
             loadDefaultPrograms();
@@ -79,6 +80,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (isRunning) {
             setIsStopping(true);
             await runnerRef.current?.stopProgram();
+            setCurrentFrequency(0);
             resetUI();
         } else {
             if (selectedProgram) {
@@ -120,7 +122,9 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         <div className={`${isConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
 
             <div>
-                <select disabled={isRunning} value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}
+                <select disabled={isRunning || !isConnected} value={selectedProgram}
+                        onMouseEnter={() => loadDefaultPrograms()}
+                        onChange={(e) => setSelectedProgram(e.target.value)}
                       >
                     <option value="" disabled>Choose</option>
                     {programNames.map((name) => (

@@ -128,8 +128,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 <div>
 
 
-                        <select disabled={isRunning} value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
-                        <option value="" disabled>Choose Custom</option>
+                        <select disabled={isRunning || !isConnected} value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
+                        <option value="" disabled>Choose Custom&nbsp;&nbsp;&nbsp;&nbsp;</option>
                         {programNames.map((name) => (
                             <option key={name} value={name}>{name}</option>
                         ))}

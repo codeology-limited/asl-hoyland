@@ -93,8 +93,11 @@ select {
     box-shadow: var(--box-shadow);
     outline: none;
     font-weight: bold;
-}
 
+}
+select{
+    min-width: 40%;
+}
 button,
 select {
     cursor: pointer;
