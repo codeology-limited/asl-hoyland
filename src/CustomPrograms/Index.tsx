@@ -5,6 +5,7 @@ import ProgramRunner from '../util/ProgramRunner';
 interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
+    isPortConnected: boolean;
 }
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
     const minutes = Math.floor(decimalMinutes);
@@ -12,7 +13,7 @@ function convertToMinutesAndSeconds(decimalMinutes: number): string {
     return `${minutes} minutes and ${seconds} seconds`;
 }
 
-const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning }) => {
+const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning,isPortConnected }) => {
     const [progress, setProgress] = useState(0);
     const [currentFrequency, setCurrentFrequency] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
@@ -25,6 +26,11 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
+
+    useEffect(() => {
+        setIsConnected(isPortConnected)
+
+    }, [isPortConnected]);
 
     useEffect(() => {
         const loadCustomPrograms = async () => {

@@ -5,6 +5,7 @@ import ProgramRunner from '../util/ProgramRunner';
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
+    isPortConnected: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -13,7 +14,7 @@ function convertToMinutesAndSeconds(decimalMinutes: number): string {
     return `${minutes} minutes and ${seconds} seconds`;
 }
 
-const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning }) => {
+const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
     const [progress, setProgress] = useState(0);
     const [currentFrequency, setCurrentFrequency] = useState(0);
     const [totalSteps, setTotalSteps] = useState(0);
@@ -36,6 +37,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             console.error('Failed to load default programs:', error);
         }
     };
+
+    useEffect(() => {
+        setIsConnected(isPortConnected)
+
+    }, [isPortConnected]);
+
     useEffect(() => {
 
 

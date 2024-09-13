@@ -14,6 +14,7 @@ const App: React.FC = () => {
     const [status,  ] = useState<'success' | 'fail' | null>(null);
     const { hoylandController, appDatabase } = useAppContext();
     const [isRunning, setIsRunning] = useState(false);
+    const [isPortConnected, setIsPortConnected] = useState(false);
 
     // useRef to ensure the initialization runs only once
     const initializationRef = useRef(false);
@@ -36,8 +37,11 @@ const App: React.FC = () => {
             const port = await hoylandController.reconnectDevice();
             if ( port === "TEST") {
                 setPort(`Not Connected`);
+                setIsPortConnected(false)
+
             } else {
                 setPort(`Connected to ${port} port`);
+                setIsPortConnected(true)
             }
 
         }
@@ -104,8 +108,8 @@ const App: React.FC = () => {
 
 
                     <Routes>
-                        <Route path="/" element={<DefaultPrograms setIsRunning={setIsRunning} isRunning={isRunning} />} />
-                        <Route path="/custom" element={<CustomPrograms setIsRunning={setIsRunning} isRunning={isRunning} />} />
+                        <Route path="/" element={<DefaultPrograms setIsRunning={setIsRunning} isRunning={isRunning}  isPortConnected={isPortConnected} />} />
+                        <Route path="/custom" element={<CustomPrograms setIsRunning={setIsRunning} isRunning={isRunning}   isPortConnected={isPortConnected}/>} />
                         <Route path="/editor" element={<ProgramEditor onSave={handleSave} onCancel={handleCancel} />} />
                     </Routes>
                 </div>
