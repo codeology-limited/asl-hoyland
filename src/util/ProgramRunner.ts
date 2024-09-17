@@ -85,7 +85,7 @@ class ProgramRunner {
                 return; // Skip update if paused or stopped
             }
             updateProgress();
-        }, 1000); // Update progress every second
+        }, 500); // Update progress every second
 
         while (this.running && (Date.now() - startTime - this.totalPausedTime) < totalDurationMs) {
             if (this.paused) {

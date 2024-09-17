@@ -11,6 +11,56 @@ use std::io::Write;
 use serde::{Serialize, Deserialize};
 use std::io::Read;
 
+
+// Set Commands
+// [WMW - Set waveform of main wave]
+// [WMF - Set frequency of main wave]
+// [WMA - Set amplitude of main wave]
+// [WMO - Set offset of main wave]
+// [WMD - Set duty cycle of main wave]
+// [WMP - Set phase of main wave]
+// [WMN - Set On/Off of main wave output]
+
+// [WFW - Set waveform of auxiliary wave]
+// [WFF - Set frequency of auxiliary wave]
+// [WFA - Set amplitude of auxiliary wave]
+// [WFO - Set offset of auxiliary wave]
+// [WFD - Set duty cycle of auxiliary wave]
+// [WFP - Set phase of auxiliary wave]
+// [WFN - Set On/Off of auxiliary wave output]
+
+// [WPM - Set trigger mode of main wave]
+// [WPN - Set pulse amount triggered by main wave]
+// [WTA - Set ASK mode of main wave]
+// [WTF - Set FSK mode of main wave]
+// [WFK - Set FSK secondary frequency of main wave]
+// [WTP - Set PSK mode of main wave]
+
+// Read Commands
+// [RMW - Read waveform of main wave]
+// [RMF - Read frequency of main wave]
+// [RMA - Read amplitude of main wave]
+// [RMO - Read offset of main wave]
+// [RMD - Read duty cycle of main wave]
+// [RMP - Read phase of main wave]
+// [RMN - Read On/Off of main wave output]
+
+// [RFW - Read waveform of auxiliary wave]
+// [RFF - Read frequency of auxiliary wave]
+// [RFA - Read amplitude of auxiliary wave]
+// [RFO - Read offset of auxiliary wave]
+// [RFD - Read duty cycle of auxiliary wave]
+// [RFP - Read phase of auxiliary wave]
+// [RFN - Read On/Off of auxiliary wave output]
+
+// [RPM - Read trigger mode of main wave]
+// [RPN - Read pulse amount triggered by main wave]
+// [RTA - Read ASK mode of main wave]
+// [RTF - Read FSK mode of main wave]
+// [RFK - Read FSK secondary frequency of main wave]
+// [RTP - Read PSK mode of main wave]
+
+
 #[macro_use]
 extern crate lazy_static;
 
@@ -245,8 +295,9 @@ fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window)
 
     let scaled_amplitude = args.amplitude; // Scale the amplitude
     let commands = [
-        format!("WMA{:05.2}\n", scaled_amplitude), // Command for amplitude
-   //     format!("WFA{:05.2}\n", scaled_amplitude), // Command for amplitude
+        format!("WMA{:05.2}\n", scaled_amplitude),
+        format!("USA2\n")
+       // format!("WFA{:05.2}\n", scaled_amplitude),
     ];
 
     for cmd in &commands {
@@ -334,7 +385,9 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
             "WMD50.0\n",    // Set Channel 1 duty cycle to 50%
             "WMP000\n",     // Set Channel 1 phase to 0
             "WMT0\n",       // Set Channel 1 attenuation to 0
-            "WMN1\n"        // Set Channel 1 on
+            "WMN1\n",        // Set Channel 1 on
+            "WMA005.000\n",
+            "USA2\n"
         ];
 
         let channel1 = vec![
@@ -345,7 +398,8 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
             "WFP000\n",     // Set Channel 2 phase to 0
             "WFT0\n",       // Set Channel 2 attenuation to 0
            // "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
-            "WFN1\n"        // Set Channel 2 on
+            "WFN1\n",        // Set Channel 2 on
+            "WFA005.000\n",
         ];
 
         let mut commands = channel0.clone();  // Start with channel0
@@ -385,7 +439,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
                 return Err(format!("Failed to send command '{}': {}", cmd, e));
             },
         }
-        std::thread::sleep(std::time::Duration::from_millis(300));
+        std::thread::sleep(std::time::Duration::from_millis(600));
     }
 
     Ok(true)

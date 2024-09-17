@@ -138,13 +138,9 @@ class HoylandController {
     };
 
     try {
-      console.log('Invoking set_amplitude with args:', args);
-      await this.wait()
-      await this.wait()
+      //console.log('Invoking set_amplitude with args:', args);
       await invoke('set_amplitude', { args });
-      await this.wait()
-      await this.wait()
-      console.log(`Amplitude set to ${amplitude} for channel ${channel}`);
+      //console.log(`Amplitude set to ${amplitude} for channel ${channel}`);
     } catch (error) {
       console.error('Error setting amplitude:', error);
     }
