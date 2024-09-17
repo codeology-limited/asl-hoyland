@@ -47,13 +47,11 @@ class ProgramRunner {
 
     async setIntensity(intensity: number) {
         this.intensity = intensity;
-        console.log('Intensity set to:', this.intensity);
-        this.generator.setAmplitude(1, this.intensity); // Set Channel 1 amplitude
+        this.generator.setAmplitude( this.intensity); // Set Channel 1 amplitude
     }
 
     setProgressCallback(callback: ProgressCallback) {
         this.progressCallback = callback;
-        console.log('Progress callback set');
     }
 
     async runSpecialCase() {

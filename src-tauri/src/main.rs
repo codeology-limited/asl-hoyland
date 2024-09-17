@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 use tauri::{self, Manager, State, Window};
-use tauri::api::process::Command;
-use std::path::PathBuf;
+
+
 use env_logger::Env;
 use serialport::{self, SerialPort};
 use std::sync::Mutex;
@@ -92,40 +92,9 @@ struct SetAmplitudeArgs {
 }
 
 #[derive(Serialize, Deserialize)]
-struct EnableOutputArgs {
-    channel: u8,
-    enable: bool,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetOffsetArgs {
-    channel: u8,
-    offset: f64,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetDutyCycleArgs {
-    channel: u8,
-    duty_cycle: f64,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetPhaseArgs {
-    channel: u8,
-    phase: u16,
-}
-
-#[derive(Serialize, Deserialize)]
-struct SetAttenuationArgs {
-    channel: u8,
-    attenuation: u8,
-}
-
-#[derive(Serialize, Deserialize)]
 struct OpenPortArgs {
     baud_rate: u32,
 }
-
 
 #[derive(Serialize, Deserialize)]
 struct ClosePortArgs {}
@@ -296,8 +265,6 @@ fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window)
     let scaled_amplitude = args.amplitude; // Scale the amplitude
     let commands = [
         format!("WMA{:05.2}\n", scaled_amplitude),
-        format!("USA2\n")
-       // format!("WFA{:05.2}\n", scaled_amplitude),
     ];
 
     for cmd in &commands {
@@ -316,61 +283,15 @@ fn set_amplitude(state: State<AppState>, args: SetAmplitudeArgs, window: Window)
     Ok(true)
 }
 
-
-#[tauri::command]
-fn set_offset(state: State<AppState>, args: SetOffsetArgs, window: Window) -> Result<bool, String> {
-    println!("set_offset called with channel: {}, offset: {}", args.channel, args.offset);
-    let cmd = format!("WMO{:05.2}\n", args.offset);
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
-}
-
-#[tauri::command]
-fn set_duty_cycle(state: State<AppState>, args: SetDutyCycleArgs, window: Window) -> Result<bool, String> {
-    println!("set_duty_cycle called with channel: {}, duty_cycle: {}", args.channel, args.duty_cycle);
-    let cmd = format!("WMD{:04.1}\n", args.duty_cycle);
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
-}
-
-#[tauri::command]
-fn set_phase(state: State<AppState>, args: SetPhaseArgs, window: Window) -> Result<bool, String> {
-    println!("set_phase called with channel: {}, phase: {}", args.channel, args.phase);
-    let cmd = format!("WMP{:03}\n", args.phase);
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
-}
-
-#[tauri::command]
-fn set_attenuation(state: State<AppState>, args: SetAttenuationArgs, window: Window) -> Result<bool, String> {
-    println!("set_attenuation called with channel: {}, attenuation: {}", args.channel, args.attenuation);
-    let cmd = format!("WMT{:01}\n", args.attenuation);
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
-}
-
-#[tauri::command]
-fn synchronise_voltage(state: State<AppState>, window: Window) -> Result<bool, String> {
-    println!("synchronise_voltage called");
-    let cmd = format!("USA2\n");
-    write_to_port(state, WriteToPortArgs { data: cmd }, window)
-}
-
 #[tauri::command]
 fn sine_wave(state: State<AppState>, window: Window) -> Result<bool, String> {
-    println!("synchronise_voltage called");
-    let cmd = format!("WMW00\n");
+    println!("sine_wave called");
+    let cmd = "WMW00\n".to_string();
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
 
-#[tauri::command]
-fn enable_output(state: State<AppState>, args: EnableOutputArgs, window: Window) -> Result<bool, String> {
-    println!("enable_output called with channel: {}, enable: {}", args.channel, args.enable);
 
-    // Using cloned state and window
-    write_to_port(state.clone(), WriteToPortArgs { data: "WMN1\n".to_string() }, window.clone())?;
-    std::thread::sleep(std::time::Duration::from_millis(500));
-    write_to_port(state, WriteToPortArgs { data: "WFN1\n".to_string() }, window)?;
-
-    Ok(true) // Return Ok with true to match the expected type
-}
 
 #[tauri::command]
 fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
@@ -378,8 +299,6 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
     println!("send_initial_commands called with port_name: {}", port_name);
 
         let channel0 = vec![
-           // "WMN0\n",       // Set Channel 1 off
-         //   "WMF0000\n",    // Set Channel 1 frequency to 0
             "WMW01\n",      // Set Channel 1 to square wave
             "WMO00.00\n",   // Set Channel 1 offset to 0
             "WMD50.0\n",    // Set Channel 1 duty cycle to 50%
@@ -391,15 +310,12 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
         ];
 
         let channel1 = vec![
-            //"WFN0\n",       // Set Channel 2 off
             "WFW00\n",      // Set Channel 2 to sine wave
             "WFO00.00\n",   // Set Channel 2 offset to 0
             "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
             "WFP000\n",     // Set Channel 2 phase to 0
             "WFT0\n",       // Set Channel 2 attenuation to 0
-           // "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
-            "WFN1\n",        // Set Channel 2 on
-            "WFA005.000\n",
+            "WFN1\n"        // Set Channel 2 on
         ];
 
         let mut commands = channel0.clone();  // Start with channel0
@@ -490,8 +406,8 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
                             let mut ports = state.ports.lock().map_err(|_| "Failed to acquire lock on ports.".to_string())?;
                             ports.insert(port.port_name.clone(), PortHandle(Mutex::new(Some(serial_port))));
                             println!("Successfully connected to device on port: {}", port.port_name);
-                            *PORT_NAME.lock().unwrap() = port.port_name.clone();
-                            reconnected_port = port.port_name.clone();
+                            PORT_NAME.lock().unwrap().clone_from(&port.port_name);
+                            reconnected_port.clone_from(&port.port_name);
                             window.emit("reconnected", reconnected_port.clone()).unwrap();
                             return Ok(reconnected_port);
                         }
@@ -539,13 +455,9 @@ fn main() {
             close_port,
             set_frequency,
             set_amplitude,
-            set_offset,
-            set_duty_cycle,
-            set_phase,
-            set_attenuation,
-            synchronise_voltage,
+
             send_initial_commands,
-            enable_output,
+
             stop_and_reset,
             write_to_port,
             reconnect_device,

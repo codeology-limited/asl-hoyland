@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-do
 import "./assets/App.css";
 import DefaultPrograms from "./DefaultPrograms/Index";
 import CustomPrograms from "./CustomPrograms/Index";
-import ProgramEditor from "./ProgramEditor/index.tsx";
+import ProgramEditor from "./ProgramEditor/index";
 import StatusIndicator from "./StatusIndicator";
 import { AppProvider, useAppContext } from './AppContext';
 
