@@ -77,7 +77,7 @@ class HoylandController {
 
   async setFrequency(channel: number, frequency: number) {
     const args = {
-      channel: 1,
+      channel: channel,
       frequency: frequency,
     };
 
