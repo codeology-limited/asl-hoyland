@@ -253,7 +253,7 @@ fn set_frequency(state: State<AppState>, args: SetFrequencyArgs, window: Window)
         Ok(_) => println!("Command '{}' frequency sent successfully to the port", cmd.trim()),
         Err(e) => return Err(format!("Failed to send command: {}", e)),
     }
-    std::thread::sleep(std::time::Duration::from_millis(50));
+    std::thread::sleep(std::time::Duration::from_millis(5));
     // Return success
     Ok(true)
 }

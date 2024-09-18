@@ -156,9 +156,6 @@ class ProgramRunner {
         const startTime = Date.now(); // Record the start time
         const totalDurationMs = program.maxTimeInMinutes * 60 * 1000; // Total time in milliseconds
 
-
-        await new Promise(resolve => setTimeout(resolve, 700)); // Initial delay
-
         const updateProgressBar = async () => {
             while (this.running) {
                 if (this.paused) {
@@ -177,7 +174,7 @@ class ProgramRunner {
                     break; // Exit the loop if the total duration is reached
                 }
 
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+                await new Promise(resolve => setTimeout(resolve, 50)); // Wait for 1 second
             }
         };
 
@@ -230,7 +227,7 @@ class ProgramRunner {
                                 clearInterval(checkRunning);
                                 resolve(); // Resolve immediately if running is false
                             }
-                        }, 10); // Check every 10ms
+                        }, 5); // Check every 10ms
                     });
 
                     if (!this.running) break; // Immediately exit if not running
