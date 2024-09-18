@@ -110,8 +110,15 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (runnerRef.current) {
             runnerRef.current.setIntensity(state.intensity);
             runnerRef.current.setProgressCallback(handleProgressUpdate);
+
+            // Add this to set the callback for when the program stops
+            runnerRef.current.setOnStopCallback(() => {
+                resetUI();  // Reset UI when the program stops
+            });
         }
     }, [state.intensity, handleProgressUpdate]);
+
+
 
     const loadProgram = useCallback(
         async (programName: string) => {

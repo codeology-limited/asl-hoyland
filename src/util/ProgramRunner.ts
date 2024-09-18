@@ -23,6 +23,7 @@ class ProgramRunner {
     private progressCallback: ProgressCallback | null;
     private pauseStartTime: number = 0;
     private totalPausedTime: number = 0;
+    private onStopCallback: (() => void) | null = null; // Callback for stopping
 
     constructor(database: AppDatabase, generator: HoylandController, progressCallback: ProgressCallback | null = null) {
         this.database = database;
@@ -52,6 +53,10 @@ class ProgramRunner {
 
     setProgressCallback(callback: ProgressCallback) {
         this.progressCallback = callback;
+    }
+
+    setOnStopCallback(callback: () => void) {
+        this.onStopCallback = callback;
     }
 
     async runSpecialCase() {
@@ -114,6 +119,8 @@ class ProgramRunner {
         await this.generator.stopAndReset();
         console.log('Special case program completed');
         this.running = false;
+
+        if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
     }
 
     async initializeChannel1() {
@@ -240,6 +247,8 @@ class ProgramRunner {
         this.running = false;
         this.paused = false;
         console.log('Program completed:', programName);
+
+        if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
     }
 
     pauseProgram() {
@@ -263,6 +272,8 @@ class ProgramRunner {
         this.running = false;
         this.paused = false;
         console.log('Program stopped');
+
+        if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
     }
 }
 

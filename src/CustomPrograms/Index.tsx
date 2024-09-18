@@ -108,14 +108,21 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     const handleProgressUpdate = useCallback((currentStep: number, totalSteps: number, currentF: number) => {
         dispatch({ type: 'SET_PROGRESS', currentStep, totalSteps, currentFrequency: currentF });
     }, []);
+    
 
-    // Handle intensity changes
     useEffect(() => {
         if (runnerRef.current) {
             runnerRef.current.setIntensity(state.intensity);
             runnerRef.current.setProgressCallback(handleProgressUpdate);
+
+            // Set the onStop callback to reset the UI when the program stops
+            runnerRef.current.setOnStopCallback(() => {
+                resetUI();  // Reset UI when the program stops
+            });
         }
     }, [state.intensity, handleProgressUpdate]);
+
+
 
     // Load the selected program and initialize the runner
     const loadProgram = async (programName: string) => {
