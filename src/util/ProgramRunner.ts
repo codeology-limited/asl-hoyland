@@ -126,6 +126,14 @@ class ProgramRunner {
         await this.generator.sendSecondaryCommands();
     }
 
+    async setChannel1StartFrequency(programName:string){
+        const program = await this.loadProgram(programName);
+        if ( !program){
+            return
+        }
+        await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to startFrequency
+    }
+
     async startProgram(programName: string) {
         console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);
@@ -141,7 +149,7 @@ class ProgramRunner {
         const startTime = Date.now(); // Record the start time
         const totalDurationMs = program.maxTimeInMinutes * 60 * 1000; // Total time in milliseconds
 
-        await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to startFrequency
+
         await new Promise(resolve => setTimeout(resolve, 700)); // Initial delay
 
         const updateProgressBar = async () => {

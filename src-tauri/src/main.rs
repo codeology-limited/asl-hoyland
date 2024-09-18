@@ -305,6 +305,7 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
             "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
             "WFP000\n",     // Set Channel 2 phase to 0
             "WFT0\n",       // Set Channel 2 attenuation to 0
+            "WFF3100000.000000\n",  // Set Channel 2 frequency to 3.1 MHz
             "WFN1\n"        // Set Channel 2 on
         ];
 
