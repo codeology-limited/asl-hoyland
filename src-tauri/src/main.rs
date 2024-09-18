@@ -298,18 +298,17 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
     let port_name = PORT_NAME.lock().unwrap().clone();
     println!("send_initial_commands called with port_name: {}", port_name);
 
-        let channel0 = vec![
-            "WMW01\n",      // Set Channel 1 to square wave
-            "WMO00.00\n",   // Set Channel 1 offset to 0
-            "WMD50.0\n",    // Set Channel 1 duty cycle to 50%
-            "WMP000\n",     // Set Channel 1 phase to 0
-            "WMT0\n",       // Set Channel 1 attenuation to 0
-            "WMN1\n",        // Set Channel 1 on
-            "WMA005.000\n",
-            "USA2\n"
+
+        let channel1 = vec![
+            "WFW00\n",      // Set Channel 2 to sine wave
+            "WFO00.00\n",   // Set Channel 2 offset to 0
+            "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
+            "WFP000\n",     // Set Channel 2 phase to 0
+            "WFT0\n",       // Set Channel 2 attenuation to 0
+            "WFN1\n"        // Set Channel 2 on
         ];
 
-        let  commands = channel0.clone();  // Start with channel0
+        let  commands = channel1.clone();  // Start with channel0
 
 
 
@@ -337,16 +336,18 @@ fn send_secondary_commands(state: State<AppState>, window: Window) -> Result<boo
     println!("send_secondary_commands called with port_name: {}", port_name);
 
 
-        let channel1 = vec![
-            "WFW00\n",      // Set Channel 2 to sine wave
-            "WFO00.00\n",   // Set Channel 2 offset to 0
-            "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
-            "WFP000\n",     // Set Channel 2 phase to 0
-            "WFT0\n",       // Set Channel 2 attenuation to 0
-            "WFN1\n"        // Set Channel 2 on
+        let channel0 = vec![
+            "WMW01\n",      // Set Channel 1 to square wave
+            "WMO00.00\n",   // Set Channel 1 offset to 0
+            "WMD50.0\n",    // Set Channel 1 duty cycle to 50%
+            "WMP000\n",     // Set Channel 1 phase to 0
+            "WMT0\n",       // Set Channel 1 attenuation to 0
+            "WMN1\n",        // Set Channel 1 on
+            "WMA005.000\n",
+            "USA2\n"
         ];
 
-        let  commands = channel1.clone();  // Start with channel0
+        let  commands = channel0.clone();  // Start with channel0
 
 
 
