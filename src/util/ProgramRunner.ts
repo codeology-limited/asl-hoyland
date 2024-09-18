@@ -63,7 +63,7 @@ class ProgramRunner {
         console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
 
         await this.generator.sinewave();
-        await new Promise(resolve => setTimeout(resolve, 700)); // Initial delay
+
         this.running = true;
         this.paused = false;
 
@@ -88,7 +88,7 @@ class ProgramRunner {
                 return; // Skip update if paused or stopped
             }
             updateProgress();
-        }, 500); // Update progress every second
+        }, 50); // Update progress every second
 
         while (this.running && (Date.now() - startTime - this.totalPausedTime) < totalDurationMs) {
             if (this.paused) {
@@ -103,11 +103,11 @@ class ProgramRunner {
 
             // Set frequency to 0.5 MHz
             await this.generator.setFrequency(1, 0.5 * 1_000_000);
-            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 ms
+            await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
 
             // Set frequency to 0.67 MHz
             await this.generator.setFrequency(1, 0.67 * 1_000_000);
-            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 ms
+            await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
 
             // Update the progress bar
             updateProgress();

@@ -124,14 +124,16 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                 </label>
             </div>
             <div id="range-selector">
-                <label>
-                    If this program is a range you must supply a start and an end frequency.  <br />
-                    <input
-                        type="checkbox"
-                        checked={range}
-                        onChange={(e) => setRange(e.target.checked)}
-                    />&nbsp;&nbsp;This is a ranged program
-                </label>
+                <label><input
+                    type="checkbox"
+                    checked={range}
+                    onChange={(e) => setRange(e.target.checked)}
+                />&nbsp;&nbsp;This is a ranged program.<br />
+                    Note 1: If this program is a range you must supply a start and an end frequency.<br />
+                    Note 2: More than 400 frequency adjustments per minute not supported.)<br />
+            </label>
+
+
             </div>
             <div className='program-table'>
                 <table className={range ? 'range' : ''} >
