@@ -140,7 +140,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     if (runnerRef.current) {
                         setIsRunning(true);
                         await runnerRef.current.initProgram();
-                        dispatch({ type: 'SET_INTENSITY', payload: 20 });
+                        dispatch({ type: 'SET_INTENSITY', payload: 20 });// this should send ch0
+                        await runnerRef.current.initChannel1();
                         await runnerRef.current.startProgram(state.selectedProgram);
                     }
                 } else {

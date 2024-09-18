@@ -121,6 +121,11 @@ class ProgramRunner {
         await this.generator.sendInitialCommands();
     }
 
+    async initChannel1() {
+        console.log('Sending secondary commands...');
+        await this.generator.sendSecondaryCommands();
+    }
+
     async startProgram(programName: string) {
         console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);

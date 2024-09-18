@@ -146,6 +146,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     setIsRunning(true);
                     await runnerRef.current.initProgram();
                     dispatch({ type: 'SET_INTENSITY', intensity: 20 });
+                    await runnerRef.current.initChannel1();
                     await runnerRef.current.startProgram(state.selectedProgram);
                     resetUI();
                 }

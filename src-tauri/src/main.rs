@@ -309,17 +309,8 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
             "USA2\n"
         ];
 
-        let channel1 = vec![
-            "WFW00\n",      // Set Channel 2 to sine wave
-            "WFO00.00\n",   // Set Channel 2 offset to 0
-            "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
-            "WFP000\n",     // Set Channel 2 phase to 0
-            "WFT0\n",       // Set Channel 2 attenuation to 0
-            "WFN1\n"        // Set Channel 2 on
-        ];
+        let  commands = channel0.clone();  // Start with channel0
 
-        let mut commands = channel0.clone();  // Start with channel0
-        commands.extend(channel1);  // Extend with channel1
 
 
     for cmd in &commands {
@@ -336,6 +327,45 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
 
     Ok(true)
 }
+
+
+
+
+#[tauri::command]
+fn send_secondary_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
+    let port_name = PORT_NAME.lock().unwrap().clone();
+    println!("send_secondary_commands called with port_name: {}", port_name);
+
+
+        let channel1 = vec![
+            "WFW00\n",      // Set Channel 2 to sine wave
+            "WFO00.00\n",   // Set Channel 2 offset to 0
+            "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
+            "WFP000\n",     // Set Channel 2 phase to 0
+            "WFT0\n",       // Set Channel 2 attenuation to 0
+            "WFN1\n"        // Set Channel 2 on
+        ];
+
+        let  commands = channel1.clone();  // Start with channel0
+
+
+
+    for cmd in &commands {
+        println!("Sending command: {}", cmd);
+        match write_to_port(state.clone(), WriteToPortArgs { data: cmd.to_string() }, window.clone()) {
+            Ok(_) => println!("Command '{}' initial command sent successfully", cmd),
+            Err(e) => {
+                println!("Failed to send command '{}': {}", cmd, e);
+                return Err(format!("Failed to send command '{}': {}", cmd, e));
+            },
+        }
+        std::thread::sleep(std::time::Duration::from_millis(600));
+    }
+
+    Ok(true)
+}
+
+
 
 #[tauri::command]
 fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String> {
@@ -457,7 +487,7 @@ fn main() {
             set_amplitude,
 
             send_initial_commands,
-
+            send_secondary_commands,
             stop_and_reset,
             write_to_port,
             reconnect_device,

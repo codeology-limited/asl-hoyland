@@ -67,6 +67,14 @@ class HoylandController {
     }
   }
 
+  async sendSecondaryCommands() {
+    try {
+      await invoke('send_secondary_commands');
+    } catch (error) {
+      console.error('Error sending secondary commands:', error);
+    }
+  }
+
   async setFrequency(channel: number, frequency: number) {
     const args = {
       channel: channel,
