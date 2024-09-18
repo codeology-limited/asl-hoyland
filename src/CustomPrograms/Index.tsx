@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import React, {  useEffect, useRef, useReducer, useCallback } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 

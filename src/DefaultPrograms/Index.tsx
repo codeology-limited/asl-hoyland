@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useReducer, useEffect, useRef, useCallback } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 
@@ -14,159 +14,223 @@ function convertToMinutesAndSeconds(decimalMinutes: number): string {
     return `${minutes} minutes and ${seconds} seconds`;
 }
 
+interface State {
+    progress: number;
+    timeRemaining: number;
+    totalSteps: number;
+    intensity: number;
+    selectedProgram: string;
+    programNames: string[];
+    isPaused: boolean;
+    isStopping: boolean;
+}
+
+type Action =
+    | { type: 'SET_PROGRESS'; payload: number }
+    | { type: 'SET_TIME_REMAINING'; payload: number }
+    | { type: 'SET_TOTAL_STEPS'; payload: number }
+    | { type: 'SET_INTENSITY'; payload: number }
+    | { type: 'SET_SELECTED_PROGRAM'; payload: string }
+    | { type: 'SET_PROGRAM_NAMES'; payload: string[] }
+    | { type: 'SET_IS_PAUSED'; payload: boolean }
+    | { type: 'SET_IS_STOPPING'; payload: boolean }
+    | { type: 'RESET_UI' };
+
+const initialState: State = {
+    progress: 0,
+    timeRemaining: 0,
+    totalSteps: 0,
+    intensity: 5,
+    selectedProgram: '',
+    programNames: [],
+    isPaused: false,
+    isStopping: false,
+};
+
+function reducer(state: State, action: Action): State {
+    switch (action.type) {
+        case 'SET_PROGRESS':
+            return { ...state, progress: action.payload };
+        case 'SET_TIME_REMAINING':
+            return { ...state, timeRemaining: action.payload };
+        case 'SET_TOTAL_STEPS':
+            return { ...state, totalSteps: action.payload };
+        case 'SET_INTENSITY':
+            return { ...state, intensity: action.payload };
+        case 'SET_SELECTED_PROGRAM':
+            return { ...state, selectedProgram: action.payload };
+        case 'SET_PROGRAM_NAMES':
+            return { ...state, programNames: action.payload };
+        case 'SET_IS_PAUSED':
+            return { ...state, isPaused: action.payload };
+        case 'SET_IS_STOPPING':
+            return { ...state, isStopping: action.payload };
+        case 'RESET_UI':
+            return {
+                ...initialState,
+                programNames: state.programNames, // Retain the loaded program names
+            };
+        default:
+            return state;
+    }
+}
+
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
-    const [progress, setProgress] = useState(0);
-    const [currentFrequency, setCurrentFrequency] = useState(0);
-    const [totalSteps, setTotalSteps] = useState(0);
-    const [intensity, setIntensity] = useState(5);
-    const [selectedProgram, setSelectedProgram] = useState('');
-    const [programNames, setProgramNames] = useState<string[]>([]);
-    const [isPaused, setIsPaused] = useState(false);
-    const [isStopping, setIsStopping] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
+    const [state, dispatch] = useReducer(reducer, initialState);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
 
-    const loadDefaultPrograms = async () => {
+    const loadDefaultPrograms = useCallback(async () => {
         try {
             const programs = await appDatabase.getDefaultPrograms();
             const names = programs.map(program => program.name);
-            setProgramNames(names);
+            dispatch({ type: 'SET_PROGRAM_NAMES', payload: names });
         } catch (error) {
             console.error('Failed to load default programs:', error);
         }
-    };
+    }, [appDatabase]);
 
     useEffect(() => {
-        setIsConnected(isPortConnected)
-
-    }, [isPortConnected]);
-
-    useEffect(() => {
-
-
         if (appDatabase.preloadDone) {
             loadDefaultPrograms();
         }
-    }, [appDatabase.preloadDone]);
+    }, [appDatabase.preloadDone, loadDefaultPrograms]);
 
-    const handleProgressUpdate = (currentStep: number, totalSteps: number, currentF: number) => {
-        setProgress(currentStep);
-        setTotalSteps(totalSteps);
-        setCurrentFrequency(currentF);
-    };
+    const handleProgressUpdate = useCallback(
+        (currentStep: number, totalSteps: number, timeRemaining: number) => {
+            dispatch({ type: 'SET_PROGRESS', payload: currentStep });
+            dispatch({ type: 'SET_TOTAL_STEPS', payload: totalSteps });
+            dispatch({ type: 'SET_TIME_REMAINING', payload: timeRemaining });
+        },
+        []
+    );
 
     useEffect(() => {
         if (runnerRef.current) {
-            runnerRef.current.setIntensity(intensity);
+            runnerRef.current.setIntensity(state.intensity);
             runnerRef.current.setProgressCallback(handleProgressUpdate);
         }
-    }, [intensity]);
+    }, [state.intensity, handleProgressUpdate]);
 
-    const loadProgram = async (programName: string) => {
-        const program = await appDatabase.loadData(programName);
-
-        if (program) {
-            runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
-        }
-
-        setTimeout(function(){
-            hoylandController.reconnectDevice().then(function(port){
-                if ( port === "TEST"){
-                    setIsConnected(false)
-                } else {
-                    setIsConnected(true)
+    const loadProgram = useCallback(
+        async (programName: string) => {
+            try {
+                const program = await appDatabase.loadData(programName);
+                if (program) {
+                    runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
                 }
-            })
-        },0)
-
-    };
+            } catch (error) {
+                console.error('Failed to load program:', error);
+            }
+        },
+        [appDatabase, hoylandController, handleProgressUpdate]
+    );
 
     const handleStartStop = async () => {
-        if (isRunning) {
-            setIsStopping(true);
-            await runnerRef.current?.stopProgram();
-            setCurrentFrequency(0);
-            resetUI();
-        } else {
-            if (selectedProgram) {
-                await loadProgram(selectedProgram);
-                if (runnerRef.current) {
-                    setIsRunning(true);
-                    await runnerRef.current.initProgram();
-                    setIntensity(20);
-                    await runnerRef.current.startProgram(selectedProgram);
-                    resetUI();
-                }
+        try {
+            if (isRunning) {
+                dispatch({ type: 'SET_IS_STOPPING', payload: true });
+                await runnerRef.current?.stopProgram();
+                dispatch({ type: 'SET_TIME_REMAINING', payload: 0 });
+                resetUI();
             } else {
-                alert('Please select a program');
+                if (state.selectedProgram) {
+                    await loadProgram(state.selectedProgram);
+                    if (runnerRef.current) {
+                        setIsRunning(true);
+                        await runnerRef.current.initProgram();
+                        dispatch({ type: 'SET_INTENSITY', payload: 20 });
+                        await runnerRef.current.startProgram(state.selectedProgram);
+                    }
+                } else {
+                    alert('Please select a program');
+                }
             }
+        } catch (error) {
+            console.error('Error in handleStartStop:', error);
         }
     };
 
     const handlePauseContinue = () => {
-        if (isPaused) {
-            runnerRef.current?.resumeProgram();
-            setIsPaused(false);
-        } else {
-            runnerRef.current?.pauseProgram();
-            setIsPaused(true);
+        try {
+            if (state.isPaused) {
+                runnerRef.current?.resumeProgram();
+                dispatch({ type: 'SET_IS_PAUSED', payload: false });
+            } else {
+                runnerRef.current?.pauseProgram();
+                dispatch({ type: 'SET_IS_PAUSED', payload: true });
+            }
+        } catch (error) {
+            console.error('Error in handlePauseContinue:', error);
         }
     };
 
     const resetUI = () => {
-        setIsStopping(false);
+        dispatch({ type: 'RESET_UI' });
         setIsRunning(false);
-        setIsPaused(false);
-        setProgress(0);
-        setSelectedProgram('');
-        setIntensity(5);
         runnerRef.current = null;
     };
 
-    return (
-        <div className={`${isConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
+    useEffect(() => {
+        return () => {
+            runnerRef.current?.stopProgram().catch(error => {
+                console.error('Error stopping program on unmount:', error);
+            });
+            runnerRef.current = null;
+        };
+    }, []);
 
+    return (
+        <div className={`${isPortConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
             <div>
-                <select disabled={isRunning || !isConnected} value={selectedProgram}
-                        onMouseEnter={() => loadDefaultPrograms()}
-                        onChange={(e) => setSelectedProgram(e.target.value)}
-                      >
-                    <option value="" disabled>Choose</option>
-                    {programNames.map((name) => (
-                        <option key={name} value={name}>{name}</option>
+                <select
+                    disabled={isRunning || !isPortConnected}
+                    value={state.selectedProgram}
+                    onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
+                >
+                    <option value="" disabled>
+                        Choose
+                    </option>
+                    {state.programNames.map((name) => (
+                        <option key={name} value={name}>
+                            {name}
+                        </option>
                     ))}
                 </select>
 
                 <button
-                    className={isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
+                    className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
-                    disabled={(!selectedProgram && !isRunning) || isStopping}
+                    disabled={(!state.selectedProgram && !isRunning) || state.isStopping}
                 >
-                    {isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
+                    {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>
 
                 <button onClick={handlePauseContinue} disabled={!isRunning}>
-                    {isPaused ? 'Continue' : 'Pause'}
+                    {state.isPaused ? 'Continue' : 'Pause'}
                 </button>
             </div>
 
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={progress} max={totalSteps}></progress>
-                <label>{totalSteps > 0 ? `${Math.floor((progress / totalSteps) * 100)}% complete` : '0% complete'}</label>
-                <span>{currentFrequency > 0 ? `${convertToMinutesAndSeconds(currentFrequency)} remain` : null}</span>
+                <progress className="progress-bar" value={state.progress} max={state.totalSteps}></progress>
+                <label>
+                    {state.totalSteps > 0 ? `${Math.floor((state.progress / state.totalSteps) * 100)}% complete` : '0% complete'}
+                </label>
+                <span>
+                    {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
+                </span>
             </div>
 
             <div>
-                <label>Intensity: {Math.floor(((intensity || 0) / 20) * 100)}%</label>
+                <label>Intensity: {Math.floor(((state.intensity || 0) / 20) * 100)}%</label>
                 <input
                     type="range"
                     min="1"
                     max="20"
-                    value={intensity}
-                    onChange={(e) => setIntensity(parseInt(e.target.value, 10))}
-                    disabled={isStopping}
+                    value={state.intensity}
+                    onChange={(e) => dispatch({ type: 'SET_INTENSITY', payload: parseInt(e.target.value, 10) })}
+                    disabled={state.isStopping}
                 />
             </div>
         </div>
