@@ -116,12 +116,12 @@ class ProgramRunner {
         this.running = false;
     }
 
-    async initProgram() {
+    async initializeChannel1() {
         console.log('Sending initial commands...');
         await this.generator.sendInitialCommands();
     }
 
-    async initChannel1() {
+    async initializeChannel0() {
         console.log('Sending secondary commands...');
         await this.generator.sendSecondaryCommands();
     }
