@@ -188,6 +188,12 @@ class ProgramRunner {
                 const endFrequency = program.data[1].frequency;
                 const interval = totalDurationMs / (endFrequency - startFrequency);
 
+                console.log("INTERVAL >>>",interval)
+                console.log("totalDurationMs >>>",totalDurationMs)
+                console.log("startFrequency >>>",startFrequency)
+                console.log("endFrequency >>>",endFrequency)
+                console.log("total steps >>>", (endFrequency - startFrequency))
+
                 for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
                     if (!this.running) break;
                     if (this.paused) {
@@ -216,6 +222,7 @@ class ProgramRunner {
                     console.log('Setting frequency for item:', item);
                     await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
 
+                    console.log('RUN Time>', item.runTime/1000);
                     await new Promise<void>(resolve => {
                         const timeoutId = setTimeout(() => {
                             resolve();
