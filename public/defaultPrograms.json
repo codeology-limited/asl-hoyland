@@ -5,7 +5,7 @@
     "data": [
       1, 40000
     ],
-    "runTimeInMinutes": 90,
+    "runTimeInMinutes": 120,
     "startFrequency": 3.1
   },
   "ultrasound": {
