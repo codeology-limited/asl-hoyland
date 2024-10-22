@@ -292,6 +292,37 @@ fn sine_wave(state: State<AppState>, window: Window) -> Result<bool, String> {
 
 
 
+#[tauri::command]
+fn set_both_channels_to_square_wave(state: State<AppState>, window: Window) -> Result<bool, String> {
+    let port_name = PORT_NAME.lock().unwrap().clone();
+    println!("send_secondary_commands called with port_name: {}", port_name);
+
+
+        let channel0 = vec![
+            "WMW01\n",      // Set Channel 1 to square wave
+            "WFW01\n",      // Set Channel 2 to sine wave
+        ];
+
+        let  commands = channel0.clone();  // Start with channel0
+
+
+
+    for cmd in &commands {
+        println!("Sending command: {}", cmd);
+        match write_to_port(state.clone(), WriteToPortArgs { data: cmd.to_string() }, window.clone()) {
+            Ok(_) => println!("Command '{}' initial command sent successfully", cmd),
+            Err(e) => {
+                println!("Failed to send command '{}': {}", cmd, e);
+                return Err(format!("Failed to send command '{}': {}", cmd, e));
+            },
+        }
+        std::thread::sleep(std::time::Duration::from_millis(600));
+    }
+
+    Ok(true)
+}
+
+
 
 #[tauri::command]
 fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
@@ -487,7 +518,7 @@ fn main() {
             close_port,
             set_frequency,
             set_amplitude,
-
+            set_both_channels_to_square_wave,
             send_initial_commands,
             send_secondary_commands,
             stop_and_reset,

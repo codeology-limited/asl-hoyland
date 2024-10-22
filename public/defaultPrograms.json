@@ -58,6 +58,47 @@
     ],
     "runTimeInMinutes": 74,
     "startFrequency": 27.12
+  },
+
+
+
+  "bipolarDisorder": {
+    "default": true,
+    "mirror": true,
+    "data": [
+      0.16, 0.80, 7.50, 30.00, 67.50, 125.00, 352.93, 563.19, 642.91, 930.12
+    ],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0
+  },
+  "psychoticDisorders": {
+    "default": true,
+    "mirror": true,
+    "data": [
+      0.57, 0.68, 0.87, 2.50, 5.71, 32.50, 92.50, 322.53, 519.34, 653.69
+    ],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0
+  },
+  "schizophrenia": {
+    "default": true,
+    "mirror": true,
+    "data": [
+      0.07, 0.50, 0.97, 9.00, 12.85, 132.50, 337.50, 524.37, 758.57, 955.72
+    ],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0
+  },
+  "anxietyDisorders": {
+    "default": true,
+    "mirror": true,
+    "data": [
+      0.08, 0.62, 0.87, 5.81, 225.00, 423.07, 572.00, 727.33, 841.12, 903.91
+    ],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0
   }
-  }
+
+
+}
   

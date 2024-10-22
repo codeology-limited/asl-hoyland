@@ -9,6 +9,7 @@ interface Program {
     maxTimeInMinutes: number;
     default: number | boolean;
     startFrequency: number;
+    mirror?: boolean;
 }
 
 type ProgressCallback = (currentStep: number, totalSteps: number, currentFrequency: number) => void;
@@ -211,6 +212,11 @@ class ProgramRunner {
                     if (!this.running) break;
                 }
             } else {
+
+
+                if ( program.startFrequency === 0 ){
+                    this.generator.set_both_channels_to_square_wave()
+                }
                 for (const item of program.data) {
                     if (!this.running) break; // Immediately exit if not running
                     if (this.paused) {
@@ -221,6 +227,10 @@ class ProgramRunner {
                     }
                     console.log('Setting frequency for item:', item);
                     await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+
+                    if ( program.startFrequency === 0){
+                        await this.generator.setFrequency(2, parseFloat(item.frequency.toString()));
+                    }
 
                     console.log('RUN Time>', item.runTime/1000);
                     await new Promise<void>(resolve => {

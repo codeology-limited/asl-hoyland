@@ -59,6 +59,23 @@ class HoylandController {
       console.error('Error sending sinewave commands:', error);
     }
   }
+  async set_both_channels_to_square_wave() {
+    try {
+      const result = await invoke('set_both_channels_to_square_wave');
+
+      if (result) {
+        console.log('set_both_channels_to_square_wave   sent successfully');
+      } else {
+        console.error('Failed to send set_both_channels_to_square_wave commands');
+      }
+    } catch (error) {
+      console.error('Error sending set_both_channels_to_square_wave commands:', error);
+    }
+  }
+
+
+
+
   async sendInitialCommands() {
     try {
       await invoke('send_initial_commands');
