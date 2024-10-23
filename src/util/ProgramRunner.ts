@@ -139,7 +139,9 @@ class ProgramRunner {
         if ( !program){
             return
         }
-        await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to startFrequency
+        if ( program.startFrequency > 0){
+            await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to startFrequency
+        }
     }
 
     async startProgram(programName: string) {
@@ -225,12 +227,17 @@ class ProgramRunner {
                             if (!this.running) return; // Exit if not running
                         }
                     }
-                    console.log('Setting frequency for item:', item);
-                    await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
 
                     if ( program.startFrequency === 0){
                         await this.generator.setFrequency(2, parseFloat(item.frequency.toString()));
+                        await new Promise((resolve) => setTimeout(resolve, 200));
+
+
                     }
+
+                    await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+
+
 
                     console.log('RUN Time>', item.runTime/1000);
                     await new Promise<void>(resolve => {

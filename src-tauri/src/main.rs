@@ -406,7 +406,7 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
     println!("stop_and_reset called with port_name: {}", port_name);
 
     let commands = [
-        "WFN0\n", "WMN0\n"//, "USD2\n", "WMA05.00\n"
+        "WFF0\n", "WMF0\n", "WFN0\n","WMN0\n"//, "USD2\n", "WMA05.00\n"
     ];
 
     for cmd in &commands {
