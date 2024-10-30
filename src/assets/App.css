@@ -58,7 +58,27 @@ html {
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+.xxx{
+    height: 400px;
+    width: 1080px;
+    margin: 0 auto 0 ;
 
+
+
+
+}
+.xxx > p {
+    position: absolute;
+    top:50%;left:50%;
+    transform: translate(-50%,-50%);
+    font-size: 3rem;
+    z-index: 1;
+}
+.default-programs {
+
+    position:relative;
+    z-index: 2;
+ }
 h1 {
     margin: 0;
     padding: 0;
@@ -214,6 +234,7 @@ input[type="range"]::-moz-focus-outer {
 .progress-bar-wrapper {
     position: relative;
 }
+
 .progress-bar-wrapper span {
     position: absolute;
     display: block;
@@ -230,7 +251,15 @@ input[type="range"]::-moz-focus-outer {
     overflow: hidden;
     appearance: none; /* Remove default styling */
 }
+#intensity-display {
 
+ position: absolute;
+    left: 30px;
+    color: black;
+
+    width: 100%;
+
+}
 /* For WebKit (Chrome, Safari, etc.) */
 progress::-webkit-progress-bar {
     background-color: var(--progress-bg-color);
@@ -253,9 +282,7 @@ progress::-ms-fill {
     background-color: var(--progress-color); /* Fel magic color */
     border-radius: 10px;
 }
-.xxx {
 
-}
 .tabs {
     height: 64px;
 }
@@ -293,10 +320,12 @@ progress::-ms-fill {
 }
 
 .tab-body {
+    position: relative;
+    z-index:2;
     display: flex;
     flex-direction: column;
     background: var(--secondary-font-color);
-    max-width: 90vw;
+    width:1080px;
     height: 400px;
     margin: 0 auto;
 }
@@ -325,7 +354,7 @@ progress::-ms-fill {
 #console {
     background: rgba(255, 255, 255, 0.5);
     padding: 30px;
-    max-width: 90vw;
+    width: 1080px;
     margin: 0 auto;
     box-sizing: border-box;
     display: flex;

@@ -360,7 +360,35 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
 }
 
 
+#[tauri::command]
+fn sync(state: State<AppState>, window: Window) -> Result<bool, String> {
+    let port_name = PORT_NAME.lock().unwrap().clone();
+    println!("sync_commands called with port_name: {}", port_name);
 
+        let channel0 = vec![
+            "USA0\n",
+            "USA1\n",
+            "USA2\n",
+            "USA3\n",
+            "USA4\n"
+        ];
+
+        let  commands = channel0.clone();  // Start with channel0
+
+    for cmd in &commands {
+        println!("Sending command: {}", cmd);
+        match write_to_port(state.clone(), WriteToPortArgs { data: cmd.to_string() }, window.clone()) {
+            Ok(_) => println!("Command '{}' initial command sent successfully", cmd),
+            Err(e) => {
+                println!("Failed to send command '{}': {}", cmd, e);
+                return Err(format!("Failed to send command '{}': {}", cmd, e));
+            },
+        }
+        std::thread::sleep(std::time::Duration::from_millis(600));
+    }
+
+    Ok(true)
+}
 
 #[tauri::command]
 fn send_secondary_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
@@ -376,7 +404,6 @@ fn send_secondary_commands(state: State<AppState>, window: Window) -> Result<boo
             "WMT0\n",       // Set Channel 1 attenuation to 0
             "WMN1\n",        // Set Channel 1 on
             "WMA005.000\n",
-            "USA2\n"
         ];
 
         let  commands = channel0.clone();  // Start with channel0
@@ -406,7 +433,15 @@ fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String
     println!("stop_and_reset called with port_name: {}", port_name);
 
     let commands = [
-        "WFF0\n", "WMF0\n", "WFN0\n","WMN0\n"//, "USD2\n", "WMA05.00\n"
+        "WFF0\n",
+        "WMF0\n",
+        "WFN0\n",
+        "WMN0\n",
+        "USD0\n",
+        "USD1\n",
+        "USD2\n",
+        "USD3\n",
+        "USD4\n"
     ];
 
     for cmd in &commands {
@@ -513,6 +548,7 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            sync,
             list_ports,
             open_port,
             close_port,

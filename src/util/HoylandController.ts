@@ -72,7 +72,19 @@ class HoylandController {
       console.error('Error sending set_both_channels_to_square_wave commands:', error);
     }
   }
+  async sync() {
+    try {
+      const result = await invoke('sync');
 
+      if (result) {
+        console.log('sync   sent successfully');
+      } else {
+        console.error('Failed to send sync commands');
+      }
+    } catch (error) {
+      console.error('Error sending sync commands:', error);
+    }
+  }
 
 
 

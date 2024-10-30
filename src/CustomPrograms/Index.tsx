@@ -180,6 +180,10 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         runnerRef.current = null;
     };
 
+    if ( !state.programNames || state.programNames.length === 0){
+        return null;
+    }
+    
     return (
         <div className={`${state.isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
             <div>

@@ -60,7 +60,7 @@ class ProgramRunner {
         this.onStopCallback = callback;
     }
 
-    async runSpecialCase() {
+    async runSpecialCase( setRunningFrequency ) {
         console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
 
         await this.generator.sinewave();
@@ -104,10 +104,12 @@ class ProgramRunner {
 
             // Set frequency to 0.5 MHz
             await this.generator.setFrequency(1, 0.5 * 1_000_000);
+            setRunningFrequency( `${(0.5 * 1_000_000).toString()} KHz` )
             await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
 
             // Set frequency to 0.67 MHz
             await this.generator.setFrequency(1, 0.67 * 1_000_000);
+            setRunningFrequency( `${(0.67 * 1_000_000).toString()} KHz` )
             await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
 
             // Update the progress bar
@@ -144,7 +146,9 @@ class ProgramRunner {
         }
     }
 
-    async startProgram(programName: string) {
+    async startProgram(programName: string, setRunningFrequency: React.Dispatch<React.SetStateAction<string>>) {
+
+
         console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);
 
@@ -184,7 +188,7 @@ class ProgramRunner {
         const progressUpdater = updateProgressBar(); // Start the progress bar updater
 
         if (program.name === "ultrasound") {
-            await this.runSpecialCase();
+            await this.runSpecialCase(setRunningFrequency);
         } else {
             if (program.range && program.data.length === 2) {
                 const startFrequency = program.data[0].frequency;
@@ -208,7 +212,7 @@ class ProgramRunner {
 
                     console.log('Setting frequency to:', frequency);
                     await this.generator.setFrequency(1, parseFloat(frequency.toString()));
-
+                    setRunningFrequency( `${frequency.toString()} KHz` )
                     await new Promise(resolve => setTimeout(resolve, interval));
 
                     if (!this.running) break;
@@ -218,6 +222,7 @@ class ProgramRunner {
 
                 if ( program.startFrequency === 0 ){
                     this.generator.set_both_channels_to_square_wave()
+                    this.generator.sync()
                 }
                 for (const item of program.data) {
                     if (!this.running) break; // Immediately exit if not running
@@ -228,14 +233,17 @@ class ProgramRunner {
                         }
                     }
 
-                    if ( program.startFrequency === 0){
-                        await this.generator.setFrequency(2, parseFloat(item.frequency.toString()));
-                        await new Promise((resolve) => setTimeout(resolve, 200));
+                    // if ( program.startFrequency === 0){
+                    //     await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+                    //     await new Promise((resolve) => setTimeout(resolve, 200));
+                    //
+                    //     await this.generator.sync();
+                    //     await new Promise((resolve) => setTimeout(resolve, 200));
+                    // } else {
+                        await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+                        setRunningFrequency( `${item.frequency.toString()} KHz` )
 
-
-                    }
-
-                    await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+                    // }
 
 
 

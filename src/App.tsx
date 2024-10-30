@@ -91,7 +91,7 @@ const App: React.FC = () => {
 
     return (
         <Router>
-            <div className="container">
+            <div className="container"  >
                 <header>
                     <h1><a href="http://altered-states.net">Altered States</a></h1>
                     <nav className="tabs">
@@ -105,8 +105,7 @@ const App: React.FC = () => {
 
                 <main>
                     <div className='xxx'>
-
-
+        <p>LOADING...</p>
                     <Routes>
                         <Route path="/" element={<DefaultPrograms setIsRunning={setIsRunning} isRunning={isRunning}  isPortConnected={isPortConnected} />} />
                         <Route path="/custom" element={<CustomPrograms setIsRunning={setIsRunning} isRunning={isRunning}   isPortConnected={isPortConnected}/>} />

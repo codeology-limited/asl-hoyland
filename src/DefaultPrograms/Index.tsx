@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef, useCallback } from 'react';
+import React, {useReducer, useEffect, useRef, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 
@@ -77,6 +77,8 @@ function reducer(state: State, action: Action): State {
 
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+    const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
+
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -96,6 +98,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             loadDefaultPrograms();
         }
     }, [appDatabase.preloadDone, loadDefaultPrograms]);
+
+    useEffect(() => {
+        console.log("runningFrequency updated:", runningFrequency);
+    }, [runningFrequency]);
+
+
 
     const handleProgressUpdate = useCallback(
         (currentStep: number, totalSteps: number, timeRemaining: number) => {
@@ -150,8 +158,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                         await runnerRef.current. setChannel1StartFrequency(state.selectedProgram);
 
                         await runnerRef.current.initializeChannel0();
-                        dispatch({ type: 'SET_INTENSITY', payload: 20 });// this should send ch0
-                        await runnerRef.current.startProgram(state.selectedProgram);
+                        dispatch({ type: 'SET_INTENSITY', payload: 10 });// this should send ch0
+                        await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
                     }
                 } else {
                     alert('Please select a program');
@@ -191,13 +199,17 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         };
     }, []);
 
+    if ( !state.programNames || state.programNames.length === 0){
+        return null;
+    }
     return (
         <div className={`${isPortConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
+
             <div>
                 <select
                     disabled={isRunning || !isPortConnected}
                     value={state.selectedProgram}
-                    onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
+                    onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', payload: e.target.value})}
                 >
                     <option value="" disabled>
                         Choose
@@ -223,13 +235,15 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             </div>
 
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={state.progress} max={state.totalSteps}></progress>
+                <progress className="progress-bar" value={state.progress-1} max={state.totalSteps}></progress>
                 <label>
-                    {state.totalSteps > 0 ? `${Math.floor((state.progress / state.totalSteps) * 100)}% complete` : '0% complete'}
+                    {state.totalSteps > 0 ? `${Math.max(0, Math.floor(((state.progress-1) / state.totalSteps) * 100))}% complete` : '0% complete'}
                 </label>
                 <span>
                     {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
                 </span>
+                <div id="intensity-display">{runningFrequency}
+                </div>
             </div>
 
             <div>
@@ -239,7 +253,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     min="1"
                     max="20"
                     value={state.intensity}
-                    onChange={(e) => dispatch({ type: 'SET_INTENSITY', payload: parseInt(e.target.value, 10) })}
+                    onChange={(e) => dispatch({type: 'SET_INTENSITY', payload: parseInt(e.target.value, 10)})}
                     disabled={state.isStopping}
                 />
             </div>
