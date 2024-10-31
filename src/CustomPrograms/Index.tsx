@@ -1,4 +1,4 @@
-import React, {  useEffect, useRef, useReducer, useCallback } from 'react';
+import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 
@@ -79,6 +79,8 @@ const reducer = (state: State, action: Action): State => {
 
 const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+    const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
+
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
 
@@ -154,7 +156,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     await runnerRef.current.initializeChannel1();
                     await runnerRef.current.initializeChannel0();
                     dispatch({ type: 'SET_INTENSITY', intensity: 20 });
-                    await runnerRef.current.startProgram(state.selectedProgram);
+                    await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
                     resetUI();
                 }
             } else {
@@ -183,7 +185,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     if ( !state.programNames || state.programNames.length === 0){
         return null;
     }
-    
+
     return (
         <div className={`${state.isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
             <div>
@@ -215,6 +217,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 <progress className="progress-bar" value={state.progress} max={state.totalSteps}></progress>
                 <label>{state.totalSteps > 0 ? `${Math.floor((state.progress / state.totalSteps) * 100)}% complete` : '0% complete'}</label>
                 <span>{state.currentFrequency > 0 ? `${convertToMinutesAndSeconds(state.currentFrequency)} remain` : null}</span>
+                <div id="intensity-display">{runningFrequency}
+                </div>
             </div>
 
             <div>

@@ -60,7 +60,7 @@ class ProgramRunner {
         this.onStopCallback = callback;
     }
 
-    async runSpecialCase( setRunningFrequency ) {
+    async runSpecialCase( setRunningFrequency: React.Dispatch<React.SetStateAction<string>> ) {
         console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
 
         await this.generator.sinewave();
