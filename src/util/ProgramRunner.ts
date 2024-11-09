@@ -104,12 +104,12 @@ class ProgramRunner {
 
             // Set frequency to 0.5 MHz
             await this.generator.setFrequency(1, 0.5 * 1_000_000);
-            setRunningFrequency( `${(0.5 * 1_000_000).toString()} KHz` )
+            setRunningFrequency( `${(0.5 * 1_000_000).toString()} Hz` )
             await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
 
             // Set frequency to 0.67 MHz
             await this.generator.setFrequency(1, 0.67 * 1_000_000);
-            setRunningFrequency( `${(0.67 * 1_000_000).toString()} KHz` )
+            setRunningFrequency( `${(0.67 * 1_000_000).toString()} Hz` )
             await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
 
             // Update the progress bar
@@ -212,7 +212,7 @@ class ProgramRunner {
 
                     console.log('Setting frequency to:', frequency);
                     await this.generator.setFrequency(1, parseFloat(frequency.toString()));
-                    setRunningFrequency( `${frequency.toString()} KHz` )
+                    setRunningFrequency( `${frequency.toString()} Hz` )
                     await new Promise(resolve => setTimeout(resolve, interval));
 
                     if (!this.running) break;
@@ -241,7 +241,7 @@ class ProgramRunner {
                     //     await new Promise((resolve) => setTimeout(resolve, 200));
                     // } else {
                         await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
-                        setRunningFrequency( `${item.frequency.toString()} KHz` )
+                        setRunningFrequency( `${item.frequency.toString()} Hz` )
 
                     // }
 
