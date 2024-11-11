@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
+import ProgramSelect from "./ProgramSelect.tsx";
 
 interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -182,23 +183,20 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         runnerRef.current = null;
     };
 
-    if ( !state.programNames || state.programNames.length === 0){
-        return null;
-    }
+    
 
     return (
         <div className={`${state.isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
             <div>
-                <select
-                    disabled={isRunning || !state.isConnected}
-                    value={state.selectedProgram}
-                    onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', selectedProgram: e.target.value })}
-                >
-                    <option value="" disabled>Choose Custom&nbsp;&nbsp;&nbsp;&nbsp;</option>
-                    {state.programNames.map((name) => (
-                        <option key={name} value={name}>{name}</option>
-                    ))}
-                </select>
+
+                <ProgramSelect
+                    isConnected={state.isConnected}
+                    isRunning={isRunning}
+                    selectedProgram={state.selectedProgram}
+                    programNames={state.programNames}
+                    onProgramChange={(value) => dispatch({ type: 'SET_SELECTED_PROGRAM', selectedProgram: value })}
+                />
+
 
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
