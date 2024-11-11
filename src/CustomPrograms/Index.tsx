@@ -183,32 +183,32 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         runnerRef.current = null;
     };
 
-    
+
 
     return (
         <div className={`${state.isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
             <div>
-
-                <ProgramSelect
-                    isConnected={state.isConnected}
-                    isRunning={isRunning}
-                    selectedProgram={state.selectedProgram}
-                    programNames={state.programNames}
-                    onProgramChange={(value) => dispatch({ type: 'SET_SELECTED_PROGRAM', selectedProgram: value })}
-                />
-
-
-                <button
-                    className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
-                    onClick={handleStartStop}
-                    disabled={!state.selectedProgram && !isRunning} // Disable when no program is selected and not running
+                <select
+                    disabled={isRunning || !state.isConnected}
+                    value={state.selectedProgram}
+                    onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', selectedProgram: e.target.value})}
                 >
-                    {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
-                </button>
+                    <ProgramSelect
+                        programNames={state.programNames}
+                    />
+                </select>
 
-                <button onClick={handlePauseContinue} disabled={!isRunning}>
-                    {state.isPaused ? 'Continue' : 'Pause'}
-                </button>
+                    <button
+                        className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
+                        onClick={handleStartStop}
+                        disabled={!state.selectedProgram && !isRunning} // Disable when no program is selected and not running
+                    >
+                        {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
+                    </button>
+
+                    <button onClick={handlePauseContinue} disabled={!isRunning}>
+                        {state.isPaused ? 'Continue' : 'Pause'}
+                    </button>
             </div>
 
             <div className="progress-bar-wrapper">
