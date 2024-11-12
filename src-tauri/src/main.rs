@@ -331,6 +331,7 @@ fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool,
 
 
         let channel1 = vec![
+            "USA2\n", // sync amplitude
             "WFW00\n",      // Set Channel 2 to sine wave
             "WFO00.00\n",   // Set Channel 2 offset to 0
             "WFD50.0\n",    // Set Channel 2 duty cycle to 50%
@@ -404,6 +405,7 @@ fn send_secondary_commands(state: State<AppState>, window: Window) -> Result<boo
             "WMT0\n",       // Set Channel 1 attenuation to 0
             "WMN1\n",        // Set Channel 1 on
             "WMA005.000\n",
+            "USA2\n" // sync amplitude
         ];
 
         let  commands = channel0.clone();  // Start with channel0
