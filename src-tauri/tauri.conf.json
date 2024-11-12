@@ -16,6 +16,8 @@
     "windows": [
       {
         "title": "HoylandGenerator3",
+        "x": 20,
+        "y": 0,
         "width": 1200,
         "height": 700,
         "alwaysOnTop": false
