@@ -1,6 +1,7 @@
 import React, {useReducer, useEffect, useRef, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
+import ProgramSelect from "./ProgramSelect.tsx";
 
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -85,6 +86,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     const loadDefaultPrograms = useCallback(async () => {
         try {
+            await appDatabase.clearDatabase();
             const programs = await appDatabase.getDefaultPrograms();
             const names = programs.map(program => program.name);
             dispatch({ type: 'SET_PROGRAM_NAMES', payload: names });
@@ -199,27 +201,23 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         };
     }, []);
 
-    if ( !state.programNames || state.programNames.length === 0){
-        return null;
-    }
+
+
     return (
         <div className={`${isPortConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
 
             <div>
+
                 <select
                     disabled={isRunning || !isPortConnected}
                     value={state.selectedProgram}
                     onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', payload: e.target.value})}
                 >
-                    <option value="" disabled>
-                        Choose
-                    </option>
-                    {state.programNames.map((name) => (
-                        <option key={name} value={name}>
-                            {name}
-                        </option>
-                    ))}
+                    <ProgramSelect
+                        programNames={state.programNames}
+                    />
                 </select>
+
 
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
@@ -235,9 +233,9 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             </div>
 
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={state.progress-1} max={state.totalSteps}></progress>
+                <progress className="progress-bar" value={state.progress - 1} max={state.totalSteps}></progress>
                 <label>
-                    {state.totalSteps > 0 ? `${Math.max(0, Math.floor(((state.progress-1) / state.totalSteps) * 100))}% complete` : '0% complete'}
+                    {state.totalSteps > 0 ? `${Math.max(0, Math.floor(((state.progress - 1) / state.totalSteps) * 100))}% complete` : '0% complete'}
                 </label>
                 <span>
                     {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
