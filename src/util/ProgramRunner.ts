@@ -5,7 +5,7 @@ interface Program {
     id?: number;
     name: string;
     range: number | boolean;
-    data: { channel: number; frequency: number; runTime: number }[];
+    data: { channel: number; frequency: number|string; runTime: number }[];
     maxTimeInMinutes: number;
     default: number | boolean;
     startFrequency: number;
