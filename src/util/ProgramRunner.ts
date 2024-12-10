@@ -33,16 +33,16 @@ class ProgramRunner {
         this.paused = false;
         this.intensity = 1;
         this.progressCallback = progressCallback;
-        console.log('ProgramRunner initialized with intensity:', this.intensity);
+      //  console.log('ProgramRunner initialized with intensity:', this.intensity);
     }
 
     async loadProgram(name: string): Promise<Program | null> {
         try {
             const program = await this.database.loadData(name);
-            console.log('Program loaded:', program);
+           // console.log('Program loaded:', program);
             return program;
         } catch (error) {
-            console.error(`Failed to load program: ${error}`);
+          //  console.error(`Failed to load program: ${error}`);
             return null;
         }
     }
@@ -61,7 +61,7 @@ class ProgramRunner {
     }
 
     async runSpecialCase( setRunningFrequency: React.Dispatch<React.SetStateAction<string>> ) {
-        console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
+      //  console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
 
         await this.generator.sinewave();
 
@@ -120,19 +120,19 @@ class ProgramRunner {
 
         // Stop the generator after the loop completes
         await this.generator.stopAndReset();
-        console.log('Special case program completed');
+      //  console.log('Special case program completed');
         this.running = false;
 
         if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
     }
 
     async initializeChannel1() {
-        console.log('Sending initial commands...');
+       // console.log('Sending initial commands...');
         await this.generator.sendInitialCommands();
     }
 
     async initializeChannel0() {
-        console.log('Sending secondary commands...');
+      //  console.log('Sending secondary commands...');
         await this.generator.sendSecondaryCommands();
     }
 
@@ -149,7 +149,7 @@ class ProgramRunner {
     async startProgram(programName: string, setRunningFrequency: React.Dispatch<React.SetStateAction<string>>) {
 
 
-        console.log('Starting program:', programName);
+       // console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);
 
         if (!program) {
@@ -201,6 +201,7 @@ class ProgramRunner {
                 // console.log("endFrequency >>>",endFrequency)
                 // console.log("total steps >>>", (endFrequency - startFrequency))
 
+
                 for (let frequency = Number(startFrequency); frequency <= Number(endFrequency); frequency++) {
                     if (!this.running) break;
                     if (this.paused) {
@@ -210,7 +211,7 @@ class ProgramRunner {
                         }
                     }
 
-                    console.log('Setting frequency to:', frequency);
+                  //  console.log('Setting frequency to:', frequency);
                     await this.generator.setFrequency(1, parseFloat(frequency.toString()));
                     setRunningFrequency( `${frequency.toString()} Hz` )
                     await new Promise(resolve => setTimeout(resolve, interval));
@@ -247,7 +248,7 @@ class ProgramRunner {
 
 
 
-                    console.log('RUN Time>', item.runTime/1000);
+                 //   console.log('RUN Time>', item.runTime/1000);
                     await new Promise<void>(resolve => {
                         const timeoutId = setTimeout(() => {
                             resolve();
@@ -275,7 +276,7 @@ class ProgramRunner {
 
         this.running = false;
         this.paused = false;
-        console.log('Program completed:', programName);
+       // console.log('Program completed:', programName);
 
         if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
     }
@@ -284,7 +285,7 @@ class ProgramRunner {
         if (this.running) {
             this.paused = true;
             this.pauseStartTime = Date.now(); // Record the time when the pause starts
-            console.log('Program paused');
+          //  console.log('Program paused');
         }
     }
 
@@ -292,7 +293,7 @@ class ProgramRunner {
         if (this.running && this.paused) {
             this.paused = false;
             this.totalPausedTime += Date.now() - this.pauseStartTime; // Add the paused duration to the total
-            console.log('Program resumed');
+          //  console.log('Program resumed');
         }
     }
 
@@ -300,7 +301,7 @@ class ProgramRunner {
         await this.generator.stopAndReset();
         this.running = false;
         this.paused = false;
-        console.log('Program stopped');
+      //  console.log('Program stopped');
 
         if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
     }
