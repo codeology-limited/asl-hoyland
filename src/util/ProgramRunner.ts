@@ -193,15 +193,15 @@ class ProgramRunner {
             if (program.range && program.data.length === 2) {
                 const startFrequency = program.data[0].frequency;
                 const endFrequency = program.data[1].frequency;
-                const interval = totalDurationMs / (endFrequency - startFrequency);
+                const interval = totalDurationMs / (Number(endFrequency) - Number(startFrequency));
 
-                console.log("INTERVAL >>>",interval)
-                console.log("totalDurationMs >>>",totalDurationMs)
-                console.log("startFrequency >>>",startFrequency)
-                console.log("endFrequency >>>",endFrequency)
-                console.log("total steps >>>", (endFrequency - startFrequency))
+                // console.log("INTERVAL >>>",interval)
+                // console.log("totalDurationMs >>>",totalDurationMs)
+                // console.log("startFrequency >>>",startFrequency)
+                // console.log("endFrequency >>>",endFrequency)
+                // console.log("total steps >>>", (endFrequency - startFrequency))
 
-                for (let frequency = startFrequency; frequency <= endFrequency; frequency++) {
+                for (let frequency = Number(startFrequency); frequency <= Number(endFrequency); frequency++) {
                     if (!this.running) break;
                     if (this.paused) {
                         while (this.paused) {
