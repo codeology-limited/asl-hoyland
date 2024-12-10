@@ -2,15 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Program, ProgramItem } from '../types';
 import { useAppContext } from '../AppContext';
 
+// src/types.ts
+interface LocalProgramItem {
+    channel: number;
+    frequency: string;
+    runTime: number;
+}
 interface ProgramEditorProps {
-    onSave: (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => void;
+    onSave: (programName: string, programData: LocalProgramItem[], programMaxTime: number, range: boolean) => void;
     onCancel: () => void;
 }
 
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
-    const [rows, setRows] = useState<ProgramItem[]>([{ channel: 1, frequency: 0, runTime: 0 }]);
+    const [rows, setRows] = useState<LocalProgramItem[]>([{ channel: 1, frequency: '', runTime: 0 }]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -28,17 +34,17 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     useEffect(() => {
         if (range) {
             setRows([
-                { channel: 1, frequency: 0, runTime: 0 },
-                { channel: 1, frequency: 0, runTime: 0 },
+                { channel: 1, frequency: '', runTime: 0 },
+                { channel: 1, frequency: '', runTime: 0 },
             ]);
         } else {
-            setRows([{ channel: 1, frequency: 0, runTime: 0 }]);
+            setRows([{ channel: 1, frequency: '', runTime: 0 }]);
         }
     }, [range]);
 
     const handleAddRow = () => {
         if (!range) {
-            setRows([...rows, { channel: 1, frequency: 0, runTime: 0 }]);
+            setRows([...rows, { channel: 1, frequency: '', runTime: 0 }]);
         }
     };
 
@@ -50,31 +56,40 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     };
 
     const handleInputChange = (index: number, field: string, value: string) => {
-        const newRows = [...rows];
-        newRows[index] = { ...newRows[index], [field]: Number(value) };
-        setRows(newRows);
+        // Allow only numbers and at most one decimal point
+        const isValid = /^(\d+\.?\d*|\.\d*)$/.test(value);
+
+        if (isValid || value === '') { // Allow clearing the field
+            const newRows = [...rows];
+            newRows[index] = { ...newRows[index], [field]: value };
+            setRows(newRows);
+        }
     };
+
 
     const handleSave = async () => {
         if (isSaving) return; // Prevent multiple calls
         setIsSaving(true);
 
-        // Calculate maxTimeInMinutes directly from the rows
-        const maxTimeInMinutes = rows.reduce((total, item) => total + item.runTime, 0); // The rows already store time in minutes
-
-        const data = rows.map( row =>{
-            return {...row, runTime: row.runTime * 60_000}
-        })
-        const program: Program = {
-            name: programName,
-            range,
-            data, // Keep runTime in minutes in the UI
-            maxTimeInMinutes,
-            default: false,
-            startFrequency: 3.1 // Adjust this as needed
-        };
-
         try {
+            // Convert frequency to a number for saving
+            const validatedRows = rows.map(row => ({
+                ...row,
+                frequency: parseFloat(row.frequency) || 0, // Convert to number or default to 0
+                runTime: row.runTime * 60_000, // Convert runtime to milliseconds
+            }));
+
+            const maxTimeInMinutes = validatedRows.reduce((total, item) => total + item.runTime / 60_000, 0);
+
+            const program: Program = {
+                name: programName,
+                range,
+                data: validatedRows,
+                maxTimeInMinutes,
+                default: false,
+                startFrequency: 3.1, // Adjust as needed
+            };
+
             console.log('Saving program:', JSON.stringify(program));
             await appDatabase.saveData(program);
             console.log('Program saved successfully');
@@ -90,9 +105,12 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const handleLoadProgram = async (programName: string) => {
         const program = await appDatabase.loadData(programName);
         if (program) {
-            const data = program.data.map( row =>{ console.log(">>>>>", row.runTime)
-                return {...row, runTime: row.runTime / 60_000}
-            })
+            const data = program.data.map(row => ({
+                ...row,
+                frequency: row.frequency.toString(), // Convert to string for editing
+                runTime: row.runTime / 60_000, // Convert back to minutes
+            }));
+
             setProgramName(programName);
             setRange(!!program.range);
             setRows(data);
@@ -131,17 +149,15 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                 />&nbsp;&nbsp;This is a ranged program.<br />
                     Note 1: If this program is a range you must supply a start and an end frequency.<br />
                     Note 2: More than 400 frequency adjustments per minute not supported.)<br />
-            </label>
-
-
+                </label>
             </div>
             <div className='program-table'>
-                <table className={range ? 'range' : ''} >
+                <table className={range ? 'range' : ''}>
                     <thead>
                     <tr>
                         <th></th>
                         <th>Frequency in Hertz</th>
-                        <th>{range ? 'Total run time':'Minutes per frequency'}</th>
+                        <th>{range ? 'Total run time' : 'Minutes per frequency'}</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -155,17 +171,18 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                             <td>
                                 <input
                                     type="text"
-                                    value={row.frequency ? row.frequency.toString() : ''}
+                                    value={row.frequency}
                                     onChange={(e) => handleInputChange(index, 'frequency', e.target.value)}
-                                    placeholder={range ? ( index === 0 ? 'Start Frequency':'End Frequency' ):'Frequency'}
+                                    placeholder={range ? (index === 0 ? 'Start Frequency' : 'End Frequency') : 'Frequency'}
                                 />
                             </td>
                             <td>
-                                <input className='time'
-                                       type="text"
-                                       value={row.runTime ? row.runTime.toString() : ''} // Time is now directly in minutes
-                                       onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
-                                       placeholder="Time in minutes"
+                                <input
+                                    className='time'
+                                    type="text"
+                                    value={row.runTime.toString()}
+                                    onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
+                                    placeholder="Time in minutes"
                                 />
                             </td>
                             <td className="add-frequency-btn">
@@ -177,7 +194,11 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                             </td>
                             <td>
                                 {!range && index !== 0 && (
-                                    <button type="button" onClick={() => handleDeleteRow(index)} className="delete-frequency-btn">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteRow(index)}
+                                        className="delete-frequency-btn"
+                                    >
                                         -
                                     </button>
                                 )}
