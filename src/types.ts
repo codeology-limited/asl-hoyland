@@ -1,7 +1,7 @@
 // src/types.ts
 export interface ProgramItem {
     channel: number;
-    frequency: number;
+    frequency: number | string
     runTime: number;
 }
 

@@ -1,22 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Program } from '../types';
+import { Program , ProgramItem} from '../types';
 import { useAppContext } from '../AppContext';
 
-// src/types.ts
-interface LocalProgramItem {
-    channel: number;
-    frequency: string;
-    runTime: number;
-}
+
 interface ProgramEditorProps {
-    onSave: (programName: string, programData: LocalProgramItem[], programMaxTime: number, range: boolean) => void;
+    onSave: (programName: string, programData: ProgramItem[], programMaxTime: number, range: boolean) => void;
     onCancel: () => void;
 }
+
 
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
-    const [rows, setRows] = useState<LocalProgramItem[]>([{ channel: 1, frequency: '', runTime: 0 }]);
+    const [rows, setRows] = useState<ProgramItem[]>([{ channel: 1, frequency: '', runTime: 0 }]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -75,7 +71,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             // Convert frequency to a number for saving
             const validatedRows = rows.map(row => ({
                 ...row,
-                frequency: parseFloat(row.frequency) || 0, // Convert to number or default to 0
+                frequency: parseFloat(String(row.frequency)) || 0, // Convert to number or default to 0
                 runTime: row.runTime * 60_000, // Convert runtime to milliseconds
             }));
 
