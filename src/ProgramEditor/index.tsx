@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Program, ProgramItem } from '../types';
+import { Program } from '../types';
 import { useAppContext } from '../AppContext';
 
 // src/types.ts
