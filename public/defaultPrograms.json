@@ -1,4 +1,39 @@
+
 {
+
+
+  "ultrasound": {
+    "default": true,
+    "range": false,
+    "data": [],
+    "runTimeInMinutes": 10,
+    "startFrequency": 0,
+    "minAmplitude": 0.3,
+    "maxAmplitude": 1.8,
+    "initialAmplitude": 0.825
+  },
+  "ultrasound 500": {
+    "default": true,
+    "range": false,
+    "data": [{ "f": 500000, "s": 600 }],
+    "runTimeInMinutes": 10,
+    "startFrequency": 0,
+    "minAmplitude": 0.8,
+    "maxAmplitude": 1.8,
+    "initialAmplitude": 1.05
+  },
+  "ultrasound 670": {
+    "default": true,
+    "range": false,
+    "data": [{ "f": 670000, "s": 600 }],
+    "runTimeInMinutes": 10,
+    "startFrequency": 0,
+    "minAmplitude": 0.3,
+    "maxAmplitude": 1.4,
+    "initialAmplitude": 0.575
+  },
+
+
   "hoyland": {
     "default":true,
     "range": true,
@@ -8,15 +43,7 @@
     "runTimeInMinutes": 120,
     "startFrequency": 3.1
   },
-  "ultrasound": {
-    "default":true,
-    "range": true,
-    "data": [
-      500000, 670000
-    ],
-    "runTimeInMinutes": 9,
-    "startFrequency": 0.500000
-  },
+
     "herpes": {
       "default":true,
       "data": [
@@ -101,4 +128,3 @@
 
 
 }
-  

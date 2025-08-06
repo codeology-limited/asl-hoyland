@@ -5,40 +5,35 @@ class HoylandController {
   currentFrequency: number = 0;
   isListening: boolean = false;
   eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
-  delay: number = 100
+  delay: number = 100;
 
   constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
     console.log("INITIALIZING HOYLAND CONTROLLER");
-    this.intensity = 1; // Initialize intensity with a default value
-    this.currentFrequency = 0 //for display only
-
+    this.intensity = 1;
+    this.currentFrequency = 0;
     if (eventCallback) {
       this.eventCallback = eventCallback;
     }
-
     if (!this.isListening) {
       this.isListening = true;
     }
   }
 
-  async wait(){
-    await  new Promise(resolve => setTimeout(resolve, this.delay))
+  async wait() {
+    await new Promise(resolve => setTimeout(resolve, this.delay));
   }
-
 
   async reconnectDevice(): Promise<string> {
     try {
-      const targetDevice = "Hoyland"; // Replace with the actual target device name
-      const baudRate = 115200; // Use the correct baud rate
-
+      const targetDevice = "Hoyland";
+      const baudRate = 115200;
       const result = await invoke('reconnect_device', {
         args: {
           target_device: targetDevice,
           baud_rate: baudRate,
         }
       });
-
-      await this.wait()
+      await this.wait();
       console.log("Reconnected:", result);
       return result as string;
     } catch (error) {
@@ -46,12 +41,12 @@ class HoylandController {
       return "";
     }
   }
+
   async sinewave() {
     try {
       const result = await invoke('sine_wave');
-
       if (result) {
-        console.log('sinewave   sent successfully');
+        console.log('sinewave sent successfully');
       } else {
         console.error('Failed to send sinewave commands');
       }
@@ -59,12 +54,12 @@ class HoylandController {
       console.error('Error sending sinewave commands:', error);
     }
   }
+
   async set_both_channels_to_square_wave() {
     try {
       const result = await invoke('set_both_channels_to_square_wave');
-
       if (result) {
-        console.log('set_both_channels_to_square_wave   sent successfully');
+        console.log('set_both_channels_to_square_wave sent successfully');
       } else {
         console.error('Failed to send set_both_channels_to_square_wave commands');
       }
@@ -72,12 +67,12 @@ class HoylandController {
       console.error('Error sending set_both_channels_to_square_wave commands:', error);
     }
   }
+
   async sync() {
     try {
       const result = await invoke('sync');
-
       if (result) {
-        console.log('sync   sent successfully');
+        console.log('sync sent successfully');
       } else {
         console.error('Failed to send sync commands');
       }
@@ -85,8 +80,6 @@ class HoylandController {
       console.error('Error sending sync commands:', error);
     }
   }
-
-
 
   async sendInitialCommands() {
     try {
@@ -109,26 +102,37 @@ class HoylandController {
       channel: channel,
       frequency: frequency,
     };
-
     try {
-      this.currentFrequency=frequency
+      this.currentFrequency = frequency;
       await invoke('set_frequency', { args });
-      console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
+      console.log(`Frequency set for channel ${channel} to ${frequency} Hz`);
     } catch (error) {
       console.error(`Error setting frequency: ${error}`);
     }
   }
 
-  async setAmplitude( amplitude: number) {
+  async setAmplitude(amplitude: number) {
     const args = {
       channel: 1,
       amplitude: amplitude,
     };
-
     try {
       await invoke('set_amplitude', { args });
     } catch (error) {
       console.error('Error setting amplitude:', error);
+    }
+  }
+
+  async write_to_port(args: { data: string }) {
+    try {
+      const result = await invoke('write_to_port', { args });
+      if (result) {
+        console.log(`Command ${args.data} sent successfully`);
+      } else {
+        console.error(`Failed to send command ${args.data}`);
+      }
+    } catch (error) {
+      console.error(`Error sending command ${args.data}: ${error}`);
     }
   }
 

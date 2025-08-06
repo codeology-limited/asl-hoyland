@@ -1,7 +1,7 @@
-import React, {useReducer, useEffect, useRef, useCallback, useState} from 'react';
+import React, { useReducer, useEffect, useRef, useCallback, useState } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
-import ProgramSelect from "./ProgramSelect.tsx";
+import ProgramSelect from './ProgramSelect';
 
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -20,6 +20,8 @@ interface State {
     timeRemaining: number;
     totalSteps: number;
     intensity: number;
+    minIntensity: number;
+    maxIntensity: number;
     selectedProgram: string;
     programNames: string[];
     isPaused: boolean;
@@ -31,6 +33,7 @@ type Action =
     | { type: 'SET_TIME_REMAINING'; payload: number }
     | { type: 'SET_TOTAL_STEPS'; payload: number }
     | { type: 'SET_INTENSITY'; payload: number }
+    | { type: 'SET_MIN_MAX_INTENSITY'; min: number; max: number }
     | { type: 'SET_SELECTED_PROGRAM'; payload: string }
     | { type: 'SET_PROGRAM_NAMES'; payload: string[] }
     | { type: 'SET_IS_PAUSED'; payload: boolean }
@@ -42,6 +45,8 @@ const initialState: State = {
     timeRemaining: 0,
     totalSteps: 0,
     intensity: 5,
+    minIntensity: 1,
+    maxIntensity: 20,
     selectedProgram: '',
     programNames: [],
     isPaused: false,
@@ -58,6 +63,8 @@ function reducer(state: State, action: Action): State {
             return { ...state, totalSteps: action.payload };
         case 'SET_INTENSITY':
             return { ...state, intensity: action.payload };
+        case 'SET_MIN_MAX_INTENSITY':
+            return { ...state, minIntensity: action.min, maxIntensity: action.max };
         case 'SET_SELECTED_PROGRAM':
             return { ...state, selectedProgram: action.payload };
         case 'SET_PROGRAM_NAMES':
@@ -69,7 +76,9 @@ function reducer(state: State, action: Action): State {
         case 'RESET_UI':
             return {
                 ...initialState,
-                programNames: state.programNames, // Retain the loaded program names
+                programNames: state.programNames,
+                minIntensity: 1,
+                maxIntensity: 20,
             };
         default:
             return state;
@@ -78,9 +87,7 @@ function reducer(state: State, action: Action): State {
 
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
-
-
+    const [runningFrequency, setRunningFrequency] = useState<string>('0 Hz');
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
 
@@ -105,8 +112,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         console.log("runningFrequency updated:", runningFrequency);
     }, [runningFrequency]);
 
-
-
     const handleProgressUpdate = useCallback(
         (currentStep: number, totalSteps: number, timeRemaining: number) => {
             dispatch({ type: 'SET_PROGRESS', payload: currentStep });
@@ -120,15 +125,11 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (runnerRef.current) {
             runnerRef.current.setIntensity(state.intensity);
             runnerRef.current.setProgressCallback(handleProgressUpdate);
-
-            // Add this to set the callback for when the program stops
             runnerRef.current.setOnStopCallback(() => {
-                resetUI();  // Reset UI when the program stops
+                resetUI();
             });
         }
     }, [state.intensity, handleProgressUpdate]);
-
-
 
     const loadProgram = useCallback(
         async (programName: string) => {
@@ -136,6 +137,24 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 const program = await appDatabase.loadData(programName);
                 if (program) {
                     runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
+                    let minIntensity = 1;
+                    let maxIntensity = 20;
+                    let initialIntensity = 5;
+                    if (programName === "ultrasound") {
+                        minIntensity = 0.3 / 0.015; // 0.3V at 0%, step 0.015V
+                        maxIntensity = 1.8 / 0.015; // 1.8V at 100%
+                        initialIntensity = 0.825 / 0.015; // 0.825V at 35%
+                    } else if (programName === "ultrasound 500") {
+                        minIntensity = 0.8 / 0.01; // 0.8V at 0%, step 0.01V
+                        maxIntensity = 1.8 / 0.01; // 1.8V at 100%
+                        initialIntensity = 1.05 / 0.01; // 1.05V at 25%
+                    } else if (programName === "ultrasound 670") {
+                        minIntensity = 0.3 / 0.011; // 0.3V at 0%, step 0.011V
+                        maxIntensity = 1.4 / 0.011; // 1.4V at 100%
+                        initialIntensity = 0.575 / 0.011; // 0.575V at 25%
+                    }
+                    dispatch({ type: 'SET_MIN_MAX_INTENSITY', min: minIntensity, max: maxIntensity });
+                    dispatch({ type: 'SET_INTENSITY', payload: initialIntensity });
                 }
             } catch (error) {
                 console.error('Failed to load program:', error);
@@ -157,10 +176,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     if (runnerRef.current) {
                         setIsRunning(true);
                         await runnerRef.current.initializeChannel1();
-                        await runnerRef.current. setChannel1StartFrequency(state.selectedProgram);
-
+                        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
                         await runnerRef.current.initializeChannel0();
-                        dispatch({ type: 'SET_INTENSITY', payload: 10 });// this should send ch0
                         await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
                     }
                 } else {
@@ -201,24 +218,16 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         };
     }, []);
 
-
-
     return (
         <div className={`${isPortConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
-
             <div>
-
                 <select
                     disabled={isRunning || !isPortConnected}
                     value={state.selectedProgram}
-                    onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', payload: e.target.value})}
+                    onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
                 >
-                    <ProgramSelect
-                        programNames={state.programNames}
-                    />
+                    <ProgramSelect programNames={state.programNames} />
                 </select>
-
-
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
@@ -226,32 +235,28 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 >
                     {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>
-
                 <button onClick={handlePauseContinue} disabled={!isRunning}>
                     {state.isPaused ? 'Continue' : 'Pause'}
                 </button>
             </div>
-
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={state.progress - 1} max={state.totalSteps}></progress>
+                <progress className="progress-bar" value={state.progress} max={state.totalSteps}></progress>
                 <label>
-                    {state.totalSteps > 0 ? `${Math.max(0, Math.floor(((state.progress - 1) / state.totalSteps) * 100))}% complete` : '0% complete'}
+                    {state.totalSteps > 0 ? `${Math.floor((state.progress / state.totalSteps) * 100)}% complete` : '0% complete'}
                 </label>
                 <span>
                     {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
                 </span>
-                <div id="intensity-display">{runningFrequency}
-                </div>
+                <div id="intensity-display">{runningFrequency}</div>
             </div>
-
             <div>
-                <label>Intensity: {Math.floor(((state.intensity || 0) / 20) * 100)}%</label>
+                <label>Intensity: {Math.floor(((state.intensity * ((state.maxIntensity - state.minIntensity) / 100) + state.minIntensity) / state.maxIntensity) * 100)}%</label>
                 <input
                     type="range"
-                    min="1"
-                    max="20"
+                    min={state.minIntensity}
+                    max={state.maxIntensity}
                     value={state.intensity}
-                    onChange={(e) => dispatch({type: 'SET_INTENSITY', payload: parseInt(e.target.value, 10)})}
+                    onChange={(e) => dispatch({ type: 'SET_INTENSITY', payload: parseInt(e.target.value, 10) })}
                     disabled={state.isStopping}
                 />
             </div>

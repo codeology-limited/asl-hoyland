@@ -1,19 +1,21 @@
 import AppDatabase from './AppDatabase';
 import HoylandController from './HoylandController';
+import { Program } from './types';
 
 interface Program {
     id?: number;
     name: string;
     range: number | boolean;
-    data: { channel: number; frequency: number|string; runTime: number }[];
+    data: { channel: number; frequency: number | string; runTime: number }[];
     maxTimeInMinutes: number;
     default: number | boolean;
     startFrequency: number;
-    mirror?: boolean;
+    minAmplitude?: number; // New field for minimum amplitude
+    maxAmplitude?: number; // New field for maximum amplitude
+    initialAmplitude?: number; // New field for initial amplitude
 }
 
 type ProgressCallback = (currentStep: number, totalSteps: number, currentFrequency: number) => void;
-
 
 class ProgramRunner {
     private database: AppDatabase;
@@ -24,7 +26,7 @@ class ProgramRunner {
     private progressCallback: ProgressCallback | null;
     private pauseStartTime: number = 0;
     private totalPausedTime: number = 0;
-    private onStopCallback: (() => void) | null = null; // Callback for stopping
+    private onStopCallback: (() => void) | null = null;
 
     constructor(database: AppDatabase, generator: HoylandController, progressCallback: ProgressCallback | null = null) {
         this.database = database;
@@ -33,23 +35,21 @@ class ProgramRunner {
         this.paused = false;
         this.intensity = 1;
         this.progressCallback = progressCallback;
-      //  console.log('ProgramRunner initialized with intensity:', this.intensity);
     }
 
     async loadProgram(name: string): Promise<Program | null> {
         try {
             const program = await this.database.loadData(name);
-           // console.log('Program loaded:', program);
             return program;
         } catch (error) {
-          //  console.error(`Failed to load program: ${error}`);
+            console.error(`Failed to load program: ${error}`);
             return null;
         }
     }
 
     async setIntensity(intensity: number) {
         this.intensity = intensity;
-        this.generator.setAmplitude( this.intensity); // Set Channel 1 amplitude
+        await this.generator.setAmplitude(this.intensity);
     }
 
     setProgressCallback(callback: ProgressCallback) {
@@ -60,98 +60,132 @@ class ProgramRunner {
         this.onStopCallback = callback;
     }
 
-    async runSpecialCase( setRunningFrequency: React.Dispatch<React.SetStateAction<string>> ) {
-      //  console.log('Running special case program with 0.5 MHz and 0.67 MHz for 9 minutes');
+    async runSpecialCase(programName: string, setRunningFrequency: React.Dispatch<React.SetStateAction<string>>) {
+        const program = await this.loadProgram(programName);
+        if (!program) {
+            console.error(`Program ${programName} not found`);
+            return;
+        }
 
-        await this.generator.sinewave();
-
+        await this.generator.set_both_channels_to_square_wave();
         this.running = true;
         this.paused = false;
-
-        const totalDurationMs = 9 * 60 * 1000; // 9 minutes in milliseconds
-        const startTime = Date.now(); // Record the start time
-        let lastReportedPercentage = -1; // Initialize to an invalid value
+        const totalDurationMs = 10 * 60 * 1000; // 10 minutes
+        const startTime = Date.now();
+        let lastReportedPercentage = -1;
 
         const updateProgress = () => {
             const elapsedMs = Date.now() - startTime - this.totalPausedTime;
             const percentageComplete = Math.floor((elapsedMs / totalDurationMs) * 100);
-
             if (percentageComplete > lastReportedPercentage) {
                 lastReportedPercentage = percentageComplete;
                 if (this.progressCallback) {
-                    this.progressCallback(percentageComplete, 100, (totalDurationMs-elapsedMs) / 60_000);
+                    this.progressCallback(percentageComplete, 100, (totalDurationMs - elapsedMs) / 60_000);
                 }
             }
         };
 
         const progressTimer = setInterval(() => {
-            if (!this.running || this.paused) {
-                return; // Skip update if paused or stopped
-            }
+            if (!this.running || this.paused) return;
             updateProgress();
-        }, 50); // Update progress every second
+        }, 50);
 
-        while (this.running && (Date.now() - startTime - this.totalPausedTime) < totalDurationMs) {
-            if (this.paused) {
-                while (this.paused) {
-                    await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
-                    if (!this.running) {
-                        clearInterval(progressTimer);
-                        return; // Exit if not running
+        if (programName === "ultrasound") {
+            while (this.running && (Date.now() - startTime - this.totalPausedTime) < totalDurationMs) {
+                if (this.paused) {
+                    while (this.paused) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        if (!this.running) {
+                            clearInterval(progressTimer);
+                            return;
+                        }
                     }
                 }
+
+                // 500 kHz for 1 second
+                await this.generator.setFrequency(1, 0.5 * 1_000_000);
+                await this.generator.setFrequency(2, 0.5 * 1_000_000);
+                setRunningFrequency(`${(0.5 * 1_000_000).toString()} Hz`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Off for 1 second
+                await this.generator.write_to_port({ data: "WMN0\n" });
+                await this.generator.write_to_port({ data: "WFN0\n" });
+                setRunningFrequency("0 Hz");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // 670 kHz for 1 second
+                await this.generator.setFrequency(1, 0.67 * 1_000_000);
+                await this.generator.setFrequency(2, 0.67 * 1_000_000);
+                setRunningFrequency(`${(0.67 * 1_000_000).toString()} Hz`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Off for 1 second
+                await this.generator.write_to_port({ data: "WMN0\n" });
+                await this.generator.write_to_port({ data: "WFN0\n" });
+                setRunningFrequency("0 Hz");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                updateProgress();
             }
-
-            // Set frequency to 0.5 MHz
+        } else if (programName === "ultrasound 500") {
             await this.generator.setFrequency(1, 0.5 * 1_000_000);
-            setRunningFrequency( `${(0.5 * 1_000_000).toString()} Hz` )
-            await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
-
-            // Set frequency to 0.67 MHz
+            await this.generator.setFrequency(2, 0.5 * 1_000_000);
+            setRunningFrequency(`${(0.5 * 1_000_000).toString()} Hz`);
+            while (this.running && (Date.now() - startTime - this.totalPausedTime) < totalDurationMs) {
+                if (this.paused) {
+                    while (this.paused) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        if (!this.running) {
+                            clearInterval(progressTimer);
+                            return;
+                        }
+                    }
+                }
+                updateProgress();
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        } else if (programName === "ultrasound 670") {
             await this.generator.setFrequency(1, 0.67 * 1_000_000);
-            setRunningFrequency( `${(0.67 * 1_000_000).toString()} Hz` )
-            await new Promise(resolve => setTimeout(resolve, 5)); // Wait for 100 ms
-
-            // Update the progress bar
-            updateProgress();
+            await this.generator.setFrequency(2, 0.67 * 1_000_000);
+            setRunningFrequency(`${(0.67 * 1_000_000).toString()} Hz`);
+            while (this.running && (Date.now() - startTime - this.totalPausedTime) < totalDurationMs) {
+                if (this.paused) {
+                    while (this.paused) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        if (!this.running) {
+                            clearInterval(progressTimer);
+                            return;
+                        }
+                    }
+                }
+                updateProgress();
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
         }
 
-        clearInterval(progressTimer); // Ensure the timer is cleared
-
-        // Stop the generator after the loop completes
+        clearInterval(progressTimer);
         await this.generator.stopAndReset();
-      //  console.log('Special case program completed');
         this.running = false;
-
-        if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
+        if (this.onStopCallback) this.onStopCallback();
     }
 
     async initializeChannel1() {
-       // console.log('Sending initial commands...');
         await this.generator.sendInitialCommands();
     }
 
     async initializeChannel0() {
-      //  console.log('Sending secondary commands...');
         await this.generator.sendSecondaryCommands();
     }
 
-    async setChannel1StartFrequency(programName:string){
+    async setChannel1StartFrequency(programName: string) {
         const program = await this.loadProgram(programName);
-        if ( !program){
-            return
-        }
-        if ( program.startFrequency > 0){
-            await this.generator.setFrequency(2, program.startFrequency * 1_000_000); // Set Channel 2 frequency to startFrequency
-        }
+        if (!program || program.startFrequency <= 0) return;
+        await this.generator.setFrequency(2, program.startFrequency * 1_000_000);
     }
 
     async startProgram(programName: string, setRunningFrequency: React.Dispatch<React.SetStateAction<string>>) {
-
-
-       // console.log('Starting program:', programName);
         const program = await this.loadProgram(programName);
-
         if (!program) {
             console.error(`Program ${programName} not found`);
             return;
@@ -159,141 +193,79 @@ class ProgramRunner {
 
         this.running = true;
         this.paused = false;
-        this.totalPausedTime = 0; // Reset paused time
-        const startTime = Date.now(); // Record the start time
-        const totalDurationMs = program.maxTimeInMinutes * 60 * 1000; // Total time in milliseconds
+        this.totalPausedTime = 0;
+        const startTime = Date.now();
+        const totalDurationMs = program.maxTimeInMinutes * 60 * 1000;
 
         const updateProgressBar = async () => {
             while (this.running) {
                 if (this.paused) {
-                    await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
+                    await new Promise(resolve => setTimeout(resolve, 100));
                     continue;
                 }
-
                 const elapsedMs = Date.now() - startTime - this.totalPausedTime;
                 const percentageComplete = (elapsedMs / totalDurationMs) * 100;
-
                 if (this.progressCallback) {
-                    this.progressCallback(percentageComplete, 100, (totalDurationMs-elapsedMs) / 60_000); // Update progress every second
+                    this.progressCallback(percentageComplete, 100, (totalDurationMs - elapsedMs) / 60_000);
                 }
-
-                if (elapsedMs >= totalDurationMs) {
-                    break; // Exit the loop if the total duration is reached
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 50)); // Wait for 1 second
+                if (elapsedMs >= totalDurationMs) break;
+                await new Promise(resolve => setTimeout(resolve, 50));
             }
         };
 
-        const progressUpdater = updateProgressBar(); // Start the progress bar updater
+        const progressUpdater = updateProgressBar();
 
-        if (program.name === "ultrasound") {
-            await this.runSpecialCase(setRunningFrequency);
+        if (["ultrasound", "ultrasound 500", "ultrasound 670"].includes(programName)) {
+            await this.runSpecialCase(programName, setRunningFrequency);
         } else {
-            if (program.range && program.data.length === 2) {
-                const startFrequency = program.data[0].frequency;
-                const endFrequency = program.data[1].frequency;
-                const interval = totalDurationMs / (Number(endFrequency) - Number(startFrequency));
-
-                // console.log("INTERVAL >>>",interval)
-                // console.log("totalDurationMs >>>",totalDurationMs)
-                // console.log("startFrequency >>>",startFrequency)
-                // console.log("endFrequency >>>",endFrequency)
-                // console.log("total steps >>>", (endFrequency - startFrequency))
-
-
-                for (let frequency = Number(startFrequency); frequency <= Number(endFrequency); frequency++) {
-                    if (!this.running) break;
-                    if (this.paused) {
-                        while (this.paused) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            if (!this.running) return;
-                        }
+            if (program.startFrequency === 0) {
+                await this.generator.set_both_channels_to_square_wave();
+                await this.generator.sync();
+            }
+            for (const item of program.data) {
+                if (!this.running) break;
+                if (this.paused) {
+                    while (this.paused) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        if (!this.running) return;
                     }
-
-                  //  console.log('Setting frequency to:', frequency);
-                    await this.generator.setFrequency(1, parseFloat(frequency.toString()));
-                    setRunningFrequency( `${frequency.toString()} Hz` )
-                    await new Promise(resolve => setTimeout(resolve, interval));
-
-                    if (!this.running) break;
                 }
-            } else {
-
-
-                if ( program.startFrequency === 0 ){
-                    this.generator.set_both_channels_to_square_wave()
-                    this.generator.sync()
-                }
-                for (const item of program.data) {
-                    if (!this.running) break; // Immediately exit if not running
-                    if (this.paused) {
-                        while (this.paused) {
-                            await new Promise(resolve => setTimeout(resolve, 100)); // Wait while paused
-                            if (!this.running) return; // Exit if not running
-                        }
-                    }
-
-                    // if ( program.startFrequency === 0){
-                    //     await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
-                    //     await new Promise((resolve) => setTimeout(resolve, 200));
-                    //
-                    //     await this.generator.sync();
-                    //     await new Promise((resolve) => setTimeout(resolve, 200));
-                    // } else {
-                        await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
-                        setRunningFrequency( `${item.frequency.toString()} Hz` )
-
-                    // }
-
-
-
-                 //   console.log('RUN Time>', item.runTime/1000);
-                    await new Promise<void>(resolve => {
-                        const timeoutId = setTimeout(() => {
+                await this.generator.setFrequency(1, parseFloat(item.frequency.toString()));
+                setRunningFrequency(`${item.frequency.toString()} Hz`);
+                await new Promise<void>(resolve => {
+                    const timeoutId = setTimeout(resolve, item.runTime);
+                    const checkRunning = setInterval(() => {
+                        if (!this.running) {
+                            clearTimeout(timeoutId);
+                            clearInterval(checkRunning);
                             resolve();
-                        }, item.runTime);
-
-                        const checkRunning = setInterval(() => {
-                            if (!this.running) {
-                                clearTimeout(timeoutId);
-                                clearInterval(checkRunning);
-                                resolve(); // Resolve immediately if running is false
-                            }
-                        }, 5); // Check every 10ms
-                    });
-
-                    if (!this.running) break; // Immediately exit if not running
-                }
+                        }
+                    }, 5);
+                });
+                if (!this.running) break;
             }
         }
 
-        await progressUpdater; // Wait for the progress bar updater to complete
-
+        await progressUpdater;
         if (this.running) {
             await this.generator.stopAndReset();
         }
-
         this.running = false;
         this.paused = false;
-       // console.log('Program completed:', programName);
-
-        if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
+        if (this.onStopCallback) this.onStopCallback();
     }
 
     pauseProgram() {
         if (this.running) {
             this.paused = true;
-            this.pauseStartTime = Date.now(); // Record the time when the pause starts
-          //  console.log('Program paused');
+            this.pauseStartTime = Date.now();
         }
     }
 
     resumeProgram() {
         if (this.running && this.paused) {
             this.paused = false;
-            this.totalPausedTime += Date.now() - this.pauseStartTime; // Add the paused duration to the total
-          //  console.log('Program resumed');
+            this.totalPausedTime += Date.now() - this.pauseStartTime;
         }
     }
 
@@ -301,9 +273,7 @@ class ProgramRunner {
         await this.generator.stopAndReset();
         this.running = false;
         this.paused = false;
-      //  console.log('Program stopped');
-
-        if (this.onStopCallback) this.onStopCallback(); // Trigger onStopCallback
+        if (this.onStopCallback) this.onStopCallback();
     }
 }
 

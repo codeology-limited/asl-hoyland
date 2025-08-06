@@ -1,7 +1,6 @@
-// src/types.ts
 export interface ProgramItem {
     channel: number;
-    frequency: number | string
+    frequency: number | string;
     runTime: number;
 }
 
@@ -12,5 +11,8 @@ export interface Program {
     data: ProgramItem[];
     maxTimeInMinutes: number;
     default: number | boolean;
-    startFrequency: number;  // Add this line
+    startFrequency: number;
+    minAmplitude?: number;
+    maxAmplitude?: number;
+    initialAmplitude?: number;
 }
