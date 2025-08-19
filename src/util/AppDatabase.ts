@@ -1,19 +1,21 @@
-import Dexie from "dexie";
+import Dexie from 'dexie';
 
-interface Program {
+type DBBool = 0 | 1;
+
+interface ProgramRow {
   id?: number;
-  name: string;
-  range: number | boolean;
+  name: string;                 // UNIQUE
+  range: DBBool;                // stored as 0/1
   data: { channel: number; frequency: number | string; runTime: number }[];
   maxTimeInMinutes: number;
-  default: number | boolean;
+  default: DBBool;              // stored as 0/1
   startFrequency: number;
 }
 
 interface OldFormatProgram {
   default: boolean;
   range: boolean;
-  data: number[];
+  data: number[];               // Hz
   runTimeInMinutes: number;
   startFrequency: number;
 }
@@ -21,214 +23,198 @@ interface OldFormatProgram {
 interface NewFormatProgram {
   default: boolean;
   range: boolean;
-  data: { f: number; s: number }[];
+  data: { f: number; s: number }[]; // f=Hz, s=seconds
   runTimeInMinutes: number;
   startFrequency: number;
 }
 
-class AppDatabase extends Dexie {
-  programs: Dexie.Table<Program, number>;
-  preloadDone: boolean = false; // Add a flag to track preload completion
+const b2n = (b: boolean): DBBool => (b ? 1 : 0);
+const n2b = (n: DBBool | number | boolean): boolean => !!Number(n);
+
+export default class AppDatabase extends Dexie {
+  programs!: Dexie.Table<ProgramRow, number>;
+  preloadDone = false;
+
+  /** prevents concurrent preloads */
+  private _preloadInFlight: Promise<void> | null = null;
 
   constructor() {
-    super("AppDatabase");
+    super('AppDatabase');
+    // UNIQUE &name prevents duplicates
     this.version(1).stores({
-      programs: "++id,name,range,data,maxTimeInMinutes,default,startFrequency",
+      programs: '++id,&name,range,default,maxTimeInMinutes,startFrequency',
     });
-    this.programs = this.table("programs");
+    this.programs = this.table('programs');
   }
 
+  /** Type guards */
+  private isOldFormat(p: any): p is OldFormatProgram {
+    return Array.isArray(p?.data)
+        && typeof p.data[0] === 'number'
+        && 'runTimeInMinutes' in p
+        && 'startFrequency' in p;
+  }
+
+  private isNewFormat(p: any): p is NewFormatProgram {
+    return Array.isArray(p?.data)
+        && typeof p.data[0] === 'object'
+        && 'f' in p.data[0]
+        && 's' in p.data[0]
+        && 'runTimeInMinutes' in p
+        && 'startFrequency' in p;
+  }
+
+  /** Preload defaults from /defaultPrograms.json (idempotent, transactional, single-flight). */
   async preloadDefaults() {
-    try {
-      console.log("Loading Defaults");
-      const response = await fetch('/defaultPrograms.json'); // Adjust the path as necessary
-      const defaultPrograms = await response.json();
+    if (this._preloadInFlight) return this._preloadInFlight;
 
+    this._preloadInFlight = (async () => {
+      try {
+        const res = await fetch('/defaultPrograms.json');
+        const defaults = await res.json();
 
-      for (const [name, program] of Object.entries(defaultPrograms)) {
-        let dataWithRunTime: { channel: number; frequency: number; runTime: number }[] = [];
+        await this.transaction('rw', this.programs, async () => {
+          for (const [name, program] of Object.entries(defaults)) {
+            let dataWithRunTime: ProgramRow['data'] = [];
 
-        // Type assertion to handle `unknown` type
-        const typedProgram = program as OldFormatProgram | NewFormatProgram;
+            if (this.isOldFormat(program)) {
+              const perItemMs =
+                  program.data.length > 0
+                      ? (program.runTimeInMinutes * 60000) / program.data.length
+                      : 0;
+              dataWithRunTime = program.data.map((frequency) => ({
+                channel: 1,
+                frequency,
+                runTime: perItemMs,
+              }));
+            } else if (this.isNewFormat(program)) {
+              dataWithRunTime = program.data.map((item) => ({
+                channel: 1,
+                frequency: item.f,
+                runTime: item.s * 1000,
+              }));
+            } else {
+              // Unknown shape; skip safely
+              continue;
+            }
 
-        if (this.isOldFormatProgram(typedProgram)) {
-          console.log("Loading old style Defaults");
-          if (typedProgram.data) {
-            dataWithRunTime = typedProgram.data.map((frequency) => ({
-              channel: 1,
-              frequency,
-              runTime: (typedProgram.runTimeInMinutes * 60000) / typedProgram.data.length,
-            }));
+            const row: Omit<ProgramRow, 'id'> = {
+              name,
+              data: dataWithRunTime,
+              range: b2n(program.range),
+              default: b2n(program.default),
+              maxTimeInMinutes: program.runTimeInMinutes,
+              startFrequency: program.startFrequency,
+            };
+
+            // Upsert by UNIQUE name (no duplicates even if called twice)
+            const existing = await this.programs.where('name').equals(name).first();
+            if (existing) {
+              await this.programs.put({ ...existing, ...row });
+            } else {
+              await this.programs.put(row as ProgramRow);
+            }
           }
-        } else if (this.isNewFormatProgram(typedProgram)) {
-          console.log("Loading new style Defaults");
-          if (typedProgram.data) {
-            dataWithRunTime = typedProgram.data.map((item) => ({
-              channel: 1,
-              frequency: item.f,
-              runTime: item.s * 1000, // Assuming 's' is in seconds
-            }));
-          }
-        }
+        });
 
-        // Always overwrite existing named items
-        const existingProgram = await this.programs.where({ name }).first();
-
-        if (existingProgram) {
-          console.log("Overwrite existing program", name);
-          await this.programs.update(existingProgram.id!, {
-            name,
-            data: dataWithRunTime,
-            range: typedProgram.range ? 1 : 0,
-            default: typedProgram.default ? 1 : 0,
-            maxTimeInMinutes: typedProgram.runTimeInMinutes,
-            startFrequency: typedProgram.startFrequency,
-          });
-        } else {
-          console.log("Create new program", name);
-          await this.programs.add({
-            name,
-            data: dataWithRunTime,
-            range: typedProgram.range ? 1 : 0,
-            default: typedProgram.default ? 1 : 0,
-            maxTimeInMinutes: typedProgram.runTimeInMinutes,
-            startFrequency: typedProgram.startFrequency,
-          });
-        }
+        this.preloadDone = true;
+      } catch (err) {
+        console.error('Failed to preload defaults:', err);
+      } finally {
+        this._preloadInFlight = null;
       }
-      this.preloadDone = true; // Set the flag to true once done
-      console.log('Defaults preloaded');
-    } catch (error) {
-      console.error('Failed to preload defaults:', error);
-    }
-  }
+    })();
 
-  isOldFormatProgram(program: any): program is OldFormatProgram {
-    return (
-        Array.isArray(program.data) &&
-        typeof program.data[0] === 'number' &&
-        'runTimeInMinutes' in program &&
-        'startFrequency' in program
-    );
-  }
-
-  isNewFormatProgram(program: any): program is NewFormatProgram {
-    return (
-        Array.isArray(program.data) &&
-        typeof program.data[0] === 'object' &&
-        'f' in program.data[0] &&
-        's' in program.data[0] &&
-        'runTimeInMinutes' in program &&
-        'startFrequency' in program
-    );
+    return this._preloadInFlight;
   }
 
   async resetData() {
     await this.clearDatabase();
   }
 
+  /** Clears only defaults, then re-preloads (safe + idempotent). */
   async clearDatabase() {
     try {
-      // Delete only the default programs
-      await this.programs.where('default').equals(1).delete();
-      console.log('Default programs cleared');
-
-      // Preload default programs again
+      await this.transaction('rw', this.programs, async () => {
+        await this.programs.where('default').equals(1).delete();
+      });
       await this.preloadDefaults();
-    } catch (error) {
-      console.error('Failed to clear the database:', error);
+    } catch (err) {
+      console.error('Failed to clear the database:', err);
     }
   }
 
-  async loadData(programName: string): Promise<Program> {
+  async loadData(programName: string): Promise<ProgramRow> {
     try {
-      const program = await this.programs.where("name").equals(programName).first();
-      if (program) {
-        return program;
-      } else {
-        throw new Error(`No data found for ${programName}`);
-      }
+      const program = await this.programs.where('name').equals(programName).first();
+      if (!program) throw new Error(`No data found for ${programName}`);
+      return program;
     } catch (err) {
       console.error(`Failed to load data: ${err}`);
       throw err;
     }
   }
 
-  async saveData(program: Program): Promise<void> {
+  /** Save or update by name (no duplicates thanks to &name + put). */
+  async saveData(program: {
+    name: string;
+    range: number | boolean;
+    data: ProgramRow['data'];
+    maxTimeInMinutes: number;
+    default: number | boolean;
+    startFrequency: number;
+  }): Promise<void> {
     try {
+      if (!program?.name) return;
 
-      if ( !program ){
-        return
-      }
-      console.log(`Saving program: ${program.name} - Start`);
-
-      const existingProgram = await this.programs.where({ name: program.name }).first();
-      console.log("IN DB PROGRAM --->", existingProgram,program);
-
-      const saveData: Omit<Program, 'id'> = {
+      const row: Omit<ProgramRow, 'id'> = {
         name: program.name,
-        range: program.range ? 1 : 0,
+        range: b2n(n2b(program.range)),
         data: program.data,
         maxTimeInMinutes: program.maxTimeInMinutes,
-        default: program.default ? 1 : 0, // Convert boolean to number
+        default: b2n(n2b(program.default)),
         startFrequency: program.startFrequency,
       };
 
-      if (existingProgram) {
-        console.log(`Updating existing program: ${program.name}`);
-        await this.programs.update(existingProgram.id!, saveData);
-        console.log(`Program ${program.name} updated successfully`);
+      // Upsert by name
+      const existing = await this.programs.where('name').equals(program.name).first();
+      if (existing) {
+        await this.programs.put({ ...existing, ...row });
       } else {
-        console.log(`Creating new program: ${program.name}`);
-        await this.programs.put(saveData as Program);
-        console.log(`Program ${program.name} created successfully`);
+        await this.programs.put(row as ProgramRow);
       }
-    } catch (error) {
-      console.error('Failed to save data:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to save data:', err);
+      throw err;
     }
   }
 
-
-
-  async getDefaultPrograms(): Promise<Program[]> {
+  async getDefaultPrograms() {
     try {
-      const programs = await this.programs.where('default').equals(1).toArray();
-      return programs.map(program => ({
-        ...program,
-        default: true, // Convert number back to boolean
-      }));
-    } catch (error) {
-      console.error('Failed to get default programs:', error);
-      throw error;
+      const rows = await this.programs.where('default').equals(1).toArray();
+      return rows.map((r) => ({ ...r, default: true }));
+    } catch (err) {
+      console.error('Failed to get default programs:', err);
+      throw err;
     }
   }
 
-  async getCustomPrograms(): Promise<Program[]> {
+  async getCustomPrograms() {
     try {
-      const allPrograms = await this.programs.toArray(); // Get all programs in the database
-      console.log("Current contents of the database:", allPrograms); // Log the entire contents
-
-      const programs = await this.programs.where('default').equals(0).toArray();
-      return programs.map(program => ({
-        ...program,
-        default: false, // Convert number back to boolean
-      }));
-    } catch (error) {
-      console.error('Failed to get custom programs:', error);
-      throw error;
+      const rows = await this.programs.where('default').equals(0).toArray();
+      return rows.map((r) => ({ ...r, default: false }));
+    } catch (err) {
+      console.error('Failed to get custom programs:', err);
+      throw err;
     }
   }
 
   async testForProgram(name: string): Promise<boolean> {
     try {
-      const program = await this.programs.where({ name }).first();
-      return !!program;
-    } catch (error) {
-      console.error('Failed to test for program:', error);
+      return !!(await this.programs.where({ name }).first());
+    } catch (err) {
+      console.error('Failed to test for program:', err);
       return false;
     }
   }
 }
-
-export default AppDatabase;

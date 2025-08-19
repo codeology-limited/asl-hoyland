@@ -1,48 +1,64 @@
-import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
-import AppDatabase from './util/AppDatabase';
-import HoylandController from './util/HoylandController';
-import ProgramRunner from './util/ProgramRunner';
+import React, {
+    createContext,
+    useContext,
+    ReactNode,
+    useState,
+    useCallback,
+    useMemo,
+} from "react";
+import AppDatabase from "./util/AppDatabase";
+import HoylandController from "./util/HoylandController";
+import ProgramRunner from "./util/ProgramRunner";
 
-const appDatabase = new AppDatabase();
-const hoylandController = new HoylandController(); // Initialize once here
-const programRunner = new ProgramRunner(appDatabase, hoylandController, null);
+export type AppEvent = { type: string; payload: string };
 
-interface AppContextProps {
+interface AppContextValue {
     appDatabase: AppDatabase;
     hoylandController: HoylandController;
     programRunner: ProgramRunner;
-    events: { type: string; payload: string }[];
-    addEvent: (event: { type: string; payload: string }) => void;
+    events: AppEvent[];
+    addEvent: (event: AppEvent) => void;
 }
 
-const AppContext = createContext<AppContextProps>({
-    appDatabase,
-    hoylandController,
-    programRunner,
-    events: [],
-    addEvent: () => {},
-});
+const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 interface AppProviderProps {
     children: ReactNode;
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-    const [events, setEvents] = useState<{ type: string; payload: string }[]>([]);
+    const [events, setEvents] = useState<AppEvent[]>([]);
 
-    const addEvent = useCallback((event: { type: string; payload: string }) => {
-        setEvents(prevEvents => [...prevEvents, event]);
+    const addEvent = useCallback((event: AppEvent) => {
+        setEvents((prev) => [...prev, event]);
     }, []);
 
-    // useEffect(() => {
-    //     hoylandController.setEventCallback(addEvent); // Set the event callback
-    // }, [addEvent]);
-
-    return (
-        <AppContext.Provider value={{ appDatabase, hoylandController, programRunner, events, addEvent }}>
-            {children}
-        </AppContext.Provider>
+    // Create long-lived singletons once, in Provider scope
+    const appDatabase = useMemo(() => new AppDatabase(), []);
+    const hoylandController = useMemo(() => new HoylandController(addEvent), [addEvent]);
+    const programRunner = useMemo(
+        () => new ProgramRunner(appDatabase, hoylandController, null),
+        [appDatabase, hoylandController]
     );
+
+    const value = useMemo<AppContextValue>(
+        () => ({
+            appDatabase,
+            hoylandController,
+            programRunner,
+            events,
+            addEvent,
+        }),
+        [appDatabase, hoylandController, programRunner, events, addEvent]
+    );
+
+    return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = (): AppContextValue => {
+    const ctx = useContext(AppContext);
+    if (!ctx) {
+        throw new Error("useAppContext must be used within an AppProvider");
+    }
+    return ctx;
+};

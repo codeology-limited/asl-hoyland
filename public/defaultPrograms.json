@@ -8,16 +8,59 @@
     "runTimeInMinutes": 120,
     "startFrequency": 3.1
   },
+
+
+
   "ultrasound": {
-    "default":true,
+    "default": true,
     "range": true,
-    "data": [
-      500000, 670000
-    ],
-    "runTimeInMinutes": 9,
-    "startFrequency": 0.500000
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "onkeysec": 1,
+    "offkeysec": 1,
+    "data": [500000, 670000],
+    "runTimeInMinutes": 10,
+    "startFrequency": 0.500000,
+    "sliderMinV": 0.3,
+    "sliderMaxV": 1.8,
+    "sliderStepV": 0.015,
+    "sliderPercent": 35,
+    "startIntensityV": 0.825
   },
-    "herpes": {
+  "ultra500": {
+    "default": true,
+    "range": false,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "onkeysec": 1,
+    "offkeysec": 1,
+    "data": [500000],
+    "runTimeInMinutes": 10,
+    "startFrequency": 0.500000,
+    "sliderMinV": 0.8,
+    "sliderMaxV": 1.8,
+    "sliderStepV": 0.01,
+    "sliderPercent": 25,
+    "startIntensityV": 1.05
+  },
+  "ultra670": {
+    "default": true,
+    "range": false,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "onkeysec": 1,
+    "offkeysec": 1,
+    "data": [670000],
+    "runTimeInMinutes": 10,
+    "startFrequency": 0.500000,
+    "sliderMinV": 0.3,
+    "sliderMaxV": 1.4,
+    "sliderStepV": 0.011,
+    "sliderPercent": 25,
+    "startIntensityV": 0.575
+  },
+
+"herpes": {
       "default":true,
       "data": [
         322, 339, 343, 476, 480, 589, 591, 647, 657, 664, 696, 699, 700, 723.8, 734, 778, 782, 785, 832, 895, 944, 1043, 1614, 1614, 1062, 1489, 2590, 1437.82, 17201.43, 856.41, 2499, 1800, 465, 1550, 1550, 880, 787, 727, 1850, 428, 470, 648, 650, 652, 654, 656, 658, 660, 847, 8650, 5641, 556, 832, 17923.24, 17674.41, 892.35, 879.96, 17923.34, 17674.41, 468, 589, 664, 822, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748, 3747
