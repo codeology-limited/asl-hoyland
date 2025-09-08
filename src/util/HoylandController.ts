@@ -1,144 +1,90 @@
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from '@tauri-apps/api/tauri';
 
-class HoylandController {
-  intensity: number = 1;
-  currentFrequency: number = 0;
-  isListening: boolean = false;
-  eventCallback: ((event: { type: string; payload: string }) => void) | null = null;
-  delay: number = 100
+type EventPayload = { type: string; payload: string };
 
-  constructor(eventCallback?: (event: { type: string; payload: string }) => void) {
-    console.log("INITIALIZING HOYLAND CONTROLLER");
-    this.intensity = 1; // Initialize intensity with a default value
-    this.currentFrequency = 0 //for display only
+export default class HoylandController {
+  private _intensity = 1;
+  private _delayMs = 100;
+  private _eventCallback: ((e: EventPayload) => void) | null = null;
 
-    if (eventCallback) {
-      this.eventCallback = eventCallback;
-    }
+  /** For display only (Hz) */
+  currentFrequency = 0;
 
-    if (!this.isListening) {
-      this.isListening = true;
-    }
+  constructor(eventCallback?: (e: EventPayload) => void) {
+    console.log('INITIALIZING HOYLAND CONTROLLER');
+    if (eventCallback) this._eventCallback = eventCallback;
   }
 
-  async wait(){
-    await  new Promise(resolve => setTimeout(resolve, this.delay))
+  setEventCallback(cb: (e: EventPayload) => void) {
+    this._eventCallback = cb;
   }
 
+  private async sleep(ms = this._delayMs) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  private async invokeCmd<T = unknown>(cmd: string, args?: unknown): Promise<T> {
+    try {
+      // @ts-expect-error: tauri invoke arg shape
+      const res = await invoke<T>(cmd, args ? { args } : undefined);
+      return res;
+    } catch (err) {
+      console.error(`[${cmd}] failed:`, err);
+      throw err;
+    }
+  }
 
   async reconnectDevice(): Promise<string> {
-    try {
-      const targetDevice = "Hoyland"; // Replace with the actual target device name
-      const baudRate = 115200; // Use the correct baud rate
+    const target_device = 'Hoyland';
+    const baud_rate = 115200;
 
-      const result = await invoke('reconnect_device', {
-        args: {
-          target_device: targetDevice,
-          baud_rate: baudRate,
-        }
-      });
+    const result = await this.invokeCmd<string>('reconnect_device', {
+      target_device,
+      baud_rate,
+    });
 
-      await this.wait()
-      console.log("Reconnected:", result);
-      return result as string;
-    } catch (error) {
-      console.error("Failed to reconnect device:", error);
-      return "";
-    }
+    await this.sleep();
+    console.log('Reconnected:', result);
+    return result ?? '';
   }
+
   async sinewave() {
-    try {
-      const result = await invoke('sine_wave');
-
-      if (result) {
-        console.log('sinewave   sent successfully');
-      } else {
-        console.error('Failed to send sinewave commands');
-      }
-    } catch (error) {
-      console.error('Error sending sinewave commands:', error);
-    }
+    const ok = await this.invokeCmd<boolean>('sine_wave');
+    console.log(ok ? 'sinewave sent successfully' : 'Failed to send sinewave');
   }
-  async set_both_channels_to_square_wave() {
-    try {
-      const result = await invoke('set_both_channels_to_square_wave');
 
-      if (result) {
-        console.log('set_both_channels_to_square_wave   sent successfully');
-      } else {
-        console.error('Failed to send set_both_channels_to_square_wave commands');
-      }
-    } catch (error) {
-      console.error('Error sending set_both_channels_to_square_wave commands:', error);
-    }
+  async setBothChannelsToSquareWave() {
+    const ok = await this.invokeCmd<boolean>('set_both_channels_to_square_wave');
+    console.log(ok ? 'square wave set' : 'Failed to set square wave');
   }
+
   async sync() {
-    try {
-      const result = await invoke('sync');
-
-      if (result) {
-        console.log('sync   sent successfully');
-      } else {
-        console.error('Failed to send sync commands');
-      }
-    } catch (error) {
-      console.error('Error sending sync commands:', error);
-    }
+    const ok = await this.invokeCmd<boolean>('sync');
+    console.log(ok ? 'sync sent successfully' : 'Failed to sync');
   }
-
-
 
   async sendInitialCommands() {
-    try {
-      await invoke('send_initial_commands');
-    } catch (error) {
-      console.error('Error sending initial commands:', error);
-    }
+    await this.invokeCmd<void>('send_initial_commands');
   }
 
   async sendSecondaryCommands() {
-    try {
-      await invoke('send_secondary_commands');
-    } catch (error) {
-      console.error('Error sending secondary commands:', error);
-    }
+    await this.invokeCmd<void>('send_secondary_commands');
   }
 
+  /** frequency in Hz */
   async setFrequency(channel: number, frequency: number) {
-    const args = {
-      channel: channel,
-      frequency: frequency,
-    };
-
-    try {
-      this.currentFrequency=frequency
-      await invoke('set_frequency', { args });
-      console.log(`Frequency set for channel ${channel} to ${frequency} MHz`);
-    } catch (error) {
-      console.error(`Error setting frequency: ${error}`);
-    }
+    this.currentFrequency = frequency;
+    await this.invokeCmd<void>('set_frequency', { channel, frequency });
+    console.log(`Frequency set for channel ${channel} to ${frequency} Hz`);
   }
 
-  async setAmplitude( amplitude: number) {
-    const args = {
-      channel: 1,
-      amplitude: amplitude,
-    };
-
-    try {
-      await invoke('set_amplitude', { args });
-    } catch (error) {
-      console.error('Error setting amplitude:', error);
-    }
+  /** amplitude is device-specific unit */
+  async setAmplitude(amplitude: number) {
+    this._intensity = amplitude;
+    await this.invokeCmd<void>('set_amplitude', { channel: 1, amplitude });
   }
 
   async stopAndReset() {
-    try {
-      await invoke('stop_and_reset');
-    } catch (error) {
-      console.error('Error sending stop and reset commands:', error);
-    }
+    await this.invokeCmd<void>('stop_and_reset');
   }
 }
-
-export default HoylandController;

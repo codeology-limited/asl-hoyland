@@ -1,7 +1,7 @@
-import React, {useReducer, useEffect, useRef, useCallback, useState} from 'react';
+import React, { useReducer, useEffect, useRef, useCallback, useState } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
-import ProgramSelect from "./ProgramSelect.tsx";
+import ProgramSelect from './ProgramSelect.tsx';
 
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -24,6 +24,9 @@ interface State {
     programNames: string[];
     isPaused: boolean;
     isStopping: boolean;
+    intensity_step: number;
+    intensity_min: number;
+    intensity_max: number;
 }
 
 type Action =
@@ -35,18 +38,65 @@ type Action =
     | { type: 'SET_PROGRAM_NAMES'; payload: string[] }
     | { type: 'SET_IS_PAUSED'; payload: boolean }
     | { type: 'SET_IS_STOPPING'; payload: boolean }
+    | { type: 'SET_BOUNDS_AND_INTENSITY'; payload: { min: number; max: number; step: number; intensity: number } }
     | { type: 'RESET_UI' };
 
 const initialState: State = {
     progress: 0,
     timeRemaining: 0,
     totalSteps: 0,
-    intensity: 5,
+    intensity: 1,
     selectedProgram: '',
     programNames: [],
     isPaused: false,
     isStopping: false,
+    intensity_step: 1,
+    intensity_min: 1,
+    intensity_max: 20,
 };
+
+// ───────────────────────── helpers ─────────────────────────
+
+// Coerce any unknown to number with a safe fallback (supports fractional strings)
+function num(v: unknown, fallback: number): number {
+    if (v === null || v === undefined) return fallback;
+    const n = typeof v === 'string' ? parseFloat(v) : Number(v);
+    return Number.isFinite(n) ? n : fallback;
+}
+
+// Snap to nearest step within [min, max] (handles inverted bounds & bad step)
+function clampAndSnap(value: number, min: number, max: number, step: number): number {
+    const lo = Math.min(min, max);
+    const hi = Math.max(min, max);
+    const s = step > 0 ? step : 1;
+    const clamped = Math.min(Math.max(value, lo), hi);
+    const steps = Math.round((clamped - lo) / s);
+    return +(lo + steps * s).toFixed(6); // tame FP noise
+}
+
+// Compute the desired starting intensity from programme fields.
+// Priority: startIntensityV → sliderPercent → fallback.
+// Fallback rule: default to 25% along the slider; BUT if using the default bounds (1..20 step 1), force 5.
+function deriveStartIntensity(program: any, min: number, max: number, step: number): number {
+    if (program && program.startIntensityV !== undefined) {
+        return clampAndSnap(num(program.startIntensityV, min), min, max, step);
+    }
+    if (program && program.sliderPercent !== undefined) {
+        const pct = Math.max(0, Math.min(100, num(program.sliderPercent, 0)));
+        return clampAndSnap(min + (pct / 100) * (max - min), min, max, step);
+    }
+
+    // Fallbacks
+    const isDefaultBounds = min === 1 && max === 20 && Math.abs(step - 1) < 1e-9;
+    if (isDefaultBounds) {
+        // User requirement: default intensity should be exactly 5 for default slider
+        return 5;
+    }
+    // Otherwise, 25% along the slider
+    return clampAndSnap(min + 0.25 * (max - min), min, max, step);
+}
+
+// ───────────────────────── reducer ─────────────────────────
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
@@ -66,29 +116,39 @@ function reducer(state: State, action: Action): State {
             return { ...state, isPaused: action.payload };
         case 'SET_IS_STOPPING':
             return { ...state, isStopping: action.payload };
+        case 'SET_BOUNDS_AND_INTENSITY':
+            return {
+                ...state,
+                intensity_min: action.payload.min,
+                intensity_max: action.payload.max,
+                intensity_step: action.payload.step,
+                intensity: action.payload.intensity,
+            };
         case 'RESET_UI':
             return {
                 ...initialState,
-                programNames: state.programNames, // Retain the loaded program names
+                programNames: state.programNames, // retain loaded programme names
             };
         default:
             return state;
     }
 }
 
+// ───────────────────────── component ─────────────────────────
+
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
-
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
 
     const loadDefaultPrograms = useCallback(async () => {
         try {
+            // Consider removing clearDatabase() if you don’t want to wipe custom programmes.
             await appDatabase.clearDatabase();
             const programs = await appDatabase.getDefaultPrograms();
-            const names = programs.map(program => program.name);
+            const names = programs.map((program: any) => program.name);
             dispatch({ type: 'SET_PROGRAM_NAMES', payload: names });
         } catch (error) {
             console.error('Failed to load default programs:', error);
@@ -96,16 +156,19 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     }, [appDatabase]);
 
     useEffect(() => {
-        if (appDatabase.preloadDone) {
-            loadDefaultPrograms();
-        }
+        if (appDatabase.preloadDone) loadDefaultPrograms();
     }, [appDatabase.preloadDone, loadDefaultPrograms]);
 
+    // Optional: default-select first programme once names load
     useEffect(() => {
-        console.log("runningFrequency updated:", runningFrequency);
+        if (state.programNames.length && !state.selectedProgram) {
+            dispatch({ type: 'SET_SELECTED_PROGRAM', payload: state.programNames[0] });
+        }
+    }, [state.programNames, state.selectedProgram]);
+
+    useEffect(() => {
+        console.log('runningFrequency updated:', runningFrequency);
     }, [runningFrequency]);
-
-
 
     const handleProgressUpdate = useCallback(
         (currentStep: number, totalSteps: number, timeRemaining: number) => {
@@ -116,26 +179,15 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         []
     );
 
-    useEffect(() => {
-        if (runnerRef.current) {
-            runnerRef.current.setIntensity(state.intensity);
-            runnerRef.current.setProgressCallback(handleProgressUpdate);
-
-            // Add this to set the callback for when the program stops
-            runnerRef.current.setOnStopCallback(() => {
-                resetUI();  // Reset UI when the program stops
-            });
-        }
-    }, [state.intensity, handleProgressUpdate]);
-
-
-
     const loadProgram = useCallback(
         async (programName: string) => {
             try {
                 const program = await appDatabase.loadData(programName);
                 if (program) {
-                    runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
+                    const runner = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
+                    runner.setOnStopCallback(() => resetUI());
+                    runner.setProgressCallback(handleProgressUpdate);
+                    runnerRef.current = runner;
                 }
             } catch (error) {
                 console.error('Failed to load program:', error);
@@ -143,6 +195,60 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         },
         [appDatabase, hoylandController, handleProgressUpdate]
     );
+
+    // Apply slider bounds + starting intensity whenever the selected programme changes (atomic update).
+    useEffect(() => {
+        const applyProgramSlider = async () => {
+            if (!state.selectedProgram) return;
+
+            try {
+                const program: any = await appDatabase.loadData(state.selectedProgram);
+                if (!program) return;
+
+                // Programme-provided bounds with required defaults (min=1, max=20, step=1)
+                const min = num(program.sliderMinV, 1);
+                const max = num(program.sliderMaxV, 20);
+                const step = num(program.sliderStepV, 1);
+
+                // startIntensityV > sliderPercent > fallback rule (25% or 5 if default bounds)
+                const startApplied = deriveStartIntensity(program, min, max, step);
+
+                console.log('Programme slider applied:', {
+                    program: state.selectedProgram,
+                    min, max, step,
+                    startApplied,
+                    from: {
+                        startIntensityV: program.startIntensityV,
+                        sliderPercent: program.sliderPercent,
+                    },
+                });
+
+                // UI update only; device not touched here
+                dispatch({
+                    type: 'SET_BOUNDS_AND_INTENSITY',
+                    payload: { min, max, step, intensity: startApplied },
+                });
+
+                // Prime runner’s internal intensity (no device write yet)
+                if (runnerRef.current) {
+                    await runnerRef.current.setIntensity(startApplied, { applyNow: false });
+                }
+            } catch (err) {
+                console.error('Failed to apply slider config from program:', err);
+                const min = 1, max = 20, step = 1;
+                const fallback = deriveStartIntensity({}, min, max, step);
+                dispatch({
+                    type: 'SET_BOUNDS_AND_INTENSITY',
+                    payload: { min, max, step, intensity: fallback },
+                });
+                if (runnerRef.current) {
+                    await runnerRef.current.setIntensity(fallback, { applyNow: false });
+                }
+            }
+        };
+
+        applyProgramSlider();
+    }, [state.selectedProgram, appDatabase]);
 
     const handleStartStop = async () => {
         try {
@@ -152,20 +258,22 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 dispatch({ type: 'SET_TIME_REMAINING', payload: 0 });
                 resetUI();
             } else {
-                if (state.selectedProgram) {
-                    await loadProgram(state.selectedProgram);
-                    if (runnerRef.current) {
-                        setIsRunning(true);
-                        await runnerRef.current.initializeChannel1();
-                        await runnerRef.current. setChannel1StartFrequency(state.selectedProgram);
-
-                        await runnerRef.current.initializeChannel0();
-                        dispatch({ type: 'SET_INTENSITY', payload: 10 });// this should send ch0
-                        await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
-                    }
-                } else {
+                if (!state.selectedProgram) {
                     alert('Please select a program');
+                    return;
                 }
+                await loadProgram(state.selectedProgram);
+                if (!runnerRef.current) return;
+
+                setIsRunning(true);
+                await runnerRef.current.initializeChannel1();
+                await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
+                await runnerRef.current.initializeChannel0();
+
+                // Send the current UI intensity to hardware now (explicit)
+                await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
+
+                await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
             }
         } catch (error) {
             console.error('Error in handleStartStop:', error);
@@ -194,30 +302,30 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     useEffect(() => {
         return () => {
-            runnerRef.current?.stopProgram().catch(error => {
-                console.error('Error stopping program on unmount:', error);
-            });
+            runnerRef.current
+                ?.stopProgram()
+                .catch((error) => {
+                    console.error('Error stopping program on unmount:', error);
+                });
             runnerRef.current = null;
         };
     }, []);
 
-
+    // Relative % label based on current bounds
+    const relativePct = Math.round(
+        ((state.intensity - state.intensity_min) / (state.intensity_max - state.intensity_min)) * 100
+    );
 
     return (
         <div className={`${isPortConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
-
             <div>
-
                 <select
                     disabled={isRunning || !isPortConnected}
                     value={state.selectedProgram}
-                    onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', payload: e.target.value})}
+                    onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
                 >
-                    <ProgramSelect
-                        programNames={state.programNames}
-                    />
+                    <ProgramSelect programNames={state.programNames} />
                 </select>
-
 
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
@@ -233,25 +341,49 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             </div>
 
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={state.progress - 1} max={state.totalSteps}></progress>
+                <progress className="progress-bar" value={state.progress - 1} max={state.totalSteps} />
                 <label>
-                    {state.totalSteps > 0 ? `${Math.max(0, Math.floor(((state.progress - 1) / state.totalSteps) * 100))}% complete` : '0% complete'}
+                    {state.totalSteps > 0
+                        ? `${Math.max(0, Math.floor(((state.progress - 1) / state.totalSteps) * 100))}% complete`
+                        : '0% complete'}
                 </label>
                 <span>
-                    {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
-                </span>
-                <div id="intensity-display">{runningFrequency}
-                </div>
+          {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
+        </span>
+                <div id="intensity-display">{runningFrequency}</div>
             </div>
 
             <div>
-                <label>Intensity: {Math.floor(((state.intensity || 0) / 20) * 100)}%</label>
+                <label>Intensity: {Number.isFinite(relativePct) ? relativePct : 0}%</label>
                 <input
                     type="range"
-                    min="1"
-                    max="20"
+                    min={state.intensity_min}
+                    max={state.intensity_max}
+                    step={state.intensity_step}
                     value={state.intensity}
-                    onChange={(e) => dispatch({type: 'SET_INTENSITY', payload: parseInt(e.target.value, 10)})}
+                    onChange={async (e) => {
+                        const value = Number(e.target.value);
+                        const snapped = clampAndSnap(value, state.intensity_min, state.intensity_max, state.intensity_step);
+                        dispatch({ type: 'SET_INTENSITY', payload: snapped });
+
+                        // Keep ProgramRunner’s internal intensity aligned; only push to device if running
+                        if (runnerRef.current) {
+                            try {
+                                await runnerRef.current.setIntensity(snapped, { applyNow: isRunning });
+                            } catch (err) {
+                                console.error('Failed to apply intensity:', err);
+                            }
+                        }
+
+                        console.log('Intensity slider changed:', {
+                            min: state.intensity_min,
+                            max: state.intensity_max,
+                            step: state.intensity_step,
+                            start: state.intensity,
+                            current: snapped,
+                            sentToDevice: isRunning,
+                        });
+                    }}
                     disabled={state.isStopping}
                 />
             </div>

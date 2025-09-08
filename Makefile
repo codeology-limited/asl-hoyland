@@ -7,6 +7,26 @@ CONFIG_FILE := $(SRC_TAURI)/tauri.conf.json
 # Define the build targets for Windows
 WINDOWS_TARGET := x86_64-pc-windows-gnu
 
+
+
+
+
+# Display help
+help:
+	@echo "Available targets:"
+	@echo "  all             - Build everything for Windows (NSIS)"
+	@echo "  clean           - Clean the project"
+	@echo "  install-frontend- Install frontend dependencies"
+	@echo "  build-frontend  - Build the frontend"
+	@echo "  build-tauri-nsis- Build the Tauri app for Windows using NSIS"
+	@echo "  build-tauri-msi - Build the Tauri app for Windows using MSI"
+	@echo "  windows-only    - Clean, build everything for Windows, and generate the NSIS installer"
+	@echo "  nsis            - Clean, build everything, and generate the NSIS installer"
+	@echo "  msi             - Clean, build everything, and generate the MSI installer"
+	@echo "  dev             - Run the Tauri app in development mode"
+	@echo "  help            - Display this help message"
+
+
 # Default target: Build everything for Windows (using NSIS as default)
 all: windows-only
 
@@ -15,6 +35,9 @@ clean:
 	@echo "Cleaning the project..."
 	@cd $(SRC_TAURI) && cargo clean
 	@rm -rf $(DIST_DIR)
+	rm -rf node_modules package-lock.json
+	npm cache clean --force
+	npm ci
 
 # Install frontend dependencies (if needed)
 install-frontend:
@@ -55,17 +78,3 @@ dev:
 	@echo "Running in development mode..."
 	@cd $(PROJECT_ROOT) && cargo tauri dev
 
-# Display help
-help:
-	@echo "Available targets:"
-	@echo "  all             - Build everything for Windows (NSIS)"
-	@echo "  clean           - Clean the project"
-	@echo "  install-frontend- Install frontend dependencies"
-	@echo "  build-frontend  - Build the frontend"
-	@echo "  build-tauri-nsis- Build the Tauri app for Windows using NSIS"
-	@echo "  build-tauri-msi - Build the Tauri app for Windows using MSI"
-	@echo "  windows-only    - Clean, build everything for Windows, and generate the NSIS installer"
-	@echo "  nsis            - Clean, build everything, and generate the NSIS installer"
-	@echo "  msi             - Clean, build everything, and generate the MSI installer"
-	@echo "  dev             - Run the Tauri app in development mode"
-	@echo "  help            - Display this help message"

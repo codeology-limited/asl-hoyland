@@ -66,7 +66,12 @@
         322, 339, 343, 476, 480, 589, 591, 647, 657, 664, 696, 699, 700, 723.8, 734, 778, 782, 785, 832, 895, 944, 1043, 1614, 1614, 1062, 1489, 2590, 1437.82, 17201.43, 856.41, 2499, 1800, 465, 1550, 1550, 880, 787, 727, 1850, 428, 470, 648, 650, 652, 654, 656, 658, 660, 847, 8650, 5641, 556, 832, 17923.24, 17674.41, 892.35, 879.96, 17923.34, 17674.41, 468, 589, 664, 822, 936, 944, 1043, 1614, 1871, 2062, 1489, 3742, 748, 3747
       ],
       "runTimeInMinutes": 73,
-      "startFrequency": 27.1
+      "startFrequency": 27.1,
+  "sliderMinV": 1,
+  "sliderMaxV": 20,
+  "sliderStepV": 1,
+  "sliderPercent": 25,
+  "startIntensityV": 5
     },
     "lymeDisease": {
       "default":true,
@@ -75,6 +80,11 @@
       ],
       "runTimeInMinutes": 62,
       "startFrequency": 27.1
+      ,  "sliderMinV": 1,
+      "sliderMaxV": 20,
+      "sliderStepV": 1,
+      "sliderPercent": 25,
+      "startIntensityV": 5
     },
     "rifeCrane": {
       "default":true,
@@ -82,7 +92,11 @@
         6.8, 7.69, 8.25, 9.19, 10, 12, 20, 28, 33, 47, 48, 55, 55.56, 56, 64, 72, 95, 96, 120, 125, 127, 128, 166, 214, 222, 240, 249, 250, 262, 304, 317, 327, 383, 393, 414, 418, 421, 422, 428, 432, 433, 440, 444, 462, 463, 464, 465, 466, 475, 477, 478, 479, 482, 488, 520, 523, 524, 543, 600, 626, 641, 647, 650, 656, 657, 661, 663, 664, 666, 667, 676, 690, 720, 727, 728, 731, 732, 734, 760, 776, 778, 781, 784, 786, 787, 790, 792, 800, 802, 808, 822, 830, 832, 833, 852, 854, 855, 857, 866, 880, 901, 918, 920, 932, 942, 943, 965, 979, 982, 1050, 1131, 1133, 1234, 1340, 1489, 1522, 1523, 1550, 1552, 1582, 1744, 1830, 1840, 1862, 1865, 1875, 1998, 2000, 2004, 2005, 2008, 2012, 2016, 2027, 2032, 2040, 2048, 2049, 2050, 2060, 2063, 2084, 2093, 2100, 2104, 2112, 2116, 2120, 2127, 2128, 2130, 2133, 2134, 2136, 2144, 2145, 2146, 2150, 2152, 2160, 2168, 2170, 2180, 2182, 2184, 2189, 2192, 2200, 2217, 2219, 2270, 2280, 2288, 2333, 2450, 2452, 2454, 2489, 2490, 2586, 2720, 2730, 2876, 3000, 3040, 3042, 3072, 3130, 3176, 3672, 3734, 4412, 4445, 5000, 5122, 5476, 6024, 6064, 9000, 9999, 10000
       ],
       "runTimeInMinutes": 30,
-      "startFrequency": 27.1
+      "startFrequency": 27.1      ,  "sliderMinV": 1,
+      "sliderMaxV": 20,
+      "sliderStepV": 1,
+      "sliderPercent": 25,
+      "startIntensityV": 5
     },
 
       "tumors": {
@@ -91,7 +105,11 @@
           1873.477, 2221.323, 6350.333, 10456.383, 10, 450, 712, 728, 784, 2008, 660, 880, 2128, 1552, 20, 1640000, 11780000
         ],
         "runTimeInMinutes": 68,
-        "startFrequency": 3.1
+        "startFrequency": 3.1      ,  "sliderMinV": 1,
+        "sliderMaxV": 20,
+        "sliderStepV": 1,
+        "sliderPercent": 25,
+        "startIntensityV": 5
       },
   "tumors2": {
     "default": true,
@@ -100,7 +118,11 @@
       1873.477, 2221.323, 6350.333, 10456.383, 10, 450, 712, 728, 784, 2008, 660, 880, 2128, 1552, 20, 1640000, 11780000
     ],
     "runTimeInMinutes": 74,
-    "startFrequency": 27.12
+    "startFrequency": 27.12      ,  "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   },
 
 
@@ -112,7 +134,11 @@
       0.16, 0.80, 7.50, 30.00, 67.50, 125.00, 352.93, 563.19, 642.91, 930.12
     ],
     "runTimeInMinutes": 30,
-    "startFrequency": 0
+    "startFrequency": 0      ,  "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   },
   "psychoticDisorders": {
     "default": true,
@@ -121,7 +147,11 @@
       0.57, 0.68, 0.87, 2.50, 5.71, 32.50, 92.50, 322.53, 519.34, 653.69
     ],
     "runTimeInMinutes": 30,
-    "startFrequency": 0
+    "startFrequency": 0      ,  "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   },
   "schizophrenia": {
     "default": true,
@@ -130,7 +160,11 @@
       0.07, 0.50, 0.97, 9.00, 12.85, 132.50, 337.50, 524.37, 758.57, 955.72
     ],
     "runTimeInMinutes": 30,
-    "startFrequency": 0
+    "startFrequency": 0      ,  "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   },
   "anxietyDisorders": {
     "default": true,
@@ -139,7 +173,11 @@
       0.08, 0.62, 0.87, 5.81, 225.00, 423.07, 572.00, 727.33, 841.12, 903.91
     ],
     "runTimeInMinutes": 30,
-    "startFrequency": 0
+    "startFrequency": 0      ,  "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   }
 
 
