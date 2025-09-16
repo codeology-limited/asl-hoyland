@@ -39,15 +39,30 @@ export default class HoylandController {
         args?: Record<string, unknown>
     ): Promise<T> {
         try {
+            // 1) Try flat args (fn reconnect_device(target_device: String, baud_rate: u32))
             const res = await invoke<T>(cmd, args);
             this.emit(cmd, res);
             return res;
-        } catch (err) {
+        } catch (err: any) {
+            const msg = String(err ?? '');
+            // 2) If Rust expects a single param named "args" (fn reconnect_device(args: X))
+            const needsArgsWrapper =
+                msg.includes('missing required key args') ||
+                msg.includes('invalid args `args`') ||
+                msg.includes('unknown field `target_device`'); // common variant
+
+            if (needsArgsWrapper && args && !('args' in args)) {
+                const res2 = await invoke<T>(cmd, { args });
+                this.emit(cmd, res2);
+                return res2;
+            }
+
             console.error(`[${cmd}] failed:`, err);
-            this.emit(`${cmd}:error`, String(err));
+            this.emit(`${cmd}:error`, msg);
             throw err;
         }
     }
+
 
     async reconnectDevice(): Promise<string> {
         const target_device = 'Hoyland';
