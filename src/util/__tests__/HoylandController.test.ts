@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as tauri from '@tauri-apps/api/tauri';
+// Force production mode in these tests so reconnectDevice uses real path
+vi.mock('../mode', () => ({ isDev: false }));
 import HoylandController from '../HoylandController';
 
 vi.mock('@tauri-apps/api/tauri', () => ({
@@ -66,7 +68,8 @@ describe('HoylandController', () => {
     expect([1, 2]).toContain(calls[1][1].channel);
   });
 
-  it('reconnectDevice resolves TEST on timeout', async () => {
+  it('reconnectDevice resolves TEST on timeout (prod mode)', async () => {
+    process.env.APP_MODE = 'production';
     vi.useFakeTimers();
     (tauri.invoke as any).mockImplementation(() => new Promise(() => {})); // never resolves
     const hc = new HoylandController();
@@ -78,7 +81,8 @@ describe('HoylandController', () => {
     vi.useRealTimers();
   });
 
-  it('reconnectDevice resolves to real port when fast', async () => {
+  it('reconnectDevice resolves to real port when fast (prod mode)', async () => {
+    process.env.APP_MODE = 'production';
     (tauri.invoke as any).mockResolvedValueOnce('COM5');
     const hc = new HoylandController();
     const result = await hc.reconnectDevice();

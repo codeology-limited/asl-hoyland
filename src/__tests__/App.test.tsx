@@ -50,10 +50,13 @@ describe('App', () => {
     });
   });
 
-  it('shows loading message initially', () => {
+  it('renders UI immediately without blocking', () => {
     render(<App />);
 
-    expect(screen.getByText('LOADING...')).toBeInTheDocument();
+    // UI should render immediately, not show a blocking loading message
+    expect(screen.queryByText('LOADING...')).not.toBeInTheDocument();
+    // Check that main UI elements are present
+    expect(screen.getByRole('button', { name: /Connect/i })).toBeInTheDocument();
   });
 
   it('renders app and database initializes', async () => {
@@ -141,14 +144,15 @@ describe('App', () => {
     });
   });
 
-  it('calls reconnectDevice on mount', async () => {
+  it('does not auto-connect on mount to avoid blocking UI', async () => {
     const { invoke } = await import('@tauri-apps/api/tauri');
 
     render(<App />);
 
-    await waitFor(() => {
-      expect(invoke).toHaveBeenCalled();
-    });
+    // Should NOT call reconnectDevice automatically on mount
+    // User must click the Connect button
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(invoke).not.toHaveBeenCalled();
   });
 
   it('allows clicking connect button when not running', async () => {

@@ -21,24 +21,34 @@ const MatrixRain: React.FC = () => {
     const trail = 'rgba(0, 0, 0, 0.06)';
     const charset = '01';
 
+    // Frame throttle to slow down the rain
+    let frameCount = 0;
+    const frameSkip = 3; // Only update every 4th frame (slow down by 4x)
+
     const draw = () => {
-      // Faintly cover the canvas to create the trail effect
-      ctx.fillStyle = trail;
-      ctx.fillRect(0, 0, width, height);
+      frameCount++;
 
-      ctx.fillStyle = color;
-      ctx.font = `${fontSize}px monospace`;
+      // Only update every frameSkip frames
+      if (frameCount % frameSkip === 0) {
+        // Faintly cover the canvas to create the trail effect
+        ctx.fillStyle = trail;
+        ctx.fillRect(0, 0, width, height);
 
-      for (let i = 0; i < drops.length; i++) {
-        const text = charset.charAt(Math.floor(Math.random() * charset.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        ctx.fillStyle = color;
+        ctx.font = `${fontSize}px monospace`;
 
-        // reset drop
-        if (drops[i] * fontSize > height && Math.random() > 0.975) {
-          drops[i] = 0;
+        for (let i = 0; i < drops.length; i++) {
+          const text = charset.charAt(Math.floor(Math.random() * charset.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          // reset drop
+          if (drops[i] * fontSize > height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
         }
-        drops[i]++;
       }
+
       rafRef.current = requestAnimationFrame(draw);
     };
 

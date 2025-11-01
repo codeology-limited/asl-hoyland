@@ -536,6 +536,20 @@ fn reconnect_device(state: State<AppState>, args: ReconnectArgs, window: Window)
     Ok(reconnected_port)
 }
 
+#[tauri::command]
+fn use_test_port(state: State<AppState>, window: Window) -> Result<String, String> {
+    // Force TEST port and emit event; used in development mode from the frontend
+    let mut ports = state
+        .ports
+        .lock()
+        .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
+    ports.insert("TEST".to_string(), PortHandle(Mutex::new(None)));
+    *PORT_NAME.lock().unwrap() = "TEST".to_string();
+    let label = "TEST".to_string();
+    let _ = window.emit("reconnected", label.clone());
+    Ok(label)
+}
+
 fn main() {
     // Install necessary resources before the app starts
     //install_all_resources();
@@ -562,6 +576,7 @@ fn main() {
             stop_and_reset,
             write_to_port,
             reconnect_device,
+            use_test_port,
             sine_wave
         ])
         .run(tauri::generate_context!())

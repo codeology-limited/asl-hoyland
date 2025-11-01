@@ -145,8 +145,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     const loadDefaultPrograms = useCallback(async () => {
         try {
-            // Consider removing clearDatabase() if you don’t want to wipe custom programmes.
-            await appDatabase.clearDatabase();
+            await appDatabase.ensurePreloaded();
             const programs = await appDatabase.getDefaultPrograms();
             const names = programs.map((program: any) => program.name);
             dispatch({ type: 'SET_PROGRAM_NAMES', payload: names });
@@ -156,8 +155,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     }, [appDatabase]);
 
     useEffect(() => {
-        if (appDatabase.preloadDone) loadDefaultPrograms();
-    }, [appDatabase.preloadDone, loadDefaultPrograms]);
+        loadDefaultPrograms();
+    }, [loadDefaultPrograms]);
 
     // Optional: default-select first programme once names load
     useEffect(() => {
@@ -330,7 +329,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
-                    disabled={(!state.selectedProgram && !isRunning) || state.isStopping}
+                    disabled={((( !isPortConnected) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
                 >
                     {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>

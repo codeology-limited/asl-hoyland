@@ -34,6 +34,9 @@
     --input-padding: 5px 20px;               /* Standard input and button padding */
 }
 
+*{
+    box-sizing: border-box;
+}
 body {
     color: var(--primary-font-color);
     font-family: var(--font-family);
@@ -53,14 +56,11 @@ html {
     height: 100vh;
     width: 100%;
 }
+
 .xxx{
-    height: 400px;
+    height: auto;
     width: 1080px;
     margin: 0 auto 0 ;
-
-
-
-
 }
 .xxx > p {
     position: absolute;
@@ -70,20 +70,23 @@ html {
     z-index: 1;
 }
 .default-programs {
-
     position:relative;
     z-index: 2;
  }
 
 /* App container with transparent border to reveal rain */
 .container {
+
     position: relative;
     z-index: 1;
-    margin: 0 auto;
+    margin: 20px auto;
     max-width: 1200px;
-    border: 5px solid transparent;
+    border: 20px solid transparent;
+    padding: 10px;
     background: rgba(255,255,255,0.9);
     box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+
+    border-radius: 20px;
 }
 h1 {
     margin: 0;
@@ -305,8 +308,8 @@ progress::-ms-fill {
     text-decoration: none;
     color: var(--primary-font-color);
     border-top: 2px solid var(--button-border-color);
-    border-left: 1px solid var(--button-border-color);
-    border-right: 1px solid var(--button-border-color);
+    border-left: 2px solid var(--button-border-color);
+    border-right: 2px solid var(--button-border-color);
     background-color: var(--tab-bg-color);
     line-height: 60px;
     height: 60px;
@@ -507,7 +510,10 @@ input:disabled {
     position: static;font-size: var( --font-size-medium);
 }
 .editor label br{
-    padding: 60px;display: block;border: 1px solid red;
+    display: block;
+    margin-top: 4px;
+    padding: 0;
+    border: 0;
 }
 
 .editor .range .time {

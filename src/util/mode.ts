@@ -34,7 +34,7 @@ export function computeMode(inputs: Inputs): Mode {
 // Runtime detector reading from actual environment
 export function detectMode(): Mode {
   // Prefer explicit app-level toggle via env
-  const appMode = (process?.env?.APP_MODE as string | undefined) ?? undefined;
+  const appMode = (typeof process !== 'undefined' ? process?.env?.APP_MODE as string | undefined : undefined) ?? undefined;
 
   // Read Vite/TAURI flags if present
   // Vitest and Vite provide import.meta.env in transformed modules
@@ -53,7 +53,7 @@ export function detectMode(): Mode {
   const viteProd = Boolean(metaEnv?.PROD);
   const viteMode = (metaEnv?.MODE as string | undefined) ?? undefined;
 
-  const nodeEnv = (process?.env?.NODE_ENV as string | undefined) ?? undefined;
+  const nodeEnv = (typeof process !== 'undefined' ? process?.env?.NODE_ENV as string | undefined : undefined) ?? undefined;
 
   return computeMode({ appMode, nodeEnv, viteDev, viteProd, viteMode });
 }

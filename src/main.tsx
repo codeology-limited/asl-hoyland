@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import ErrorBoundary from "./ErrorBoundary";
-import { AppProvider } from './AppContext';
 
 const Root = () => {
     const handleShowError = (message: string) => {
@@ -12,9 +11,7 @@ const Root = () => {
 
     return (
         <ErrorBoundary onShowError={handleShowError}>
-            <AppProvider>
-                <App />
-            </AppProvider>
+            <App />
         </ErrorBoundary>
     );
 };

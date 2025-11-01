@@ -151,6 +151,12 @@ export default class AppDatabase extends Dexie {
         && 'startFrequency' in p;
   }
 
+  /** Ensure defaults are preloaded; safe to call multiple times. */
+  async ensurePreloaded() {
+    if (this.preloadDone) return;
+    await this.preloadDefaults();
+  }
+
   /** Preload defaults from /defaultPrograms.json (idempotent, transactional, single-flight). */
   async preloadDefaults() {
     if (this._preloadInFlight) return this._preloadInFlight;
@@ -283,6 +289,7 @@ export default class AppDatabase extends Dexie {
 
   async loadData(programName: string): Promise<ProgramRow> {
     try {
+      await this.ensurePreloaded();
       const program = await this.programs.where('name').equals(programName).first();
       if (!program) throw new Error(`No data found for ${programName}`);
       return program;
@@ -355,6 +362,7 @@ export default class AppDatabase extends Dexie {
 
   async getDefaultPrograms() {
     try {
+      await this.ensurePreloaded();
       const rows = await this.programs.where('default').equals(1).toArray();
       return rows.map((r) => ({ ...r, default: true }));
     } catch (err) {
@@ -365,6 +373,7 @@ export default class AppDatabase extends Dexie {
 
   async getCustomPrograms() {
     try {
+      await this.ensurePreloaded();
       const rows = await this.programs.where('default').equals(0).toArray();
       return rows.map((r) => ({ ...r, default: false }));
     } catch (err) {
@@ -375,6 +384,7 @@ export default class AppDatabase extends Dexie {
 
   async testForProgram(name: string): Promise<boolean> {
     try {
+      await this.ensurePreloaded();
       return !!(await this.programs.where({ name }).first());
     } catch (err) {
       console.error('Failed to test for program:', err);

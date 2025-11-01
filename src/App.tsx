@@ -16,26 +16,23 @@ const App: React.FC = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [isPortConnected, setIsPortConnected] = useState(false);
 
-    // one-time DB init (survives re-renders & StrictMode double-effect)
+    // one-time DB preload (no wiping custom programs)
     const didInit = useRef(false);
     useEffect(() => {
         if (didInit.current) return;
         didInit.current = true;
         (async () => {
-            await appDatabase.resetData();
-            // defaults will load inside resetData -> preloadDefaults
-            // appDatabase.preloadDone reflects completion
-            // console.log("Database initialized and defaults preloaded.");
+            try { await appDatabase.ensurePreloaded(); } catch (err) {
+                console.error('Database preload failed:', err);
+            }
         })();
     }, [appDatabase]);
 
     const reconnectDevice = useCallback(async () => {
         if (!hoylandController) return;
         const result = await hoylandController.reconnectDevice();
-        if (result === "TEST") {
-            setPortLabel("Not Connected");
-            setIsPortConnected(false);
-        } else if (result) {
+        if (result) {
+            // Treat any non-empty result (including TEST in dev) as connected
             setPortLabel(`Connected to ${result} port`);
             setIsPortConnected(true);
         } else {
@@ -44,10 +41,7 @@ const App: React.FC = () => {
         }
     }, [hoylandController]);
 
-    // try to connect once controller is ready
-    useEffect(() => {
-        reconnectDevice();
-    }, [reconnectDevice]);
+    // Don't auto-connect on mount - only connect when user clicks button
 
     // editor callbacks (ProgramEditor already saves to DB; we just ack)
     const handleSave = async (
@@ -64,7 +58,43 @@ const App: React.FC = () => {
         <Router>
             {/* Background rain */}
             <MatrixRain />
-            <div className="container">
+            <div
+                className="container"
+                ref={(el) => {
+                    // Attach a ResizeObserver to keep Tauri window 20px larger than UI
+                    if (!el) return;
+                    if ((el as any)._observerAttached) return;
+                    (el as any)._observerAttached = true;
+                    try {
+                        const setup = async () => {
+                            let mod: any = null;
+                            try { mod = await import('@tauri-apps/api/window'); } catch {}
+                            const updateSize = () => {
+                                const rect = el.getBoundingClientRect();
+                                const w = Math.ceil(rect.width) + 20;
+                                const h = Math.ceil(rect.height) + 20;
+                                if (mod?.appWindow && mod?.LogicalSize) {
+                                    try { mod.appWindow.setSize(new mod.LogicalSize(w, h)); } catch {}
+                                }
+                            };
+                            // Initial size once mounted
+                            updateSize();
+                            // Observe container size changes
+                            const ro = new ResizeObserver(() => updateSize());
+                            ro.observe(el);
+                            // Also adjust on window resize
+                            const onWin = () => updateSize();
+                            window.addEventListener('resize', onWin);
+                            // Cleanup handler stored on element
+                            (el as any)._cleanup = () => {
+                                try { ro.disconnect(); } catch {}
+                                window.removeEventListener('resize', onWin);
+                            };
+                        };
+                        setup();
+                    } catch {}
+                }}
+            >
                 <header>
                     <h1>
                         <a href="http://altered-states.net">Altered States</a>
@@ -105,7 +135,6 @@ const App: React.FC = () => {
 
                 <main>
                     <div className="xxx">
-                        {!appDatabase.preloadDone && <p>LOADING...</p>}
                         <Routes>
                             <Route
                                 path="/"

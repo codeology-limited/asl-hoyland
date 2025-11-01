@@ -2,17 +2,13 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: 'jsdom',
+    environment: 'node',
     globals: true,
     mockReset: true,
     restoreMocks: true,
     setupFiles: ['vitest.setup.ts'],
     testTimeout: 20000,
-    css: {
-      modules: {
-        classNameStrategy: 'non-scoped',
-      },
-    },
+    include: ['src/util/**/__tests__/*.test.ts'],
   },
   coverage: {
     provider: 'v8',

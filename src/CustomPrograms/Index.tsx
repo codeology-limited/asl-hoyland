@@ -139,8 +139,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             dispatch({ type: 'SET_PROGRESS', currentStep: 0, totalSteps, currentFrequency: 0 });
         }
 
-        const port = await hoylandController.reconnectDevice();
-        dispatch({ type: 'SET_CONNECTED', isConnected: port !== 'TEST' });
+        // Do not attempt to (re)connect device here; rely on top-level Connect button
     };
 
     // Handle Start/Stop button
@@ -201,7 +200,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     <button
                         className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                         onClick={handleStartStop}
-                        disabled={!state.selectedProgram && !isRunning} // Disable when no program is selected and not running
+                        disabled={((( !state.isConnected) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
                     >
                         {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                     </button>

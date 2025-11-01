@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/tauri';
+import { isDev } from './mode';
 
 type EventPayload = { type: string; payload: string };
 
@@ -68,7 +69,19 @@ export default class HoylandController {
         const target_device = 'Hoyland';
         const baud_rate = 115200;
 
-        // Add timeout for reconnection attempts
+        // In development mode force TEST port immediately
+        if (isDev) {
+            try {
+                const result = await this.invokeCmd<string>('use_test_port');
+                await this.sleep();
+                console.log('Reconnected (dev):', result);
+                return result ?? 'TEST';
+            } catch {
+                return 'TEST';
+            }
+        }
+
+        // Add timeout for reconnection attempts in production
         const timeoutPromise = new Promise<string>((resolve) => {
             setTimeout(() => resolve('TEST'), 2000);
         });
