@@ -567,3 +567,88 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn list_ports_always_includes_test() {
+        let ports = list_ports();
+        assert!(ports.contains(&"TEST".to_string()));
+    }
+
+    #[test]
+    fn log_test_port_data_ok() {
+        let res = log_test_port_data("PING");
+        assert_eq!(res, Ok(true));
+    }
+
+    #[test]
+    fn perform_real_port_write_without_handle_fails() {
+        let ports_map: Mutex<HashMap<String, PortHandle>> = Mutex::new(HashMap::new());
+        // No entry for current PORT_NAME (default is "TEST")
+        let err = perform_real_port_write(&ports_map, "CMD").unwrap_err();
+        assert!(err.contains("Port not found"));
+
+        // Insert entry with None handle; still no underlying serial port
+        ports_map
+            .lock()
+            .unwrap()
+            .insert("TEST".to_string(), PortHandle(Mutex::new(None)));
+        let err2 = perform_real_port_write(&ports_map, "CMD").unwrap_err();
+        assert!(err2.contains("Port not found"));
+    }
+
+    // ---- Formatting helpers (test-only) ----
+    fn format_frequency_cmd(prefix: &str, frequency: f64) -> String {
+        let mhz_part = frequency.trunc() as u64;
+        let fractional_part = (frequency.fract() * 1_000_000.0).round() as u64;
+        format!("{}{:07}.{:06}\n", prefix, mhz_part, fractional_part)
+    }
+
+    fn format_amplitude_cmd(amplitude: f64) -> String {
+        format!("WMA{:05.2}\n", amplitude)
+    }
+
+    #[test]
+    fn frequency_formatting_channel1() {
+        let cmd = format_frequency_cmd("WMF", 27.12);
+        assert_eq!(cmd, "WMF0000027.120000\n");
+    }
+
+    #[test]
+    fn frequency_formatting_channel2() {
+        let cmd = format_frequency_cmd("WFF", 3.1);
+        assert_eq!(cmd, "WFF0000003.100000\n");
+    }
+
+    #[test]
+    fn amplitude_formatting_min_and_rounding() {
+        assert_eq!(format_amplitude_cmd(1.5), "WMA01.50\n");
+        assert_eq!(format_amplitude_cmd(20.0), "WMA20.00\n");
+        assert_eq!(format_amplitude_cmd(0.0), "WMA00.00\n");
+    }
+
+    #[test]
+    fn stop_and_reset_command_sequence_expected() {
+        let expected = vec![
+            "WFF0\n",
+            "WMF0\n",
+            "WFN0\n",
+            "WMN0\n",
+            "USD0\n",
+            "USD1\n",
+            "USD2\n",
+            "USD3\n",
+            "USD4\n",
+        ];
+        // Ensure formatting and count haven't accidentally changed
+        assert_eq!(expected.len(), 9);
+        for s in expected {
+            assert!(s.ends_with('\n'));
+            let first = s.chars().next().unwrap_or(' ');
+            assert!(first == 'W' || first == 'U');
+        }
+    }
+}

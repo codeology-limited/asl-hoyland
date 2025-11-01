@@ -207,16 +207,30 @@ export default class ProgramRunner {
             if (isRange) {
                 const startF = Number(program.data[0].frequency);
                 const endF = Number(program.data[1].frequency);
-                const steps = Math.max(1, Math.floor(endF - startF));
-                const interval = Math.max(1, Math.floor(totalMs / steps));
+                const direction = startF <= endF ? 1 : -1;
+                const totalSteps = Math.abs(endF - startF);
+                // Cap steps to reasonable limit to prevent excessive iterations
+                // Use 1000 as max (not 1001) to ensure we have at most 1000 iterations
+                const maxSteps = 1000;
+                const cappedSteps = totalSteps > maxSteps ? maxSteps : totalSteps;
+                const stepSize = totalSteps > maxSteps
+                    ? (totalSteps / maxSteps) * direction
+                    : direction;
+                const interval = Math.max(1, Math.floor(totalMs / cappedSteps));
 
-                for (let f = startF; this.running && f <= endF; f++) {
+                let iterationCount = 0;
+                const condition = direction > 0
+                    ? (f: number) => f <= endF && iterationCount < maxSteps
+                    : (f: number) => f >= endF && iterationCount < maxSteps;
+
+                for (let f = startF; this.running && condition(f); f += stepSize) {
                     while (this.paused && this.running) await sleep(100);
                     if (!this.running) break;
 
-                    await this.gen.setFrequency(1, f);
-                    setRunningFrequency(`${f} Hz`);
+                    await this.gen.setFrequency(1, Math.round(f));
+                    setRunningFrequency(`${Math.round(f)} Hz`);
                     await sleep(interval);
+                    iterationCount++;
                 }
             } else {
                 for (const item of program.data) {

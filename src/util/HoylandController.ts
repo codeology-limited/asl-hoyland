@@ -68,14 +68,22 @@ export default class HoylandController {
         const target_device = 'Hoyland';
         const baud_rate = 115200;
 
-        const result = await this.invokeCmd<string>('reconnect_device', {
-            target_device,
-            baud_rate,
+        // Add timeout for reconnection attempts
+        const timeoutPromise = new Promise<string>((resolve) => {
+            setTimeout(() => resolve('TEST'), 2000);
         });
 
-        await this.sleep();
-        console.log('Reconnected:', result);
-        return result ?? '';
+        const connectPromise = (async () => {
+            const result = await this.invokeCmd<string>('reconnect_device', {
+                target_device,
+                baud_rate,
+            });
+            await this.sleep();
+            console.log('Reconnected:', result);
+            return result ?? '';
+        })();
+
+        return Promise.race([connectPromise, timeoutPromise]);
     }
 
     async sinewave() {
@@ -108,12 +116,18 @@ export default class HoylandController {
         console.log(`Frequency set for channel ${channel} to ${frequency} Hz`);
     }
 
-    /** amplitude is device-specific unit */
-    async setAmplitude(amplitude: number) {
+    /**
+     * amplitude is device-specific unit
+     * Supports both legacy setAmplitude(amplitude) and new setAmplitude(channel, amplitude) overload
+     */
+    async setAmplitude(channelOrAmplitude: number, maybeAmplitude?: number) {
+        const channel = maybeAmplitude !== undefined ? channelOrAmplitude : 1;
+        const amplitude = maybeAmplitude !== undefined ? maybeAmplitude : channelOrAmplitude;
+
         this._intensity = amplitude; // store the last set amplitude
         // Read/use the stored value so it's not write-only
         await this.invokeCmd<void>('set_amplitude', {
-            channel: 1,
+            channel,
             amplitude: this._intensity,
         });
     }

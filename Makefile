@@ -24,6 +24,8 @@ help:
 	@echo "  nsis            - Clean, build everything, and generate the NSIS installer"
 	@echo "  msi             - Clean, build everything, and generate the MSI installer"
 	@echo "  dev             - Run the Tauri app in development mode"
+ 	@echo "  rust-test       - Run Rust unit tests in src-tauri"
+ 	@echo "  rust-coverage   - Run Rust coverage with cargo-tarpaulin (if installed)"
 	@echo "  help            - Display this help message"
 
 
@@ -78,3 +80,11 @@ dev:
 	@echo "Running in development mode..."
 	@cd $(PROJECT_ROOT) && cargo tauri dev
 
+# Run Rust unit tests
+rust-test:
+	@cd $(SRC_TAURI) && cargo test
+
+# Run Rust coverage (requires cargo-tarpaulin installed: cargo install cargo-tarpaulin)
+rust-coverage:
+	@command -v cargo-tarpaulin >/dev/null 2>&1 || { echo "cargo-tarpaulin not found. Install with: cargo install cargo-tarpaulin"; exit 1; }
+	@cd $(SRC_TAURI) && cargo tarpaulin -o Lcov --output-dir coverage --engine llvm --ignore-tests

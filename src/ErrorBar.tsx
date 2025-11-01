@@ -1,5 +1,5 @@
 import React from "react";
-import "../../h/hoyland/src/assets/ErrorBar.css";
+import "./assets/ErrorBar.css";
 
 interface ErrorBarProps {
     messages: string[];
