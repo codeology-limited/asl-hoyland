@@ -72,7 +72,12 @@ const reducer = (state: State, action: Action): State => {
         case 'START_STOPPING':
             return { ...state, isStopping: true };
         case 'RESET':
-            return initialState;
+            return {
+                ...initialState,
+                programNames: state.programNames,
+                selectedProgram: state.selectedProgram,
+                isConnected: state.isConnected,
+            };
         default:
             throw new Error();
     }

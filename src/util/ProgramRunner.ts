@@ -165,27 +165,44 @@ export default class ProgramRunner {
 
 
 
-        if (program.name === 'ultrasound') {
-            // ensure square + sync FIRST, then apply amplitude (default 25% if unspecified), then run
+        if (program.name.toLowerCase() === 'ultrasound') {
+            // Ensure amplitude and frequency are set BEFORE outputs are enabled
+            await this.applyCurrentIntensity(program);
+            const initialHz = Math.round(0.5 * 1_000_000);
+            await this.gen.setFrequency(1, initialHz);
+            setRunningFrequency(`${initialHz} Hz`);
             await this.gen.setBothChannelsToSquareWave();
             await this.gen.sync();
-            await this.applyCurrentIntensity(program);
             await this.runSpecialCase(setRunningFrequency);
         } else {
-
-            if (program.name.includes("ultra")) {
-                await this.gen.setBothChannelsToSquareWave();
-                await this.gen.sync();
-            }
-            
-            if (program.startFrequency === 0) {
-                await this.gen.setBothChannelsToSquareWave();
-                await this.gen.sync();
-            }
-
-            await this.applyCurrentIntensity(program);
+            const nameLc = program.name.toLowerCase();
+            let initialHz: number | null = null;
+            if (nameLc.includes('ultra500')) initialHz = Math.round(0.5 * 1_000_000);
+            else if (nameLc.includes('ultra670')) initialHz = Math.round(0.67 * 1_000_000);
 
             const isRange = asBool(program.range) && program.data.length === 2;
+            if (initialHz == null) {
+                if (isRange) {
+                    const [startItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
+                    initialHz = Math.round(Number(startItem?.frequency));
+                } else if (program.data.length > 0) {
+                    initialHz = Math.round(Number(program.data[0]?.frequency));
+                }
+            }
+
+            // Apply amplitude and initial frequency BEFORE enabling outputs
+            await this.applyCurrentIntensity(program);
+            if (initialHz != null && Number.isFinite(initialHz)) {
+                await this.gen.setFrequency(1, initialHz);
+                setRunningFrequency(`${initialHz} Hz`);
+            }
+
+            // Enable outputs (square + sync) for ultra variants or startFrequency=0 AFTER freq/amp
+            if (nameLc.includes('ultra') || program.startFrequency === 0) {
+                await this.gen.setBothChannelsToSquareWave();
+                await this.gen.sync();
+            }
+
             if (isRange) {
                 const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
                 const startF = Number(startItem?.frequency);

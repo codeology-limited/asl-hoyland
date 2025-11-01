@@ -129,6 +129,7 @@ function reducer(state: State, action: Action): State {
             return {
                 ...initialState,
                 programNames: state.programNames, // retain loaded programme names
+                selectedProgram: state.selectedProgram, // keep last-run selected programme visible
             };
         default:
             return state;
