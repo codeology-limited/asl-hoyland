@@ -1,10 +1,10 @@
 import Dexie from 'dexie';
 
-type DBBool = 0 | 1;
+export type DBBool = 0 | 1;
 
-type WaveType = 'SINE' | 'SQUARE' | 'TRIANGLE' | 'SAW' | string;
+export type WaveType = 'SINE' | 'SQUARE' | 'TRIANGLE' | 'SAW' | string;
 
-interface ProgramRow {
+export interface ProgramRow {
   id?: number;
   name: string;                 // UNIQUE
   range: DBBool;                // stored as 0/1
@@ -27,7 +27,7 @@ interface ProgramRow {
   mirror?: DBBool;
 }
 
-interface OldFormatProgram {
+export interface OldFormatProgram {
   default: boolean;
   range: boolean;
   data: number[];               // Hz
@@ -47,7 +47,7 @@ interface OldFormatProgram {
   mirror?: boolean;
 }
 
-interface NewFormatProgram {
+export interface NewFormatProgram {
   default: boolean;
   range: boolean;
   data: { f: number; s: number }[]; // f=Hz, s=seconds
@@ -119,15 +119,7 @@ export default class AppDatabase extends Dexie {
             if (row.sliderStepV === undefined) row.sliderStepV = 1;
             // Intensity defaults to min if not present
             if (row.startIntensityV === undefined) row.startIntensityV = row.sliderMinV ?? 1;
-            // Optional, leave undefined if not present
-            if (row.sliderPercent === undefined) row.sliderPercent = undefined;
-
-            // Optional channel settings / mirror
-            if (row.channel1wavetype === undefined) row.channel1wavetype = undefined;
-            if (row.channel2wavetype === undefined) row.channel2wavetype = undefined;
-            if (row.onkeysec === undefined) row.onkeysec = undefined;
-            if (row.offkeysec === undefined) row.offkeysec = undefined;
-            if (row.mirror === undefined) row.mirror = undefined;
+            // Optional fields: no action needed if absent
           });
         });
 
@@ -135,20 +127,24 @@ export default class AppDatabase extends Dexie {
   }
 
   /** Type guards */
-  private isOldFormat(p: any): p is OldFormatProgram {
-    return Array.isArray(p?.data)
-        && (p.data.length === 0 || typeof p.data[0] === 'number')
-        && 'runTimeInMinutes' in p
-        && 'startFrequency' in p;
+  private isOldFormat(p: unknown): p is OldFormatProgram {
+    if (!p || typeof p !== 'object') return false;
+    const obj = p as Record<string, unknown>;
+    const data = obj.data as unknown;
+    if (!Array.isArray(data)) return false;
+    if (data.length > 0 && typeof data[0] !== 'number') return false;
+    return 'runTimeInMinutes' in obj && 'startFrequency' in obj;
   }
 
-  private isNewFormat(p: any): p is NewFormatProgram {
-    return Array.isArray(p?.data)
-        && (p.data.length === 0 || typeof p.data[0] === 'object')
-        && 'f' in (p.data[0] ?? { f: 0, s: 0 })
-        && 's' in (p.data[0] ?? { f: 0, s: 0 })
-        && 'runTimeInMinutes' in p
-        && 'startFrequency' in p;
+  private isNewFormat(p: unknown): p is NewFormatProgram {
+    if (!p || typeof p !== 'object') return false;
+    const obj = p as Record<string, unknown>;
+    const data = obj.data as unknown;
+    if (!Array.isArray(data)) return false;
+    if (data.length === 0) return 'runTimeInMinutes' in obj && 'startFrequency' in obj;
+    const first = data[0] as Record<string, unknown>;
+    return typeof first === 'object' && first != null && 'f' in first && 's' in first
+      && 'runTimeInMinutes' in obj && 'startFrequency' in obj;
   }
 
   /** Ensure defaults are preloaded; safe to call multiple times. */
@@ -164,14 +160,14 @@ export default class AppDatabase extends Dexie {
     this._preloadInFlight = (async () => {
       try {
         const res = await fetch('/defaultPrograms.json');
-        const defaults = await res.json();
+        const defaults = (await res.json()) as Record<string, unknown>;
 
         await this.transaction('rw', this.programs, async () => {
-          for (const [name, programAny] of Object.entries<any>(defaults)) {
+          for (const [name, programAny] of Object.entries(defaults)) {
             let dataWithRunTime: ProgramRow['data'] = [];
 
             if (this.isOldFormat(programAny)) {
-              const program = programAny as OldFormatProgram;
+              const program = programAny;
 
               const perItemMs =
                   program.data.length > 0
@@ -197,13 +193,12 @@ export default class AppDatabase extends Dexie {
                 sliderMaxV: num(program.sliderMaxV, 20),
                 sliderStepV: num(program.sliderStepV, 1),
                 startIntensityV: num(program.startIntensityV, num(program.sliderMinV, 1)),
-                sliderPercent: program.sliderPercent !== undefined ? num(program.sliderPercent, 0) : undefined,
-
-                channel1wavetype: program.channel1wavetype,
-                channel2wavetype: program.channel2wavetype,
-                onkeysec: program.onkeysec !== undefined ? num(program.onkeysec, 0) : undefined,
-                offkeysec: program.offkeysec !== undefined ? num(program.offkeysec, 0) : undefined,
-                mirror: program.mirror !== undefined ? b2n(!!program.mirror) : undefined,
+                ...(program.sliderPercent !== undefined ? { sliderPercent: num(program.sliderPercent, 0) } : {}),
+                ...(program.channel1wavetype !== undefined ? { channel1wavetype: program.channel1wavetype } : {}),
+                ...(program.channel2wavetype !== undefined ? { channel2wavetype: program.channel2wavetype } : {}),
+                ...(program.onkeysec !== undefined ? { onkeysec: num(program.onkeysec, 0) } : {}),
+                ...(program.offkeysec !== undefined ? { offkeysec: num(program.offkeysec, 0) } : {}),
+                ...(program.mirror !== undefined ? { mirror: b2n(!!program.mirror) } : {}),
               };
 
               // Upsert by UNIQUE name
@@ -215,7 +210,7 @@ export default class AppDatabase extends Dexie {
               }
 
             } else if (this.isNewFormat(programAny)) {
-              const program = programAny as NewFormatProgram;
+              const program = programAny;
 
               dataWithRunTime = program.data.map((item) => ({
                 channel: 1,
@@ -236,13 +231,12 @@ export default class AppDatabase extends Dexie {
                 sliderMaxV: num(program.sliderMaxV, 20),
                 sliderStepV: num(program.sliderStepV, 1),
                 startIntensityV: num(program.startIntensityV, num(program.sliderMinV, 1)),
-                sliderPercent: program.sliderPercent !== undefined ? num(program.sliderPercent, 0) : undefined,
-
-                channel1wavetype: program.channel1wavetype,
-                channel2wavetype: program.channel2wavetype,
-                onkeysec: program.onkeysec !== undefined ? num(program.onkeysec, 0) : undefined,
-                offkeysec: program.offkeysec !== undefined ? num(program.offkeysec, 0) : undefined,
-                mirror: program.mirror !== undefined ? b2n(!!program.mirror) : undefined,
+                ...(program.sliderPercent !== undefined ? { sliderPercent: num(program.sliderPercent, 0) } : {}),
+                ...(program.channel1wavetype !== undefined ? { channel1wavetype: program.channel1wavetype } : {}),
+                ...(program.channel2wavetype !== undefined ? { channel2wavetype: program.channel2wavetype } : {}),
+                ...(program.onkeysec !== undefined ? { onkeysec: num(program.onkeysec, 0) } : {}),
+                ...(program.offkeysec !== undefined ? { offkeysec: num(program.offkeysec, 0) } : {}),
+                ...(program.mirror !== undefined ? { mirror: b2n(!!program.mirror) } : {}),
               };
 
               // Upsert by UNIQUE name
@@ -323,7 +317,7 @@ export default class AppDatabase extends Dexie {
     try {
       if (!program?.name) return;
 
-      const row: Omit<ProgramRow, 'id'> = {
+      const base: Omit<ProgramRow, 'id'> = {
         name: program.name,
         range: b2n(n2b(program.range)),
         data: program.data,
@@ -331,21 +325,23 @@ export default class AppDatabase extends Dexie {
         default: b2n(n2b(program.default)),
         startFrequency: num(program.startFrequency, 0),
 
-        sliderMinV: program.sliderMinV !== undefined ? num(program.sliderMinV, 1) : undefined,
-        sliderMaxV: program.sliderMaxV !== undefined ? num(program.sliderMaxV, 20) : undefined,
-        sliderStepV: program.sliderStepV !== undefined ? num(program.sliderStepV, 1) : undefined,
-        startIntensityV:
-            program.startIntensityV !== undefined
-                ? num(program.startIntensityV, program.sliderMinV ?? 1)
-                : undefined,
-        sliderPercent: program.sliderPercent !== undefined ? num(program.sliderPercent, 0) : undefined,
+        // Apply defaults for slider bounds if provided; else omit
+        ...(program.sliderMinV !== undefined ? { sliderMinV: num(program.sliderMinV, 1) } : {}),
+        ...(program.sliderMaxV !== undefined ? { sliderMaxV: num(program.sliderMaxV, 20) } : {}),
+        ...(program.sliderStepV !== undefined ? { sliderStepV: num(program.sliderStepV, 1) } : {}),
+        ...(program.startIntensityV !== undefined
+            ? { startIntensityV: num(program.startIntensityV, program.sliderMinV ?? 1) }
+            : {}),
+        ...(program.sliderPercent !== undefined ? { sliderPercent: num(program.sliderPercent, 0) } : {}),
 
-        channel1wavetype: program.channel1wavetype,
-        channel2wavetype: program.channel2wavetype,
-        onkeysec: program.onkeysec !== undefined ? num(program.onkeysec, 0) : undefined,
-        offkeysec: program.offkeysec !== undefined ? num(program.offkeysec, 0) : undefined,
-        mirror: program.mirror !== undefined ? maybeBoolToDB(program.mirror) : undefined,
+        ...(program.channel1wavetype !== undefined ? { channel1wavetype: program.channel1wavetype } : {}),
+        ...(program.channel2wavetype !== undefined ? { channel2wavetype: program.channel2wavetype } : {}),
+        ...(program.onkeysec !== undefined ? { onkeysec: num(program.onkeysec, 0) } : {}),
+        ...(program.offkeysec !== undefined ? { offkeysec: num(program.offkeysec, 0) } : {}),
+        ...(program.mirror !== undefined ? { mirror: maybeBoolToDB(program.mirror) } : {}),
       };
+
+      const row: Omit<ProgramRow, 'id'> = base;
 
       // Upsert by name
       const existing = await this.programs.where('name').equals(program.name).first();
@@ -360,22 +356,22 @@ export default class AppDatabase extends Dexie {
     }
   }
 
-  async getDefaultPrograms() {
+  async getDefaultPrograms(): Promise<ProgramRow[]> {
     try {
       await this.ensurePreloaded();
       const rows = await this.programs.where('default').equals(1).toArray();
-      return rows.map((r) => ({ ...r, default: true }));
+      return rows;
     } catch (err) {
       console.error('Failed to get default programs:', err);
       throw err;
     }
   }
 
-  async getCustomPrograms() {
+  async getCustomPrograms(): Promise<ProgramRow[]> {
     try {
       await this.ensurePreloaded();
       const rows = await this.programs.where('default').equals(0).toArray();
-      return rows.map((r) => ({ ...r, default: false }));
+      return rows;
     } catch (err) {
       console.error('Failed to get custom programs:', err);
       throw err;

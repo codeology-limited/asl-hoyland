@@ -9,10 +9,12 @@ interface ProgramEditorProps {
 }
 
 
+type EditRow = { channel: number; frequency: string; runTime: string };
+
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
-    const [rows, setRows] = useState<ProgramItem[]>([{ channel: 1, frequency: '', runTime: 0 }]);
+    const [rows, setRows] = useState<EditRow[]>([{ channel: 1, frequency: '', runTime: '' }]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -30,17 +32,17 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     useEffect(() => {
         if (range) {
             setRows([
-                { channel: 1, frequency: '', runTime: 0 },
-                { channel: 1, frequency: '', runTime: 0 },
+                { channel: 1, frequency: '', runTime: '' },
+                { channel: 1, frequency: '', runTime: '' },
             ]);
         } else {
-            setRows([{ channel: 1, frequency: '', runTime: 0 }]);
+            setRows([{ channel: 1, frequency: '', runTime: '' }]);
         }
     }, [range]);
 
     const handleAddRow = () => {
         if (!range) {
-            setRows([...rows, { channel: 1, frequency: '', runTime: 0 }]);
+            setRows([...rows, { channel: 1, frequency: '', runTime: '' }]);
         }
     };
 
@@ -51,13 +53,13 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         }
     };
 
-    const handleInputChange = (index: number, field: string, value: string) => {
+    const handleInputChange = (index: number, field: 'frequency' | 'runTime', value: string) => {
         // Allow only numbers and at most one decimal point
         const isValid = /^(\d+\.?\d*|\.\d*)$/.test(value);
 
         if (isValid || value === '') { // Allow clearing the field
             const newRows = [...rows];
-            newRows[index] = { ...newRows[index], [field]: value };
+            newRows[index] = { ...newRows[index], [field]: value } as EditRow;
             setRows(newRows);
         }
     };
@@ -68,11 +70,11 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         setIsSaving(true);
 
         try {
-            // Convert frequency to a number for saving
-            const validatedRows = rows.map(row => ({
-                ...row,
-                frequency: parseFloat(String(row.frequency)) || 0, // Convert to number or default to 0
-                runTime: row.runTime * 60_000, // Convert runtime to milliseconds
+            // Convert frequency and runtime strings to numbers for saving
+            const validatedRows: ProgramItem[] = rows.map(row => ({
+                channel: row.channel,
+                frequency: parseFloat(row.frequency) || 0,
+                runTime: (parseFloat(row.runTime) || 0) * 60_000,
             }));
 
             const maxTimeInMinutes = validatedRows.reduce((total, item) => total + item.runTime / 60_000, 0);
@@ -90,7 +92,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             await appDatabase.saveData(program);
             console.log('Program saved successfully');
 
-            onSave(programName, rows, maxTimeInMinutes, range);
+            onSave(programName, validatedRows, maxTimeInMinutes, range);
         } catch (error) {
             console.error('Error saving program:', error);
         } finally {
@@ -101,14 +103,14 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const handleLoadProgram = async (programName: string) => {
         const program = await appDatabase.loadData(programName);
         if (program) {
-            const data = program.data.map(row => ({
-                ...row,
-                frequency: row.frequency.toString(), // Convert to string for editing
-                runTime: row.runTime / 60_000, // Convert back to minutes
+            const data: EditRow[] = program.data.map(row => ({
+                channel: row.channel,
+                frequency: String(row.frequency),
+                runTime: String(row.runTime / 60_000),
             }));
 
             setProgramName(programName);
-            setRange(!!program.range);
+            setRange(Boolean(program.range));
             setRows(data);
         }
     };
@@ -176,7 +178,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                                 <input
                                     className='time'
                                     type="text"
-                                    value={row.runTime.toString()}
+                                    value={row.runTime}
                                     onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
                                     placeholder="Time in minutes"
                                 />

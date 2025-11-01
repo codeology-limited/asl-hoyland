@@ -30,14 +30,14 @@ function getErrorMessage(err: unknown): string {
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     static displayName = "ErrorBoundary";
 
-    state: ErrorBoundaryState = { hasError: false };
+    override state: ErrorBoundaryState = { hasError: false };
 
     static getDerivedStateFromError(_: unknown): ErrorBoundaryState {
         // Update state so the next render shows the fallback UI.
         return { hasError: true };
     }
 
-    componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
+    override componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
         // Notify host app
         this.props.onShowError?.(`Error: ${getErrorMessage(error)}`);
         // Optional: Log details (keep for debugging; remove if too noisy)
@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         console.error("Uncaught error:", error, errorInfo);
     }
 
-    componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    override componentDidUpdate(prevProps: ErrorBoundaryProps) {
         // Reset the boundary if any resetKey changes
         const { resetKeys } = this.props;
         if (!resetKeys || !prevProps.resetKeys) return;
@@ -59,7 +59,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         }
     }
 
-    render() {
+    override render() {
         if (this.state.hasError) {
             return this.props.fallback ?? <h1>Something went wrong.</h1>;
         }

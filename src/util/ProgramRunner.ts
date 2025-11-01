@@ -1,22 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
-import AppDatabase from './AppDatabase';
+import AppDatabase, { ProgramRow } from './AppDatabase';
 import HoylandController from './HoylandController';
 
-interface Program {
-    id?: number;
-    name: string;
-    range: number | boolean;
-    data: { channel: number; frequency: number | string; runTime: number }[];
-    maxTimeInMinutes: number;
-    default: number | boolean;
-    startFrequency: number;
-    mirror?: number | boolean;
-
-    // optional slider metadata (present in DB rows)
-    sliderMinV?: number;
-    sliderMaxV?: number;
-    sliderStepV?: number;
-}
 
 type ProgressCallback = (currentStep: number, totalSteps: number, minutesRemaining: number) => void;
 
@@ -57,22 +42,19 @@ export default class ProgramRunner {
         this.onProgress = progressCallback;
     }
 
-    async loadProgram(name: string): Promise<Program | null> {
-        try { return await this.db.loadData(name) as unknown as Program; } catch { return null; }
+    async loadProgram(name: string): Promise<ProgramRow | null> {
+        try { return await this.db.loadData(name); } catch { return null; }
     }
 
     setProgressCallback(cb: ProgressCallback) { this.onProgress = cb; }
     setOnStopCallback(cb: () => void) { this.onStop = cb; }
 
-    /** Support both legacy setAmplitude(amplitude) and new setAmplitude(channel, amplitude) */
+    /** Send amplitude to one or both channels using controller overloads */
     private async sendAmp(channel: number, amp: number) {
-        const anyGen = this.gen as unknown as { setAmplitude: (...args: any[]) => Promise<void> };
         if (!Number.isFinite(amp)) return;
-        if (anyGen.setAmplitude.length >= 2) {
-            await (anyGen.setAmplitude as (c: number, a: number) => Promise<void>)(channel, amp);
-        } else {
-            await (anyGen.setAmplitude as (a: number) => Promise<void>)(amp);
-        }
+        // HoylandController.setAmplitude supports (amp) and (channel, amp)
+        // Prefer the explicit channel version
+        await this.gen.setAmplitude(channel, amp);
     }
 
     /**
@@ -94,7 +76,7 @@ export default class ProgramRunner {
      * - if explicitly set (number) → use it;
      * - else → default to 25% of [sliderMinV, sliderMaxV] (fallback 1..20), snapped to sliderStepV.
      */
-    private async applyCurrentIntensity(program?: Program) {
+    private async applyCurrentIntensity(program?: ProgramRow) {
         let amp = this.intensity;
         if (amp == null) {
             const min = num(program?.sliderMinV, 1);
@@ -205,8 +187,9 @@ export default class ProgramRunner {
 
             const isRange = asBool(program.range) && program.data.length === 2;
             if (isRange) {
-                const startF = Number(program.data[0].frequency);
-                const endF = Number(program.data[1].frequency);
+                const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
+                const startF = Number(startItem?.frequency);
+                const endF = Number(endItem?.frequency);
                 const direction = startF <= endF ? 1 : -1;
                 const totalSteps = Math.abs(endF - startF);
                 // Cap steps to reasonable limit to prevent excessive iterations

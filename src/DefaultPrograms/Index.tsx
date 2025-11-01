@@ -2,6 +2,7 @@ import React, { useReducer, useEffect, useRef, useCallback, useState } from 'rea
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 import ProgramSelect from './ProgramSelect.tsx';
+import type { ProgramRow } from '../util/AppDatabase';
 
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -77,7 +78,7 @@ function clampAndSnap(value: number, min: number, max: number, step: number): nu
 // Compute the desired starting intensity from programme fields.
 // Priority: startIntensityV → sliderPercent → fallback.
 // Fallback rule: default to 25% along the slider; BUT if using the default bounds (1..20 step 1), force 5.
-function deriveStartIntensity(program: any, min: number, max: number, step: number): number {
+function deriveStartIntensity(program: Partial<ProgramRow> | null | undefined, min: number, max: number, step: number): number {
     if (program && program.startIntensityV !== undefined) {
         return clampAndSnap(num(program.startIntensityV, min), min, max, step);
     }
@@ -147,7 +148,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         try {
             await appDatabase.ensurePreloaded();
             const programs = await appDatabase.getDefaultPrograms();
-            const names = programs.map((program: any) => program.name);
+            const names = programs.map((program) => program.name);
             dispatch({ type: 'SET_PROGRAM_NAMES', payload: names });
         } catch (error) {
             console.error('Failed to load default programs:', error);
@@ -161,7 +162,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     // Optional: default-select first programme once names load
     useEffect(() => {
         if (state.programNames.length && !state.selectedProgram) {
-            dispatch({ type: 'SET_SELECTED_PROGRAM', payload: state.programNames[0] });
+            const first = state.programNames[0];
+            if (first) dispatch({ type: 'SET_SELECTED_PROGRAM', payload: first });
         }
     }, [state.programNames, state.selectedProgram]);
 
@@ -201,7 +203,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             if (!state.selectedProgram) return;
 
             try {
-                const program: any = await appDatabase.loadData(state.selectedProgram);
+                const program = await appDatabase.loadData(state.selectedProgram);
                 if (!program) return;
 
                 // Programme-provided bounds with required defaults (min=1, max=20, step=1)

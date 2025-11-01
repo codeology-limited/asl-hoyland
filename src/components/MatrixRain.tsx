@@ -39,13 +39,14 @@ const MatrixRain: React.FC = () => {
 
         for (let i = 0; i < drops.length; i++) {
           const text = charset.charAt(Math.floor(Math.random() * charset.length));
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          const y = (drops[i] ?? 1) * fontSize;
+          ctx.fillText(text, i * fontSize, y);
 
           // reset drop
-          if (drops[i] * fontSize > height && Math.random() > 0.975) {
+          if (y > height && Math.random() > 0.975) {
             drops[i] = 0;
           }
-          drops[i]++;
+          drops[i] = (drops[i] ?? 1) + 1;
         }
       }
 
@@ -83,4 +84,3 @@ const MatrixRain: React.FC = () => {
 };
 
 export default MatrixRain;
-

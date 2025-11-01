@@ -63,11 +63,13 @@ const App: React.FC = () => {
                 ref={(el) => {
                     // Attach a ResizeObserver to keep Tauri window 20px larger than UI
                     if (!el) return;
-                    if ((el as any)._observerAttached) return;
-                    (el as any)._observerAttached = true;
+                    type ResizableContainer = HTMLElement & { _observerAttached?: boolean; _cleanup?: () => void };
+                    const container = el as ResizableContainer;
+                    if (container._observerAttached) return;
+                    container._observerAttached = true;
                     try {
                         const setup = async () => {
-                            let mod: any = null;
+                            let mod: typeof import('@tauri-apps/api/window') | null = null;
                             try { mod = await import('@tauri-apps/api/window'); } catch {}
                             const updateSize = () => {
                                 const rect = el.getBoundingClientRect();
@@ -86,7 +88,7 @@ const App: React.FC = () => {
                             const onWin = () => updateSize();
                             window.addEventListener('resize', onWin);
                             // Cleanup handler stored on element
-                            (el as any)._cleanup = () => {
+                            container._cleanup = () => {
                                 try { ro.disconnect(); } catch {}
                                 window.removeEventListener('resize', onWin);
                             };

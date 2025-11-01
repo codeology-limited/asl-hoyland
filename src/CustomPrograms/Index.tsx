@@ -134,7 +134,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
 
             const totalSteps = program.range && program.data.length === 2
-                ? Number(program.data[1].frequency) - Number(program.data[0].frequency) + 1
+                ? Number(program.data[1]?.frequency) - Number(program.data[0]?.frequency) + 1
                 : program.data.length;
             dispatch({ type: 'SET_PROGRESS', currentStep: 0, totalSteps, currentFrequency: 0 });
         }

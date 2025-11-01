@@ -40,11 +40,17 @@ export function detectMode(): Mode {
   // Vitest and Vite provide import.meta.env in transformed modules
   // Guard in case not present (e.g., Node-only contexts)
   // In Vite/Vitest contexts, import.meta.env is defined
-  let metaEnv: any = undefined;
+  let metaEnv: { DEV?: boolean; PROD?: boolean; MODE?: string } | undefined = undefined;
   try {
     // Access guarded to avoid syntax errors in non-Vite toolchains
     // eslint-disable-next-line no-new-func
-    metaEnv = (Function('return typeof import !== "undefined" && import.meta && import.meta.env')() as any) || undefined;
+    const envMaybe = Function('return typeof import !== "undefined" && import.meta && import.meta.env')();
+    if (envMaybe && typeof envMaybe === 'object') {
+      const e = envMaybe as { DEV?: boolean; PROD?: boolean; MODE?: string };
+      metaEnv = { DEV: !!e.DEV, PROD: !!e.PROD, ...(e.MODE ? { MODE: e.MODE } : {}) };
+    } else {
+      metaEnv = undefined;
+    }
   } catch {
     metaEnv = undefined;
   }

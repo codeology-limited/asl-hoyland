@@ -44,8 +44,8 @@ export default class HoylandController {
             const res = await invoke<T>(cmd, args);
             this.emit(cmd, res);
             return res;
-        } catch (err: any) {
-            const msg = String(err ?? '');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? (err.message ?? String(err)) : String(err ?? '');
             // 2) If Rust expects a single param named "args" (fn reconnect_device(args: X))
             const needsArgsWrapper =
                 msg.includes('missing required key args') ||
@@ -133,7 +133,9 @@ export default class HoylandController {
      * amplitude is device-specific unit
      * Supports both legacy setAmplitude(amplitude) and new setAmplitude(channel, amplitude) overload
      */
-    async setAmplitude(channelOrAmplitude: number, maybeAmplitude?: number) {
+    async setAmplitude(amplitude: number): Promise<void>;
+    async setAmplitude(channel: number, amplitude: number): Promise<void>;
+    async setAmplitude(channelOrAmplitude: number, maybeAmplitude?: number): Promise<void> {
         const channel = maybeAmplitude !== undefined ? channelOrAmplitude : 1;
         const amplitude = maybeAmplitude !== undefined ? maybeAmplitude : channelOrAmplitude;
 

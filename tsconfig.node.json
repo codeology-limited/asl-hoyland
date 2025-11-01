@@ -6,6 +6,11 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
     "types": ["node"]                   // ← only this file pulls Node types
   },
   "include": ["vite.config.ts", "scripts/**/*"]
