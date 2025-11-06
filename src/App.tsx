@@ -7,7 +7,6 @@ import ProgramEditor from "./ProgramEditor";
 import StatusIndicator from "./StatusIndicator";
 import { AppProvider, useAppContext } from "./AppContext";
 import { ProgramItem } from "./types";
-import MatrixRain from './components/MatrixRain';
 
 const App: React.FC = () => {
     const { hoylandController, appDatabase } = useAppContext();
@@ -56,8 +55,6 @@ const App: React.FC = () => {
 
     return (
         <Router>
-            {/* Background rain */}
-            <MatrixRain />
             <div
                 className="container"
                 ref={(el) => {
