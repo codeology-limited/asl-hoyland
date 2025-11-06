@@ -1,5 +1,4 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { isDev } from './mode';
 
 type EventPayload = { type: string; payload: string };
 
@@ -69,34 +68,32 @@ export default class HoylandController {
         const target_device = 'Hoyland';
         const baud_rate = 115200;
 
-        // In development mode force TEST port immediately
-        if (isDev) {
-            try {
-                const result = await this.invokeCmd<string>('use_test_port');
-                await this.sleep();
-                console.log('Reconnected (dev):', result);
-                return result ?? 'TEST';
-            } catch {
-                return 'TEST';
-            }
-        }
-
-        // Add timeout for reconnection attempts in production
-        const timeoutPromise = new Promise<string>((resolve) => {
-            setTimeout(() => resolve('TEST'), 2000);
-        });
-
-        const connectPromise = (async () => {
+        try {
             const result = await this.invokeCmd<string>('reconnect_device', {
                 target_device,
                 baud_rate,
             });
             await this.sleep();
-            console.log('Reconnected:', result);
-            return result ?? '';
-        })();
+            const label = result?.trim() ?? '';
+            if (label) {
+                console.log('Reconnected:', label);
+                return label;
+            }
+            console.warn('reconnect_device returned empty label, falling back to test port');
+        } catch (err) {
+            console.warn('Real port connection failed, falling back to test port', err);
+        }
 
-        return Promise.race([connectPromise, timeoutPromise]);
+        try {
+            const fallback = await this.invokeCmd<string>('use_test_port');
+            await this.sleep();
+            const label = fallback?.trim() || 'TEST';
+            console.log('Using fallback test port:', label);
+            return label;
+        } catch (fallbackErr) {
+            console.error('Failed to activate test port', fallbackErr);
+            return 'TEST';
+        }
     }
 
     async sinewave() {

@@ -68,17 +68,14 @@ describe('HoylandController', () => {
     expect([1, 2]).toContain(calls[1][1].channel);
   });
 
-  it('reconnectDevice resolves TEST on timeout (prod mode)', async () => {
-    process.env.APP_MODE = 'production';
-    vi.useFakeTimers();
-    (tauri.invoke as any).mockImplementation(() => new Promise(() => {})); // never resolves
+  it('reconnectDevice falls back to test port when command fails', async () => {
+    (tauri.invoke as any)
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce('TEST');
     const hc = new HoylandController();
-
-    const p = hc.reconnectDevice();
-    await vi.advanceTimersByTimeAsync(2000);
-    const result = await p;
+    const result = await hc.reconnectDevice();
+    expect((tauri.invoke as any).mock.calls[1][0]).toBe('use_test_port');
     expect(result).toBe('TEST');
-    vi.useRealTimers();
   });
 
   it('reconnectDevice resolves to real port when fast (prod mode)', async () => {

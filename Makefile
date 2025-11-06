@@ -24,8 +24,8 @@ help:
 	@echo "  nsis            - Clean, build everything, and generate the NSIS installer"
 	@echo "  msi             - Clean, build everything, and generate the MSI installer"
 	@echo "  dev             - Run the Tauri app in development mode"
- 	@echo "  rust-test       - Run Rust unit tests in src-tauri"
- 	@echo "  rust-coverage   - Run Rust coverage with cargo-tarpaulin (if installed)"
+	@echo "  rust-test       - Run Rust unit tests in src-tauri"
+	@echo "  rust-coverage   - Run Rust coverage with cargo-tarpaulin (if installed)"
 	@echo "  help            - Display this help message"
 
 

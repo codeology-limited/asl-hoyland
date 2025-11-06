@@ -11,9 +11,10 @@ import { ProgramItem } from "./types";
 const App: React.FC = () => {
     const { hoylandController, appDatabase } = useAppContext();
 
-    const [portLabel, setPortLabel] = useState<string>("Connect to device");
+    const [portLabel, setPortLabel] = useState<string>("Not Connected");
     const [isRunning, setIsRunning] = useState(false);
     const [isPortConnected, setIsPortConnected] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(false);
 
     // one-time DB preload (no wiping custom programs)
     const didInit = useRef(false);
@@ -27,20 +28,40 @@ const App: React.FC = () => {
         })();
     }, [appDatabase]);
 
-    const reconnectDevice = useCallback(async () => {
-        if (!hoylandController) return;
-        const result = await hoylandController.reconnectDevice();
-        if (result) {
-            // Treat any non-empty result (including TEST in dev) as connected
-            setPortLabel(`Connected to ${result} port`);
-            setIsPortConnected(true);
-        } else {
-            setPortLabel("Not Connected");
-            setIsPortConnected(false);
-        }
-    }, [hoylandController]);
+    const updateConnectionState = useCallback(
+        async (isCancelled?: () => boolean) => {
+            if (!hoylandController) return null;
+            setIsConnecting(true);
+            try {
+                const result = await hoylandController.reconnectDevice();
+                if (isCancelled?.()) return result;
 
-    // Don't auto-connect on mount - only connect when user clicks button
+                if (result) {
+                    setPortLabel(`Connected to ${result} port`);
+                    setIsPortConnected(true);
+                } else {
+                    setPortLabel("Not Connected");
+                    setIsPortConnected(false);
+                }
+                return result;
+            } finally {
+                if (!isCancelled?.()) {
+                    setIsConnecting(false);
+                }
+            }
+        },
+        [hoylandController]
+    );
+
+    useEffect(() => {
+        if (!hoylandController) return;
+        let cancelled = false;
+        const checkCancelled = () => cancelled;
+        void updateConnectionState(checkCancelled);
+        return () => {
+            cancelled = true;
+        };
+    }, [hoylandController, updateConnectionState]);
 
     // editor callbacks (ProgramEditor already saves to DB; we just ack)
     const handleSave = async (
@@ -165,12 +186,22 @@ const App: React.FC = () => {
                     <div id="console">
                         <button
                             className={portLabel === "Not Connected" ? "sparkly-border" : ""}
-                            onClick={reconnectDevice}
-                            disabled={isRunning}
+                            onClick={() => {
+                                void updateConnectionState();
+                            }}
+                            disabled={isRunning || isConnecting}
                         >
-                            Connect
+                            {isConnecting ? "Connecting..." : isPortConnected ? "Reconnect" : "Connect"}
                         </button>
-                        <p>{portLabel}</p>
+                        {isConnecting ? (
+                            <div className="connect-progress">
+                                <div className="connect-progress__bar">
+                                    <div className="connect-progress__fill" />
+                                </div>
+                            </div>
+                        ) : (
+                            !!portLabel && <p>{portLabel}</p>
+                        )}
                     </div>
 
                     {/* StatusIndicator expects a prop; pass null for now */}
