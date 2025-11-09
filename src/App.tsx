@@ -36,7 +36,10 @@ const App: React.FC = () => {
                 const result = await hoylandController.reconnectDevice();
                 if (isCancelled?.()) return result;
 
-                if (result) {
+                if (result === "TEST") {
+                    setPortLabel("No device found (IN TEST MODE)");
+                    setIsPortConnected(true);
+                } else if (result) {
                     setPortLabel(`Connected to ${result} port`);
                     setIsPortConnected(true);
                 } else {
@@ -57,9 +60,17 @@ const App: React.FC = () => {
         if (!hoylandController) return;
         let cancelled = false;
         const checkCancelled = () => cancelled;
-        void updateConnectionState(checkCancelled);
+
+        // Defer auto-connect so the initial UI paint can complete first.
+        const handle = window.setTimeout(() => {
+            if (!cancelled) {
+                void updateConnectionState(checkCancelled);
+            }
+        }, 0);
+
         return () => {
             cancelled = true;
+            window.clearTimeout(handle);
         };
     }, [hoylandController, updateConnectionState]);
 
@@ -73,6 +84,8 @@ const App: React.FC = () => {
         console.log("[Editor] Saved:", programName);
         alert("Program saved successfully!");
     };
+
+    const isDeviceReady = isPortConnected && !isConnecting;
 
     return (
         <Router>
@@ -162,7 +175,7 @@ const App: React.FC = () => {
                                     <DefaultPrograms
                                         setIsRunning={setIsRunning}
                                         isRunning={isRunning}
-                                        isPortConnected={isPortConnected}
+                                        isDeviceReady={isDeviceReady}
                                     />
                                 }
                             />
@@ -172,7 +185,7 @@ const App: React.FC = () => {
                                     <CustomPrograms
                                         setIsRunning={setIsRunning}
                                         isRunning={isRunning}
-                                        isPortConnected={isPortConnected}
+                                        isDeviceReady={isDeviceReady}
                                     />
                                 }
                             />

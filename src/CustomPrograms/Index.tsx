@@ -6,7 +6,7 @@ import ProgramSelect from "./ProgramSelect.tsx";
 interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
-    isPortConnected: boolean;
+    isDeviceReady: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -83,7 +83,7 @@ const reducer = (state: State, action: Action): State => {
     }
 };
 
-const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
+const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -92,8 +92,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
 
     // Set connection status based on port connection
     useEffect(() => {
-        dispatch({ type: 'SET_CONNECTED', isConnected: isPortConnected });
-    }, [isPortConnected]);
+        dispatch({ type: 'SET_CONNECTED', isConnected: isDeviceReady });
+    }, [isDeviceReady]);
 
     // Load custom programs from database
     useEffect(() => {

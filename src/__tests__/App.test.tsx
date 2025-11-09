@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import React from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
 
 // Mock the Tauri API
 vi.mock('@tauri-apps/api/tauri', () => ({
@@ -128,11 +129,75 @@ describe('App', () => {
     // which would need more complex setup
   });
 
-  it('initializes with "Connect to device" port label', async () => {
+  it('shows test-mode label when no hardware is detected', async () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Connect to device|Not Connected/i)).toBeInTheDocument();
+      expect(screen.getByText(/No device found \(IN TEST MODE\)/i)).toBeInTheDocument();
+    });
+  });
+
+  it('enables program controls once test mode is active', async () => {
+    const { container } = render(<App />);
+
+    const dropdown = await screen.findByRole('combobox');
+    await waitFor(() => {
+      expect(dropdown).not.toBeDisabled();
+    });
+
+    await waitFor(() => {
+      const startButton = container.querySelector<HTMLButtonElement>('.default-programs button.start');
+      if (!startButton) {
+        throw new Error('Start button not found');
+      }
+      expect(startButton).not.toBeDisabled();
+    });
+  });
+
+  it('disables selectors and start button while reconnecting', async () => {
+    const user = userEvent.setup();
+    const invokeMock = invoke as ReturnType<typeof vi.fn>;
+    invokeMock.mockClear();
+
+    // First auto-connect resolves immediately
+    invokeMock.mockReturnValueOnce(Promise.resolve('TEST'));
+
+    // Manual reconnect stays pending until we resolve it
+    let resolveReconnect: ((value: string) => void) | null = null;
+    const pendingReconnect = new Promise<string>((resolve) => {
+      resolveReconnect = resolve;
+    });
+    invokeMock.mockReturnValueOnce(pendingReconnect);
+
+    const { container } = render(<App />);
+
+    const dropdown = await screen.findByRole('combobox');
+    await waitFor(() => {
+      expect(dropdown).not.toBeDisabled();
+    });
+
+    const getStartButton = () => {
+      const btn = container.querySelector<HTMLButtonElement>('.default-programs button.start');
+      if (!btn) throw new Error('Start button not found');
+      return btn;
+    };
+    await waitFor(() => {
+      expect(getStartButton()).not.toBeDisabled();
+    });
+
+    const reconnectButton = await screen.findByRole('button', { name: /Reconnect/i });
+    await user.click(reconnectButton);
+
+    expect(dropdown).toBeDisabled();
+    expect(getStartButton()).toBeDisabled();
+
+    resolveReconnect?.('TEST');
+
+    await waitFor(() => {
+      expect(dropdown).not.toBeDisabled();
+    });
+    await waitFor(() => {
+      expect(getStartButton()).not.toBeDisabled();
     });
   });
 
@@ -145,15 +210,19 @@ describe('App', () => {
     });
   });
 
-  it('does not auto-connect on mount to avoid blocking UI', async () => {
-    const { invoke } = await import('@tauri-apps/api/tauri');
+  it('auto-connect defers so the first paint is uninterrupted', async () => {
+    const invokeMock = invoke as ReturnType<typeof vi.fn>;
+    invokeMock.mockClear();
 
     render(<App />);
 
-    // Should NOT call reconnectDevice automatically on mount
-    // User must click the Connect button
-    await new Promise(resolve => setTimeout(resolve, 100));
-    expect(invoke).not.toHaveBeenCalled();
+    // Not called synchronously
+    expect(invokeMock).not.toHaveBeenCalled();
+
+    // But should trigger shortly after to attempt connection
+    await waitFor(() => {
+      expect(invokeMock).toHaveBeenCalledWith('reconnect_device', expect.anything());
+    });
   });
 
   it('allows clicking connect button when not running', async () => {

@@ -26,7 +26,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -40,7 +40,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -53,7 +53,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -66,7 +66,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -79,7 +79,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={false}
+        isDeviceReady={false}
       />
     );
 
@@ -92,7 +92,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -105,7 +105,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={true}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -121,7 +121,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={true}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -134,7 +134,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={true}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -148,7 +148,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 
@@ -163,7 +163,7 @@ describe('DefaultPrograms', () => {
       <DefaultPrograms
         setIsRunning={mockSetIsRunning}
         isRunning={false}
-        isPortConnected={true}
+        isDeviceReady={true}
       />
     );
 

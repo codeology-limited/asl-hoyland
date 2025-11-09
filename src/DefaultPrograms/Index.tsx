@@ -7,7 +7,7 @@ import type { ProgramRow } from '../util/AppDatabase';
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
-    isPortConnected: boolean;
+    isDeviceReady: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -138,7 +138,7 @@ function reducer(state: State, action: Action): State {
 
 // ───────────────────────── component ─────────────────────────
 
-const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isPortConnected }) => {
+const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -319,10 +319,10 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     );
 
     return (
-        <div className={`${isPortConnected ? 'connected' : 'disconnected'} tab-body default-programs`}>
+        <div className={`${isDeviceReady ? 'connected' : 'disconnected'} tab-body default-programs`}>
             <div>
                 <select
-                    disabled={isRunning || !isPortConnected}
+                    disabled={isRunning || !isDeviceReady}
                     value={state.selectedProgram}
                     onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
                 >
@@ -332,7 +332,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
-                    disabled={((( !isPortConnected) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
+                    disabled={((( !isDeviceReady) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
                 >
                     {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>
