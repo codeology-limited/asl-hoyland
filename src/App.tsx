@@ -208,7 +208,10 @@ const App: React.FC = () => {
                     <StatusIndicator status={null} />
                 </main>
 
-                <footer>Copyright &copy; 2024 Altered States Limited</footer>
+                <footer>
+                    <span>Copyright &copy; 2024 Altered States Limited</span>
+                    <span className="footer__version">v1.5.7.2</span>
+                </footer>
             </div>
         </Router>
     );

@@ -47,6 +47,7 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Copyright.*2024.*Altered States Limited/i)).toBeInTheDocument();
+      expect(screen.getByText(/v1\.5\.7\.2/i)).toBeInTheDocument();
     });
   });
 

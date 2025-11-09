@@ -439,6 +439,7 @@ footer {
     height: 50px;
     align-items: center;
     justify-content: center;
+    gap: 10px;
 
     color: var(--footer-font-color);
 }
@@ -451,6 +452,11 @@ footer a {
 
 footer a:hover {
     color: var(--footer-hover-color);
+}
+
+.footer__version {
+    font-weight: 600;
+    letter-spacing: var(--letter-spacing);
 }
 
 .status-indicator {
