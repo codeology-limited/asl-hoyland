@@ -16,7 +16,11 @@ const App: React.FC = () => {
     const [isPortConnected, setIsPortConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
     const [autoConnectReady, setAutoConnectReady] = useState(false);
-    const connectButtonRef = useRef<HTMLButtonElement | null>(null);
+    const handleConnectButtonRef = useCallback((node: HTMLButtonElement | null) => {
+        if (node) {
+            setAutoConnectReady(true);
+        }
+    }, []);
 
     // one-time DB preload (no wiping custom programs)
     const didInit = useRef(false);
@@ -60,6 +64,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         if (!hoylandController) return;
+        if (!autoConnectReady) return;
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
@@ -75,25 +80,6 @@ const App: React.FC = () => {
             window.clearTimeout(handle);
         };
     }, [hoylandController, updateConnectionState, autoConnectReady]);
-
-    useEffect(() => {
-        if (autoConnectReady) return;
-        let frame = 0;
-        const checkVisibility = () => {
-            if (connectButtonRef.current) {
-                const rect = connectButtonRef.current.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) {
-                    setAutoConnectReady(true);
-                    return;
-                }
-            }
-            frame = window.requestAnimationFrame(checkVisibility);
-        };
-        frame = window.requestAnimationFrame(checkVisibility);
-        return () => {
-            window.cancelAnimationFrame(frame);
-        };
-    }, [autoConnectReady]);
 
     // editor callbacks (ProgramEditor already saves to DB; we just ack)
     const handleSave = async (
@@ -216,7 +202,7 @@ const App: React.FC = () => {
 
                     <div id="console">
                         <button
-                            ref={connectButtonRef}
+                            ref={handleConnectButtonRef}
                             className={portLabel === "Not Connected" ? "sparkly-border" : ""}
                             onClick={() => {
                                 void updateConnectionState();
@@ -242,7 +228,7 @@ const App: React.FC = () => {
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>
-                    <span className="footer__version">v1.5.7.3</span>
+                    <span className="footer__version">v1.5.7.2</span>
                 </footer>
             </div>
         </Router>

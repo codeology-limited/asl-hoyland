@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
-import ProgramSelect from "./ProgramSelect.tsx";
+import ProgramSelect, { ProgramOption } from "./ProgramSelect.tsx";
 
 interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -22,7 +22,7 @@ interface State {
     totalSteps: number;
     intensity: number;
     selectedProgram: string;
-    programNames: string[];
+    programOptions: ProgramOption[];
     isPaused: boolean;
     isStopping: boolean;
     isConnected: boolean;
@@ -34,7 +34,7 @@ const initialState: State = {
     totalSteps: 0,
     intensity: 5,
     selectedProgram: '',
-    programNames: [],
+    programOptions: [],
     isPaused: false,
     isStopping: false,
     isConnected: false,
@@ -42,7 +42,7 @@ const initialState: State = {
 
 type Action =
     | { type: 'SET_PROGRESS'; currentStep: number; totalSteps: number; currentFrequency: number }
-    | { type: 'SET_PROGRAM_NAMES'; names: string[] }
+    | { type: 'SET_PROGRAM_OPTIONS'; options: ProgramOption[] }
     | { type: 'SET_INTENSITY'; intensity: number }
     | { type: 'SET_CONNECTED'; isConnected: boolean }
     | { type: 'SET_SELECTED_PROGRAM'; selectedProgram: string }
@@ -59,8 +59,8 @@ const reducer = (state: State, action: Action): State => {
                 totalSteps: action.totalSteps,
                 currentFrequency: action.currentFrequency,
             };
-        case 'SET_PROGRAM_NAMES':
-            return { ...state, programNames: action.names };
+        case 'SET_PROGRAM_OPTIONS':
+            return { ...state, programOptions: action.options };
         case 'SET_INTENSITY':
             return { ...state, intensity: action.intensity };
         case 'SET_CONNECTED':
@@ -74,7 +74,7 @@ const reducer = (state: State, action: Action): State => {
         case 'RESET':
             return {
                 ...initialState,
-                programNames: state.programNames,
+                programOptions: state.programOptions,
                 selectedProgram: state.selectedProgram,
                 isConnected: state.isConnected,
             };
@@ -100,8 +100,11 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         const loadCustomPrograms = async () => {
             try {
                 const programs = await appDatabase.getCustomPrograms();
-                const names = programs.map((program) => program.name);
-                dispatch({ type: 'SET_PROGRAM_NAMES', names });
+                const options = programs.map((program) => ({
+                    name: program.name,
+                    durationMinutes: program.maxTimeInMinutes,
+                }));
+                dispatch({ type: 'SET_PROGRAM_OPTIONS', options });
             } catch (error) {
                 console.error('Failed to load custom programs:', error);
             }
@@ -198,7 +201,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', selectedProgram: e.target.value})}
                 >
                     <ProgramSelect
-                        programNames={state.programNames}
+                        programOptions={state.programOptions}
                     />
                 </select>
 

@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect, useRef, useCallback, useState } from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
-import ProgramSelect from './ProgramSelect.tsx';
+import ProgramSelect, { ProgramOption } from './ProgramSelect.tsx';
 import type { ProgramRow } from '../util/AppDatabase';
 
 interface DefaultProgramsProps {
@@ -22,7 +22,7 @@ interface State {
     totalSteps: number;
     intensity: number;
     selectedProgram: string;
-    programNames: string[];
+    programOptions: ProgramOption[];
     isPaused: boolean;
     isStopping: boolean;
     intensity_step: number;
@@ -36,7 +36,7 @@ type Action =
     | { type: 'SET_TOTAL_STEPS'; payload: number }
     | { type: 'SET_INTENSITY'; payload: number }
     | { type: 'SET_SELECTED_PROGRAM'; payload: string }
-    | { type: 'SET_PROGRAM_NAMES'; payload: string[] }
+    | { type: 'SET_PROGRAM_OPTIONS'; payload: ProgramOption[] }
     | { type: 'SET_IS_PAUSED'; payload: boolean }
     | { type: 'SET_IS_STOPPING'; payload: boolean }
     | { type: 'SET_BOUNDS_AND_INTENSITY'; payload: { min: number; max: number; step: number; intensity: number } }
@@ -48,7 +48,7 @@ const initialState: State = {
     totalSteps: 0,
     intensity: 1,
     selectedProgram: '',
-    programNames: [],
+    programOptions: [],
     isPaused: false,
     isStopping: false,
     intensity_step: 1,
@@ -111,8 +111,8 @@ function reducer(state: State, action: Action): State {
             return { ...state, intensity: action.payload };
         case 'SET_SELECTED_PROGRAM':
             return { ...state, selectedProgram: action.payload };
-        case 'SET_PROGRAM_NAMES':
-            return { ...state, programNames: action.payload };
+        case 'SET_PROGRAM_OPTIONS':
+            return { ...state, programOptions: action.payload };
         case 'SET_IS_PAUSED':
             return { ...state, isPaused: action.payload };
         case 'SET_IS_STOPPING':
@@ -128,7 +128,7 @@ function reducer(state: State, action: Action): State {
         case 'RESET_UI':
             return {
                 ...initialState,
-                programNames: state.programNames, // retain loaded programme names
+                programOptions: state.programOptions, // retain loaded programme names
                 selectedProgram: state.selectedProgram, // keep last-run selected programme visible
             };
         default:
@@ -149,8 +149,11 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         try {
             await appDatabase.ensurePreloaded();
             const programs = await appDatabase.getDefaultPrograms();
-            const names = programs.map((program) => program.name);
-            dispatch({ type: 'SET_PROGRAM_NAMES', payload: names });
+            const options: ProgramOption[] = programs.map((program) => ({
+                name: program.name,
+                durationMinutes: num(program.maxTimeInMinutes, 0),
+            }));
+            dispatch({ type: 'SET_PROGRAM_OPTIONS', payload: options });
         } catch (error) {
             console.error('Failed to load default programs:', error);
         }
@@ -162,11 +165,11 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     // Optional: default-select first programme once names load
     useEffect(() => {
-        if (state.programNames.length && !state.selectedProgram) {
-            const first = state.programNames[0];
+        if (state.programOptions.length && !state.selectedProgram) {
+            const first = state.programOptions[0]?.name;
             if (first) dispatch({ type: 'SET_SELECTED_PROGRAM', payload: first });
         }
-    }, [state.programNames, state.selectedProgram]);
+    }, [state.programOptions, state.selectedProgram]);
 
     useEffect(() => {
         console.log('runningFrequency updated:', runningFrequency);
@@ -326,7 +329,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     value={state.selectedProgram}
                     onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
                 >
-                    <ProgramSelect programNames={state.programNames} />
+                    <ProgramSelect programOptions={state.programOptions} />
                 </select>
 
                 <button

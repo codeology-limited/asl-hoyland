@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProgramSelect from '../ProgramSelect';
+import ProgramSelect, { ProgramOption } from '../ProgramSelect';
 
 describe('CustomPrograms/ProgramSelect', () => {
   it('renders nothing when programNames is empty', () => {
     const { container } = render(
       <select>
-        <ProgramSelect programNames={[]} />
+        <ProgramSelect programOptions={[]} />
       </select>
     );
     const options = container.querySelectorAll('option');
@@ -16,7 +16,7 @@ describe('CustomPrograms/ProgramSelect', () => {
   it('renders nothing when programNames is null/undefined', () => {
     const { container } = render(
       <select>
-        <ProgramSelect programNames={null as any} />
+        <ProgramSelect programOptions={null as any} />
       </select>
     );
     const options = container.querySelectorAll('option');
@@ -26,7 +26,7 @@ describe('CustomPrograms/ProgramSelect', () => {
   it('renders disabled "Choose Custom" option', () => {
     render(
       <select>
-        <ProgramSelect programNames={['Custom1']} />
+        <ProgramSelect programOptions={[{ name: 'Custom1', durationMinutes: 120 }]} />
       </select>
     );
     const chooseOption = screen.getByText(/Choose Custom/);
@@ -35,23 +35,30 @@ describe('CustomPrograms/ProgramSelect', () => {
   });
 
   it('renders all custom program names as options', () => {
-    const programs = ['MyProgram1', 'MyProgram2', 'MyProgram3'];
+    const programs: ProgramOption[] = [
+      { name: 'MyProgram1', durationMinutes: 60 },
+      { name: 'MyProgram2', durationMinutes: 30 },
+      { name: 'MyProgram3', durationMinutes: 45 },
+    ];
     render(
       <select>
-        <ProgramSelect programNames={programs} />
+        <ProgramSelect programOptions={programs} />
       </select>
     );
 
-    programs.forEach(name => {
-      expect(screen.getByText(name)).toBeInTheDocument();
+    programs.forEach(({ name, durationMinutes }) => {
+      expect(screen.getByText(`${name} (${Math.round(durationMinutes)}m)`)).toBeInTheDocument();
     });
   });
 
   it('sets value attribute correctly for each option', () => {
-    const programs = ['custom1', 'custom2'];
+    const programs: ProgramOption[] = [
+      { name: 'custom1', durationMinutes: 15 },
+      { name: 'custom2', durationMinutes: 20 },
+    ];
     const { container } = render(
       <select>
-        <ProgramSelect programNames={programs} />
+        <ProgramSelect programOptions={programs} />
       </select>
     );
 

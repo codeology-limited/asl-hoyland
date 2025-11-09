@@ -10,7 +10,7 @@ export interface ProgramRow {
   range: DBBool;                // stored as 0/1
   data: { channel: number; frequency: number | string; runTime: number }[];
   maxTimeInMinutes: number;
-  default: DBBool;              // stored as 0/1
+  default: DBBool | boolean;              // stored as 0/1
   startFrequency: number;
 
   // NEW optional props (persisted)
@@ -159,7 +159,11 @@ export default class AppDatabase extends Dexie {
 
     this._preloadInFlight = (async () => {
       try {
-        const res = await fetch('/defaultPrograms.json');
+        const base = typeof window !== 'undefined' && window.location?.origin
+            ? window.location.origin
+            : 'http://localhost';
+        const defaultProgramsUrl = new URL('/defaultPrograms.json', base).toString();
+        const res = await fetch(defaultProgramsUrl);
         const defaults = (await res.json()) as Record<string, unknown>;
 
         await this.transaction('rw', this.programs, async () => {
@@ -371,7 +375,7 @@ export default class AppDatabase extends Dexie {
     try {
       await this.ensurePreloaded();
       const rows = await this.programs.where('default').equals(0).toArray();
-      return rows;
+      return rows.map((row) => ({ ...row, default: !!row.default }));
     } catch (err) {
       console.error('Failed to get custom programs:', err);
       throw err;

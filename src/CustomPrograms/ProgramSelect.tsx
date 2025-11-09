@@ -1,19 +1,32 @@
 import React from 'react';
 
-interface ProgramSelectProps {
-    programNames: string[];
+export interface ProgramOption {
+    name: string;
+    durationMinutes?: number;
 }
 
-const ProgramSelect: React.FC<ProgramSelectProps> = ({ programNames }) => {
-    if (!programNames || programNames.length === 0) {
-        return null; // Don't render anything if no programs are available
+interface ProgramSelectProps {
+    programOptions: ProgramOption[];
+    chooseLabel?: string;
+}
+
+const formatDuration = (minutes?: number) => {
+    const minutesRounded = Number.isFinite(minutes ?? NaN) ? Math.round(minutes!) : 0;
+    return `${minutesRounded}m`;
+};
+
+const ProgramSelect: React.FC<ProgramSelectProps> = ({ programOptions, chooseLabel = 'Choose Custom' }) => {
+    if (!programOptions || programOptions.length === 0) {
+        return null;
     }
 
     return (
         <>
-            <option value="" disabled>Choose Custom&nbsp;&nbsp;&nbsp;&nbsp;</option>
-            {programNames.map((name) => (
-                <option key={name} value={name}>{name}</option>
+            <option value="" disabled>{chooseLabel}&nbsp;&nbsp;&nbsp;&nbsp;</option>
+            {programOptions.map(({ name, durationMinutes }) => (
+                <option key={name} value={name}>
+                    {name} ({formatDuration(durationMinutes)})
+                </option>
             ))}
         </>
     );

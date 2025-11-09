@@ -34,12 +34,15 @@ export default class ProgramRunner {
     private onProgress: ProgressCallback | null;
     private onStop: (() => void) | null = null;
 
+    private readonly amplitudeSupportsChannel: boolean;
+
     constructor(
         private db: AppDatabase,
         private gen: HoylandController,
         progressCallback: ProgressCallback | null = null
     ) {
         this.onProgress = progressCallback;
+        this.amplitudeSupportsChannel = (this.gen.setAmplitude.length ?? 0) > 1;
     }
 
     async loadProgram(name: string): Promise<ProgramRow | null> {
@@ -54,7 +57,11 @@ export default class ProgramRunner {
         if (!Number.isFinite(amp)) return;
         // HoylandController.setAmplitude supports (amp) and (channel, amp)
         // Prefer the explicit channel version
-        await this.gen.setAmplitude(channel, amp);
+        if (this.amplitudeSupportsChannel) {
+            await this.gen.setAmplitude(channel, amp);
+        } else {
+            await this.gen.setAmplitude(amp);
+        }
     }
 
     /**
@@ -192,7 +199,8 @@ export default class ProgramRunner {
 
             // Apply amplitude and initial frequency BEFORE enabling outputs
             await this.applyCurrentIntensity(program);
-            if (initialHz != null && Number.isFinite(initialHz)) {
+            const shouldPrimeFrequency = initialHz != null && Number.isFinite(initialHz) && program.data.length === 0;
+            if (shouldPrimeFrequency) {
                 await this.gen.setFrequency(1, initialHz);
                 setRunningFrequency(`${initialHz} Hz`);
             }

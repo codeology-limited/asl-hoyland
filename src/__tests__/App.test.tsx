@@ -15,6 +15,10 @@ describe('App', () => {
     vi.clearAllMocks();
   });
 
+  beforeEach(() => {
+    window.history.pushState({}, '', '/');
+  });
+
   it('renders the app with header', async () => {
     render(<App />);
 
@@ -47,9 +51,12 @@ describe('App', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Copyright.*2024.*Altered States Limited/i)).toBeInTheDocument();
-      expect(screen.getByText(/v1\.5\.7\.2/i)).toBeInTheDocument();
-    });
+    expect(screen.getByText(/Copyright.*2024.*Altered States Limited/i)).toBeInTheDocument();
+    const versionSpan = screen.getByText((content, element) =>
+      element?.classList?.contains('footer__version') && content.includes('v1.5.7.2')
+    );
+    expect(versionSpan).toBeInTheDocument();
+  });
   });
 
   it('renders UI immediately without blocking', () => {
@@ -145,11 +152,14 @@ describe('App', () => {
       expect(dropdown).not.toBeDisabled();
     });
 
+    const defaultPrograms = await waitFor(() => {
+      const el = document.querySelector('.default-programs');
+      if (!el) throw new Error('Default programs container not found');
+      return el;
+    });
+    const startButton = defaultPrograms.querySelector<HTMLButtonElement>('button.start');
+    if (!startButton) throw new Error('Start button not found within default programs');
     await waitFor(() => {
-      const startButton = container.querySelector<HTMLButtonElement>('.default-programs button.start');
-      if (!startButton) {
-        throw new Error('Start button not found');
-      }
       expect(startButton).not.toBeDisabled();
     });
   });
@@ -176,20 +186,22 @@ describe('App', () => {
       expect(dropdown).not.toBeDisabled();
     });
 
-    const getStartButton = () => {
-      const btn = container.querySelector<HTMLButtonElement>('.default-programs button.start');
-      if (!btn) throw new Error('Start button not found');
-      return btn;
-    };
+    const defaultPrograms = await waitFor(() => {
+      const el = document.querySelector('.default-programs');
+      if (!el) throw new Error('Default programs container not found');
+      return el;
+    });
+    const startButton = defaultPrograms.querySelector<HTMLButtonElement>('button.start');
+    if (!startButton) throw new Error('Start button not found within default programs');
     await waitFor(() => {
-      expect(getStartButton()).not.toBeDisabled();
+      expect(startButton).not.toBeDisabled();
     });
 
     const reconnectButton = await screen.findByRole('button', { name: /Reconnect/i });
     await user.click(reconnectButton);
 
     expect(dropdown).toBeDisabled();
-    expect(getStartButton()).toBeDisabled();
+    expect(startButton).toBeDisabled();
 
     resolveReconnect?.('TEST');
 
@@ -197,7 +209,7 @@ describe('App', () => {
       expect(dropdown).not.toBeDisabled();
     });
     await waitFor(() => {
-      expect(getStartButton()).not.toBeDisabled();
+      expect(startButton).not.toBeDisabled();
     });
   });
 
@@ -229,16 +241,17 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    const connectButton = await screen.findByRole('button', { name: /Connect/i });
+
     await waitFor(() => {
-      const connectButton = screen.getByRole('button', { name: /Connect/i });
       expect(connectButton).not.toBeDisabled();
     });
 
-    const connectButton = screen.getByRole('button', { name: /Connect/i });
     await user.click(connectButton);
 
-    // Button should still be clickable
-    expect(connectButton).not.toBeDisabled();
+    await waitFor(() => {
+      expect(connectButton).not.toBeDisabled();
+    });
   });
 
   it('renders link to altered-states.net', async () => {
