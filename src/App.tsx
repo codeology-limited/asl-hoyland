@@ -112,8 +112,8 @@ const App: React.FC = () => {
         <Router>
             <div
                 className="container"
+                /* bezel resizing now handled purely through CSS; the ResizeObserver code is preserved below for reference:
                 ref={(el) => {
-                    // Attach a ResizeObserver to keep Tauri window 20px larger than UI
                     if (!el) return;
                     type ResizableContainer = HTMLElement & { _observerAttached?: boolean; _cleanup?: () => void };
                     const container = el as ResizableContainer;
@@ -131,15 +131,11 @@ const App: React.FC = () => {
                                     try { mod.appWindow.setSize(new mod.LogicalSize(w, h)); } catch {}
                                 }
                             };
-                            // Initial size once mounted
                             updateSize();
-                            // Observe container size changes
                             const ro = new ResizeObserver(() => updateSize());
                             ro.observe(el);
-                            // Also adjust on window resize
                             const onWin = () => updateSize();
                             window.addEventListener('resize', onWin);
-                            // Cleanup handler stored on element
                             container._cleanup = () => {
                                 try { ro.disconnect(); } catch {}
                                 window.removeEventListener('resize', onWin);
@@ -148,6 +144,7 @@ const App: React.FC = () => {
                         setup();
                     } catch {}
                 }}
+                */
             >
                 <header>
                     <h1>
