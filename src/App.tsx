@@ -43,7 +43,7 @@ const App: React.FC = () => {
                 if (isCancelled?.()) return result;
 
                 if (result === "TEST") {
-                    setPortLabel("No device found (IN TEST MODE)");
+                    setPortLabel("No device found");
                     setIsPortConnected(true);
                 } else if (result) {
                     setPortLabel(`Connected to ${result} port`);
@@ -228,7 +228,7 @@ const App: React.FC = () => {
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>
-                    <span className="footer__version">v1.5.7.2</span>
+                    <span className="footer__version">v1.5.7.3</span>
                 </footer>
             </div>
         </Router>
