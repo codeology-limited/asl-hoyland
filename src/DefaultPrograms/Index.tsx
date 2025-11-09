@@ -343,7 +343,11 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             </div>
 
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={state.progress - 1} max={state.totalSteps} />
+                <progress
+                    className="progress-bar"
+                    value={state.totalSteps > 0 ? Math.max(0, state.progress - 1) : 0}
+                    max={Math.max(state.totalSteps, 1)}
+                />
                 <label>
                     {state.totalSteps > 0
                         ? `${Math.max(0, Math.floor(((state.progress - 1) / state.totalSteps) * 100))}% complete`

@@ -216,7 +216,11 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             </div>
 
             <div className="progress-bar-wrapper">
-                <progress className="progress-bar" value={state.progress} max={state.totalSteps}></progress>
+                <progress
+                    className="progress-bar"
+                    value={Math.max(0, state.progress)}
+                    max={Math.max(state.totalSteps, 1)}
+                ></progress>
                 <label>{state.totalSteps > 0 ? `${Math.floor((state.progress / state.totalSteps) * 100)}% complete` : '0% complete'}</label>
                 <span>{state.currentFrequency > 0 ? `${convertToMinutesAndSeconds(state.currentFrequency)} remain` : null}</span>
                 <div id="intensity-display">{runningFrequency}
