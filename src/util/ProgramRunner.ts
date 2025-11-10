@@ -201,7 +201,7 @@ export default class ProgramRunner {
             await this.applyCurrentIntensity(program);
             const shouldPrimeFrequency = initialHz != null && Number.isFinite(initialHz) && program.data.length === 0;
             if (shouldPrimeFrequency) {
-                await this.gen.setFrequency(1, initialHz);
+                await this.gen.setFrequency(1, initialHz!);
                 setRunningFrequency(`${initialHz} Hz`);
             }
 

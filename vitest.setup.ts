@@ -14,8 +14,8 @@ try {
 
 const originalFetch = globalThis.fetch;
 
-globalThis.fetch = async (input: RequestInfo, init?: RequestInit) => {
-  const url = typeof input === 'string' ? input : input.url;
+globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
   if (url.includes('/defaultPrograms.json') && cachedDefaults !== null) {
     return new Response(JSON.stringify(cachedDefaults), {
       status: 200,
