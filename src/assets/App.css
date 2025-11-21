@@ -413,6 +413,37 @@ progress::-ms-fill {
     margin: 0;
 }
 
+.scanning-display {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 20px;
+    height: 20px;
+    font-size: var(--font-size-medium);
+}
+
+.scanning-label {
+    font-weight: 600;
+    color: var(--primary-font-color);
+}
+
+.scanning-port {
+    font-family: 'Courier New', monospace;
+    color: var(--button-bg-color);
+    font-weight: 500;
+    animation: pulse-text 1s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
 .connect-progress {
     flex: 1;
     display: flex;
@@ -463,6 +494,33 @@ progress::-ms-fill {
     min-width: 200px;
     margin: 0 20px;
     height: 20px;
+}
+
+.test-mode-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    margin: 10px 0;
+}
+
+.test-mode-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: var(--font-size-medium);
+    font-weight: 500;
+}
+
+.test-mode-toggle input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.test-mode-toggle span {
+    user-select: none;
 }
 
 footer {

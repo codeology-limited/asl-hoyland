@@ -8,6 +8,7 @@ interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
     isDeviceReady: boolean;
+    testMode: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -138,7 +139,7 @@ function reducer(state: State, action: Action): State {
 
 // ───────────────────────── component ─────────────────────────
 
-const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady }) => {
+const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -321,11 +322,13 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         ((state.intensity - state.intensity_min) / (state.intensity_max - state.intensity_min)) * 100
     );
 
+    const canUseControls = isDeviceReady || testMode;
+
     return (
         <div className={`${isDeviceReady ? 'connected' : 'disconnected'} tab-body default-programs`}>
             <div>
                 <select
-                    disabled={isRunning || !isDeviceReady}
+                    disabled={isRunning || !canUseControls}
                     value={state.selectedProgram}
                     onChange={(e) => dispatch({ type: 'SET_SELECTED_PROGRAM', payload: e.target.value })}
                 >
@@ -335,7 +338,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <button
                     className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                     onClick={handleStartStop}
-                    disabled={((( !isDeviceReady) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
+                    disabled={((( !canUseControls) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
                 >
                     {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                 </button>

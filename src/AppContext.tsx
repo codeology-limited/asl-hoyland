@@ -18,6 +18,8 @@ interface AppContextValue {
     programRunner: ProgramRunner;
     events: AppEvent[];
     addEvent: (event: AppEvent) => void;
+    testMode: boolean;
+    setTestMode: (enabled: boolean) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -28,6 +30,7 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [events, setEvents] = useState<AppEvent[]>([]);
+    const [testMode, setTestMode] = useState<boolean>(false);
 
     const addEvent = useCallback((event: AppEvent) => {
         setEvents((prev) => [...prev, event]);
@@ -48,8 +51,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             programRunner,
             events,
             addEvent,
+            testMode,
+            setTestMode,
         }),
-        [appDatabase, hoylandController, programRunner, events, addEvent]
+        [appDatabase, hoylandController, programRunner, events, addEvent, testMode]
     );
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

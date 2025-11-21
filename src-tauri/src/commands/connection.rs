@@ -43,6 +43,8 @@ pub fn reconnect_device(
     let mut reconnected_port = String::new();
     for port in available_ports {
         println!("Checking port: {}", port.port_name);
+        // Emit scanning event so UI can show which port is being checked
+        let _ = window.emit("scanning_port", port.port_name.clone());
         match serialport::new(&port.port_name, args.baud_rate)
             .timeout(Duration::from_millis(500))
             .data_bits(serialport::DataBits::Eight)

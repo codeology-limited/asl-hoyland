@@ -7,6 +7,7 @@ interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
     isRunning: boolean;
     isDeviceReady: boolean;
+    testMode: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -83,7 +84,7 @@ const reducer = (state: State, action: Action): State => {
     }
 };
 
-const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady }) => {
+const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -190,13 +191,13 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         runnerRef.current = null;
     };
 
-
+    const canUseControls = isDeviceReady || testMode;
 
     return (
         <div className={`${state.isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
             <div>
                 <select
-                    disabled={isRunning || !state.isConnected}
+                    disabled={isRunning || !canUseControls}
                     value={state.selectedProgram}
                     onChange={(e) => dispatch({type: 'SET_SELECTED_PROGRAM', selectedProgram: e.target.value})}
                 >
@@ -208,7 +209,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     <button
                         className={state.isStopping ? 'stopping' : isRunning ? 'stop' : 'start'}
                         onClick={handleStartStop}
-                        disabled={((( !state.isConnected) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
+                        disabled={((( !canUseControls) || (!state.selectedProgram)) && !isRunning) || state.isStopping}
                     >
                         {state.isStopping ? 'Stopping...' : isRunning ? 'Stop' : 'Start'}
                     </button>

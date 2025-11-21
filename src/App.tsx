@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
+import { listen } from "@tauri-apps/api/event";
 import "./assets/App.css";
 import DefaultPrograms from "./DefaultPrograms/Index";
 import CustomPrograms from "./CustomPrograms/Index";
@@ -9,18 +10,27 @@ import { AppProvider, useAppContext } from "./AppContext";
 import { ProgramItem } from "./types";
 
 const App: React.FC = () => {
-    const { hoylandController, appDatabase } = useAppContext();
+    const { hoylandController, appDatabase, testMode, setTestMode } = useAppContext();
 
     const [portLabel, setPortLabel] = useState<string>("Not Connected");
     const [isRunning, setIsRunning] = useState(false);
     const [isPortConnected, setIsPortConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
+    const [currentScanningPort, setCurrentScanningPort] = useState<string>("");
     const [autoConnectReady, setAutoConnectReady] = useState(false);
     const handleConnectButtonRef = useCallback((node: HTMLButtonElement | null) => {
         if (node) {
             setAutoConnectReady(true);
         }
     }, []);
+
+    // Use refs to get latest testMode values without triggering useCallback recreation
+    const testModeRef = useRef(testMode);
+    const setTestModeRef = useRef(setTestMode);
+    useEffect(() => {
+        testModeRef.current = testMode;
+        setTestModeRef.current = setTestMode;
+    }, [testMode, setTestMode]);
 
     // one-time DB preload (no wiping custom programs)
     const didInit = useRef(false);
@@ -34,20 +44,58 @@ const App: React.FC = () => {
         })();
     }, [appDatabase]);
 
+    // Listen for scanning_port events from Rust
+    useEffect(() => {
+        let unlisten: (() => void) | undefined;
+
+        (async () => {
+            try {
+                unlisten = await listen<string>('scanning_port', (event) => {
+                    console.log('Received scanning_port event:', event.payload);
+                    setCurrentScanningPort(event.payload);
+                });
+                console.log('scanning_port listener set up successfully');
+            } catch (err) {
+                console.error('Failed to setup scanning_port listener:', err);
+            }
+        })();
+
+        return () => {
+            if (unlisten) unlisten();
+        };
+    }, []);
+
+    // Debug: log when isConnecting or currentScanningPort changes
+    useEffect(() => {
+        console.log('State changed - isConnecting:', isConnecting, 'currentScanningPort:', currentScanningPort);
+    }, [isConnecting, currentScanningPort]);
+
     const updateConnectionState = useCallback(
         async (isCancelled?: () => boolean) => {
             if (!hoylandController) return null;
+            console.log('Setting isConnecting to TRUE');
             setIsConnecting(true);
+            setCurrentScanningPort(""); // Clear any previous scanning state
+
+            // Allow React to render the "Connecting..." state before starting the scan
+            await new Promise(resolve => setTimeout(resolve, 50));
+            console.log('Starting reconnectDevice()');
+
             try {
                 const result = await hoylandController.reconnectDevice();
+                console.log('reconnectDevice() result:', result);
                 if (isCancelled?.()) return result;
 
                 if (result === "TEST") {
                     setPortLabel("No device found");
-                    setIsPortConnected(true);
+                    setIsPortConnected(false); // TEST port means no real device
                 } else if (result) {
                     setPortLabel(`Connected to ${result} port`);
                     setIsPortConnected(true);
+                    // Disable test mode when a real device is connected
+                    if (testModeRef.current) {
+                        setTestModeRef.current(false);
+                    }
                 } else {
                     setPortLabel("Not Connected");
                     setIsPortConnected(false);
@@ -56,24 +104,26 @@ const App: React.FC = () => {
             } finally {
                 if (!isCancelled?.()) {
                     setIsConnecting(false);
+                    setCurrentScanningPort(""); // Clear scanning display when done
                 }
             }
         },
         [hoylandController]
     );
 
+    // Auto-connect when button becomes visible
     useEffect(() => {
         if (!hoylandController) return;
         if (!autoConnectReady) return;
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
-        // Defer auto-connect so the initial UI paint can complete first.
+        // Wait 100ms to ensure the UI is fully painted and visible before auto-connecting
         const handle = window.setTimeout(() => {
             if (!cancelled) {
                 void updateConnectionState(checkCancelled);
             }
-        }, 0);
+        }, 100);
 
         return () => {
             cancelled = true;
@@ -93,6 +143,7 @@ const App: React.FC = () => {
     };
 
     const isDeviceReady = isPortConnected && !isConnecting;
+    const showTestModeToggle = !isPortConnected && !isConnecting;
 
     return (
         <Router>
@@ -180,6 +231,7 @@ const App: React.FC = () => {
                                         setIsRunning={setIsRunning}
                                         isRunning={isRunning}
                                         isDeviceReady={isDeviceReady}
+                                        testMode={testMode}
                                     />
                                 }
                             />
@@ -190,6 +242,7 @@ const App: React.FC = () => {
                                         setIsRunning={setIsRunning}
                                         isRunning={isRunning}
                                         isDeviceReady={isDeviceReady}
+                                        testMode={testMode}
                                     />
                                 }
                             />
@@ -211,12 +264,10 @@ const App: React.FC = () => {
                         >
                             {isConnecting ? "Connecting..." : isPortConnected ? "Reconnect" : "Connect"}
                         </button>
-                        {isConnecting ? (
-                            <div className="connect-progress">
-                                <div className="connect-progress__bar">
-                                    <div className="connect-progress__fill" />
-                                </div>
-                            </div>
+                        {isConnecting && currentScanningPort ? (
+                            <p>Scanning: {currentScanningPort}</p>
+                        ) : isConnecting ? (
+                            <p>Connecting...</p>
                         ) : (
                             !!portLabel && <p>{portLabel}</p>
                         )}
@@ -225,6 +276,19 @@ const App: React.FC = () => {
                     {/* StatusIndicator expects a prop; pass null for now */}
                     <StatusIndicator status={null} />
                 </main>
+
+                {showTestModeToggle && (
+                    <div className="test-mode-toggle">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={testMode}
+                                onChange={(e) => setTestMode(e.target.checked)}
+                            />
+                            <span>Enable Test Mode</span>
+                        </label>
+                    </div>
+                )}
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>
