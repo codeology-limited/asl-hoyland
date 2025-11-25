@@ -10,6 +10,8 @@ interface DefaultProgramsProps {
     isDeviceReady: boolean;
     testMode: boolean;
     isUltrasoundOnly: boolean;
+    setChannel1Active: (active: boolean) => void;
+    setChannel2Active: (active: boolean) => void;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -131,7 +133,7 @@ function reducer(state: State, action: Action): State {
             return {
                 ...initialState,
                 programOptions: state.programOptions, // retain loaded programme names
-                selectedProgram: state.selectedProgram, // keep last-run selected programme visible
+                selectedProgram: '', // reset to "Choose" option when program stops
             };
         default:
             return state;
@@ -140,7 +142,7 @@ function reducer(state: State, action: Action): State {
 
 // ───────────────────────── component ─────────────────────────
 
-const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly }) => {
+const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -164,6 +166,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 durationMinutes: num(program.maxTimeInMinutes, 0),
             }));
             dispatch({ type: 'SET_PROGRAM_OPTIONS', payload: options });
+            // Reset selected program when ultrasound filter changes
+            dispatch({ type: 'SET_SELECTED_PROGRAM', payload: '' });
         } catch (error) {
             console.error('Failed to load default programs:', error);
         }
@@ -173,13 +177,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         loadDefaultPrograms();
     }, [loadDefaultPrograms]);
 
-    // Optional: default-select first programme once names load
-    useEffect(() => {
-        if (state.programOptions.length && !state.selectedProgram) {
-            const first = state.programOptions[0]?.name;
-            if (first) dispatch({ type: 'SET_SELECTED_PROGRAM', payload: first });
-        }
-    }, [state.programOptions, state.selectedProgram]);
 
     useEffect(() => {
         console.log('runningFrequency updated:', runningFrequency);
@@ -271,6 +268,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 dispatch({ type: 'SET_IS_STOPPING', payload: true });
                 await runnerRef.current?.stopProgram();
                 dispatch({ type: 'SET_TIME_REMAINING', payload: 0 });
+                setChannel1Active(false);
+                setChannel2Active(false);
                 resetUI();
             } else {
                 if (!state.selectedProgram) {
@@ -282,7 +281,9 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
                 setIsRunning(true);
                 await runnerRef.current.initializeChannel1();
+                setChannel1Active(true);
                 await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
+                setChannel2Active(true);
                 await runnerRef.current.initializeChannel0();
 
                 // Send the current UI intensity to hardware now (explicit)
@@ -312,6 +313,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const resetUI = () => {
         dispatch({ type: 'RESET_UI' });
         setIsRunning(false);
+        setChannel1Active(false);
+        setChannel2Active(false);
         runnerRef.current = null;
     };
 

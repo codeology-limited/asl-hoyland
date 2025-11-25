@@ -9,6 +9,8 @@ interface CustomProgramsProps {
     isDeviceReady: boolean;
     testMode: boolean;
     isUltrasoundOnly: boolean;
+    setChannel1Active: (active: boolean) => void;
+    setChannel2Active: (active: boolean) => void;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -77,7 +79,7 @@ const reducer = (state: State, action: Action): State => {
             return {
                 ...initialState,
                 programOptions: state.programOptions,
-                selectedProgram: state.selectedProgram,
+                selectedProgram: '',
                 isConnected: state.isConnected,
             };
         default:
@@ -85,7 +87,7 @@ const reducer = (state: State, action: Action): State => {
     }
 };
 
-const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly }) => {
+const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -115,6 +117,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                     durationMinutes: program.maxTimeInMinutes,
                 }));
                 dispatch({ type: 'SET_PROGRAM_OPTIONS', options });
+                // Reset selected program when ultrasound filter changes
+                dispatch({ type: 'SET_SELECTED_PROGRAM', selectedProgram: '' });
             } catch (error) {
                 console.error('Failed to load custom programs:', error);
             }
@@ -165,6 +169,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         if (isRunning) {
             dispatch({ type: 'START_STOPPING' });
             await runnerRef.current?.stopProgram();
+            setChannel1Active(false);
+            setChannel2Active(false);
             resetUI();
         } else {
             if (state.selectedProgram) {
@@ -172,7 +178,9 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 if (runnerRef.current) {
                     setIsRunning(true);
                     await runnerRef.current.initializeChannel1();
+                    setChannel1Active(true);
                     await runnerRef.current.initializeChannel0();
+                    setChannel2Active(true);
                     dispatch({ type: 'SET_INTENSITY', intensity: 20 });
                     await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
                     resetUI();
@@ -196,6 +204,8 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     // Reset the UI and state
     const resetUI = () => {
         setIsRunning(false);
+        setChannel1Active(false);
+        setChannel2Active(false);
         dispatch({ type: 'RESET' });
         runnerRef.current = null;
     };

@@ -19,6 +19,8 @@ const App: React.FC = () => {
     const [currentScanningPort, setCurrentScanningPort] = useState<string>("");
     const [autoConnectReady, setAutoConnectReady] = useState(false);
     const [isUltrasoundConnected, setIsUltrasoundConnected] = useState(false);
+    const [channel1Active, setChannel1Active] = useState(false);
+    const [channel2Active, setChannel2Active] = useState(false);
     const cancelScanRef = useRef<(() => void) | null>(null);
     const handleConnectButtonRef = useCallback((node: HTMLButtonElement | null) => {
         if (node) {
@@ -278,6 +280,8 @@ const App: React.FC = () => {
                                         isDeviceReady={isDeviceReady}
                                         testMode={testMode}
                                         isUltrasoundOnly={isUltrasoundConnected}
+                                        setChannel1Active={setChannel1Active}
+                                        setChannel2Active={setChannel2Active}
                                     />
                                 }
                             />
@@ -290,6 +294,8 @@ const App: React.FC = () => {
                                         isDeviceReady={isDeviceReady}
                                         testMode={testMode}
                                         isUltrasoundOnly={isUltrasoundConnected}
+                                        setChannel1Active={setChannel1Active}
+                                        setChannel2Active={setChannel2Active}
                                     />
                                 }
                             />
@@ -317,6 +323,16 @@ const App: React.FC = () => {
                         ) : (
                             !!portLabel && <p>{portLabel}</p>
                         )}
+                        <div className="channel-indicators">
+                            <div className="channel-indicator">
+                                <span className="channel-label">CH1</span>
+                                <div className={`led ${channel1Active ? 'active' : ''}`}></div>
+                            </div>
+                            <div className="channel-indicator">
+                                <span className="channel-label">CH2</span>
+                                <div className={`led ${channel2Active ? 'active' : ''}`}></div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* StatusIndicator expects a prop; pass null for now */}
