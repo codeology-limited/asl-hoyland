@@ -8,6 +8,7 @@ interface CustomProgramsProps {
     isRunning: boolean;
     isDeviceReady: boolean;
     testMode: boolean;
+    isUltrasoundOnly: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -84,7 +85,7 @@ const reducer = (state: State, action: Action): State => {
     }
 };
 
-const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode }) => {
+const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -100,7 +101,15 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     useEffect(() => {
         const loadCustomPrograms = async () => {
             try {
-                const programs = await appDatabase.getCustomPrograms();
+                let programs = await appDatabase.getCustomPrograms();
+
+                // Filter for ultrasound programs if checkbox is ticked
+                if (isUltrasoundOnly) {
+                    programs = programs.filter((program) =>
+                        program.name.toLowerCase().startsWith('ultra')
+                    );
+                }
+
                 const options = programs.map((program) => ({
                     name: program.name,
                     durationMinutes: program.maxTimeInMinutes,
@@ -114,7 +123,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         if (appDatabase) {
             loadCustomPrograms();
         }
-    }, [appDatabase]);
+    }, [appDatabase, isUltrasoundOnly]);
 
     // Memoize the handleProgressUpdate to avoid unnecessary re-renders
     const handleProgressUpdate = useCallback((currentStep: number, totalSteps: number, currentF: number) => {

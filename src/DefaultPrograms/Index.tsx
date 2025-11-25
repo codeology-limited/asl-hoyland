@@ -9,6 +9,7 @@ interface DefaultProgramsProps {
     isRunning: boolean;
     isDeviceReady: boolean;
     testMode: boolean;
+    isUltrasoundOnly: boolean;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -139,7 +140,7 @@ function reducer(state: State, action: Action): State {
 
 // ───────────────────────── component ─────────────────────────
 
-const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode }) => {
+const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -149,7 +150,15 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const loadDefaultPrograms = useCallback(async () => {
         try {
             await appDatabase.ensurePreloaded();
-            const programs = await appDatabase.getDefaultPrograms();
+            let programs = await appDatabase.getDefaultPrograms();
+
+            // Filter for ultrasound programs if checkbox is ticked
+            if (isUltrasoundOnly) {
+                programs = programs.filter((program) =>
+                    program.name.toLowerCase().startsWith('ultra')
+                );
+            }
+
             const options: ProgramOption[] = programs.map((program) => ({
                 name: program.name,
                 durationMinutes: num(program.maxTimeInMinutes, 0),
@@ -158,7 +167,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         } catch (error) {
             console.error('Failed to load default programs:', error);
         }
-    }, [appDatabase]);
+    }, [appDatabase, isUltrasoundOnly]);
 
     useEffect(() => {
         loadDefaultPrograms();

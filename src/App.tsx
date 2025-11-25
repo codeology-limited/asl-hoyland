@@ -18,6 +18,8 @@ const App: React.FC = () => {
     const [isConnecting, setIsConnecting] = useState(false);
     const [currentScanningPort, setCurrentScanningPort] = useState<string>("");
     const [autoConnectReady, setAutoConnectReady] = useState(false);
+    const [isUltrasoundConnected, setIsUltrasoundConnected] = useState(false);
+    const cancelScanRef = useRef<(() => void) | null>(null);
     const handleConnectButtonRef = useCallback((node: HTMLButtonElement | null) => {
         if (node) {
             setAutoConnectReady(true);
@@ -84,7 +86,15 @@ const App: React.FC = () => {
             try {
                 const result = await hoylandController.reconnectDevice();
                 console.log('reconnectDevice() result:', result);
-                if (isCancelled?.()) return result;
+                if (isCancelled?.()) {
+                    // Scanning was cancelled, set to "No device found" state
+                    setPortLabel("No device found");
+                    setIsPortConnected(false);
+                    setIsConnecting(false);
+                    setCurrentScanningPort("");
+                    cancelScanRef.current = null;
+                    return result;
+                }
 
                 if (result === "TEST") {
                     setPortLabel("No device found");
@@ -106,6 +116,7 @@ const App: React.FC = () => {
                     setIsConnecting(false);
                     setCurrentScanningPort(""); // Clear scanning display when done
                 }
+                cancelScanRef.current = null;
             }
         },
         [hoylandController]
@@ -118,6 +129,11 @@ const App: React.FC = () => {
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
+        // Store the cancel function in the ref
+        cancelScanRef.current = () => {
+            cancelled = true;
+        };
+
         // Wait 100ms to ensure the UI is fully painted and visible before auto-connecting
         const handle = window.setTimeout(() => {
             if (!cancelled) {
@@ -128,8 +144,22 @@ const App: React.FC = () => {
         return () => {
             cancelled = true;
             window.clearTimeout(handle);
+            cancelScanRef.current = null;
         };
     }, [hoylandController, updateConnectionState, autoConnectReady]);
+
+    // Handle manual connect button click
+    const handleConnectClick = useCallback(() => {
+        let cancelled = false;
+        const checkCancelled = () => cancelled;
+
+        // Store the cancel function in the ref
+        cancelScanRef.current = () => {
+            cancelled = true;
+        };
+
+        void updateConnectionState(checkCancelled);
+    }, [updateConnectionState]);
 
     // editor callbacks (ProgramEditor already saves to DB; we just ack)
     const handleSave = async (
@@ -141,6 +171,21 @@ const App: React.FC = () => {
         console.log("[Editor] Saved:", programName);
         alert("Program saved successfully!");
     };
+
+    // ESC key handler to cancel scanning
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isConnecting && cancelScanRef.current) {
+                console.log('ESC pressed - cancelling device scan');
+                cancelScanRef.current();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isConnecting]);
 
     const isDeviceReady = isPortConnected && !isConnecting;
     const showTestModeToggle = !isPortConnected && !isConnecting;
@@ -232,6 +277,7 @@ const App: React.FC = () => {
                                         isRunning={isRunning}
                                         isDeviceReady={isDeviceReady}
                                         testMode={testMode}
+                                        isUltrasoundOnly={isUltrasoundConnected}
                                     />
                                 }
                             />
@@ -243,12 +289,14 @@ const App: React.FC = () => {
                                         isRunning={isRunning}
                                         isDeviceReady={isDeviceReady}
                                         testMode={testMode}
+                                        isUltrasoundOnly={isUltrasoundConnected}
                                     />
                                 }
                             />
                             <Route
                                 path="/editor"
-                                element={<ProgramEditor onSave={handleSave} onCancel={() => {}} />}
+                                element={<ProgramEditor onSave={handleSave} onCancel={() => {
+                                }}/>}
                             />
                         </Routes>
                     </div>
@@ -257,9 +305,7 @@ const App: React.FC = () => {
                         <button
                             ref={handleConnectButtonRef}
                             className={portLabel === "Not Connected" ? "sparkly-border" : ""}
-                            onClick={() => {
-                                void updateConnectionState();
-                            }}
+                            onClick={handleConnectClick}
                             disabled={isRunning || isConnecting}
                         >
                             {isConnecting ? "Connecting..." : isPortConnected ? "Reconnect" : "Connect"}
@@ -274,7 +320,21 @@ const App: React.FC = () => {
                     </div>
 
                     {/* StatusIndicator expects a prop; pass null for now */}
-                    <StatusIndicator status={null} />
+                    <StatusIndicator status={null}/>
+
+                    <div className="ultrasound-connection-toggle">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={isUltrasoundConnected}
+                                onChange={(e) => setIsUltrasoundConnected(e.target.checked)}
+                            />
+                            <span className={isUltrasoundConnected ? "connected" : ""}>
+                            Ultrasound device connected
+                        </span>
+                        </label>
+                    </div>
+
                 </main>
 
                 {showTestModeToggle && (
@@ -289,6 +349,7 @@ const App: React.FC = () => {
                         </label>
                     </div>
                 )}
+
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>

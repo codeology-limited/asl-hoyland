@@ -523,6 +523,43 @@ progress::-ms-fill {
     user-select: none;
 }
 
+.ultrasound-connection-toggle {
+    display: flex;
+    justify-content:  flex-start;
+    align-items: center;
+    padding: 10px 0;
+
+
+    width:1080px;
+    height: 40px;
+    margin: 0 auto;
+}
+
+.ultrasound-connection-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: var(--font-size-large);
+    font-weight: 500;
+}
+
+.ultrasound-connection-toggle input[type="checkbox"] {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.ultrasound-connection-toggle span {
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.ultrasound-connection-toggle span.connected {
+    color: red;
+    font-weight: 500;
+}
+
 footer {
     z-index: 1000;
     width: 100%;
