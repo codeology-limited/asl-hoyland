@@ -126,8 +126,16 @@ const App: React.FC = () => {
 
     // Auto-connect when button becomes visible
     useEffect(() => {
-        if (!hoylandController) return;
-        if (!autoConnectReady) return;
+        console.log('[AUTO-CONNECT] Effect triggered - hoylandController:', !!hoylandController, 'autoConnectReady:', autoConnectReady);
+        if (!hoylandController) {
+            console.log('[AUTO-CONNECT] No hoylandController, returning');
+            return;
+        }
+        if (!autoConnectReady) {
+            console.log('[AUTO-CONNECT] autoConnectReady is false, returning');
+            return;
+        }
+        console.log('[AUTO-CONNECT] Starting auto-connect...');
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
@@ -139,6 +147,7 @@ const App: React.FC = () => {
         // Wait 100ms to ensure the UI is fully painted and visible before auto-connecting
         const handle = window.setTimeout(() => {
             if (!cancelled) {
+                console.log('[AUTO-CONNECT] Calling updateConnectionState');
                 void updateConnectionState(checkCancelled);
             }
         }, 100);
@@ -152,6 +161,7 @@ const App: React.FC = () => {
 
     // Handle manual connect button click
     const handleConnectClick = useCallback(() => {
+        console.log('[MANUAL CONNECT] Button clicked');
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
@@ -160,6 +170,7 @@ const App: React.FC = () => {
             cancelled = true;
         };
 
+        console.log('[MANUAL CONNECT] Calling updateConnectionState');
         void updateConnectionState(checkCancelled);
     }, [updateConnectionState]);
 
