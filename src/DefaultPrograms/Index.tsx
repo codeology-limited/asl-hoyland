@@ -142,6 +142,8 @@ function reducer(state: State, action: Action): State {
 
 // ───────────────────────── component ─────────────────────────
 
+import ConfirmModal from '../components/ConfirmModal';
+
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
@@ -154,12 +156,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             await appDatabase.ensurePreloaded();
             let programs = await appDatabase.getDefaultPrograms();
 
-            // Filter for ultrasound programs if checkbox is ticked
-            if (isUltrasoundOnly) {
-                programs = programs.filter((program) =>
-                    program.name.toLowerCase().startsWith('ultra')
-                );
-            }
+            // Filter based on ultrasound checkbox
+            const isUltra = (n: string) => {
+                const s = (n || '').trim().toLowerCase();
+                return s.startsWith('ultra') || s === 'ultrasound';
+            };
+            programs = programs.filter(p => (isUltrasoundOnly ? isUltra(p.name) : !isUltra(p.name)));
 
             const options: ProgramOption[] = programs.map((program) => ({
                 name: program.name,
@@ -262,6 +264,24 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         applyProgramSlider();
     }, [state.selectedProgram, appDatabase]);
 
+    const [showConfirm, setShowConfirm] = useState(false);
+    const pendingStartRef = useRef(false);
+
+    const doStart = async () => {
+        await loadProgram(state.selectedProgram);
+        if (!runnerRef.current) return;
+
+        setIsRunning(true);
+        await runnerRef.current.initializeChannel1();
+        setChannel1Active(true);
+        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
+        setChannel2Active(true);
+        await runnerRef.current.initializeChannel0();
+
+        await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
+        await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
+    };
+
     const handleStartStop = async () => {
         try {
             if (isRunning) {
@@ -276,20 +296,13 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                     alert('Please select a program');
                     return;
                 }
-                await loadProgram(state.selectedProgram);
-                if (!runnerRef.current) return;
-
-                setIsRunning(true);
-                await runnerRef.current.initializeChannel1();
-                setChannel1Active(true);
-                await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
-                setChannel2Active(true);
-                await runnerRef.current.initializeChannel0();
-
-                // Send the current UI intensity to hardware now (explicit)
-                await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
-
-                await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
+                // If ultrasound device is NOT connected, confirm every time before starting
+                if (!isUltrasoundOnly) {
+                    pendingStartRef.current = true;
+                    setShowConfirm(true);
+                    return;
+                }
+                await doStart();
             }
         } catch (error) {
             console.error('Error in handleStartStop:', error);
@@ -337,6 +350,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const canUseControls = isDeviceReady || testMode;
 
     return (
+        <>
         <div className={`${isDeviceReady ? 'connected' : 'disconnected'} tab-body default-programs`}>
             <div>
                 <select
@@ -412,6 +426,22 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 />
             </div>
         </div>
+        <ConfirmModal
+            open={showConfirm}
+            title="Is Ultrasound device disconnected"
+            onYes={async () => {
+                setShowConfirm(false);
+                if (pendingStartRef.current) {
+                    pendingStartRef.current = false;
+                    await doStart();
+                }
+            }}
+            onNo={() => {
+                pendingStartRef.current = false;
+                setShowConfirm(false);
+            }}
+        />
+        </>
     );
 };
 

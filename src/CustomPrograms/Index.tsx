@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 import ProgramSelect, { ProgramOption } from "./ProgramSelect.tsx";
+import ConfirmModal from '../components/ConfirmModal';
 
 interface CustomProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -105,12 +106,12 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             try {
                 let programs = await appDatabase.getCustomPrograms();
 
-                // Filter for ultrasound programs if checkbox is ticked
-                if (isUltrasoundOnly) {
-                    programs = programs.filter((program) =>
-                        program.name.toLowerCase().startsWith('ultra')
-                    );
-                }
+                // Filter based on ultrasound checkbox
+                const isUltra = (n: string) => {
+                    const s = (n || '').trim().toLowerCase();
+                    return s.startsWith('ultra') || s === 'ultrasound';
+                };
+                programs = programs.filter(p => (isUltrasoundOnly ? isUltra(p.name) : !isUltra(p.name)));
 
                 const options = programs.map((program) => ({
                     name: program.name,
@@ -165,6 +166,23 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     };
 
     // Handle Start/Stop button
+    const [showConfirm, setShowConfirm] = useState(false);
+    const pendingStartRef = useRef(false);
+
+    const doStart = async () => {
+        await loadProgram(state.selectedProgram);
+        if (runnerRef.current) {
+            setIsRunning(true);
+            await runnerRef.current.initializeChannel1();
+            setChannel1Active(true);
+            await runnerRef.current.initializeChannel0();
+            setChannel2Active(true);
+            dispatch({ type: 'SET_INTENSITY', intensity: 20 });
+            await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
+            resetUI();
+        }
+    };
+
     const handleStartStop = async () => {
         if (isRunning) {
             dispatch({ type: 'START_STOPPING' });
@@ -174,17 +192,12 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             resetUI();
         } else {
             if (state.selectedProgram) {
-                await loadProgram(state.selectedProgram);
-                if (runnerRef.current) {
-                    setIsRunning(true);
-                    await runnerRef.current.initializeChannel1();
-                    setChannel1Active(true);
-                    await runnerRef.current.initializeChannel0();
-                    setChannel2Active(true);
-                    dispatch({ type: 'SET_INTENSITY', intensity: 20 });
-                    await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
-                    resetUI();
+                if (!isUltrasoundOnly) {
+                    pendingStartRef.current = true;
+                    setShowConfirm(true);
+                    return;
                 }
+                await doStart();
             } else {
                 alert('Please select a program');
             }
@@ -213,6 +226,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     const canUseControls = isDeviceReady || testMode;
 
     return (
+        <>
         <div className={`${state.isConnected ? 'connected' : 'disconnected'} tab-body custom-programs-programs`}>
             <div>
                 <select
@@ -262,6 +276,22 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 />
             </div>
         </div>
+        <ConfirmModal
+            open={showConfirm}
+            title="Is Ultrasound device disconnected"
+            onYes={async () => {
+                setShowConfirm(false);
+                if (pendingStartRef.current) {
+                    pendingStartRef.current = false;
+                    await doStart();
+                }
+            }}
+            onNo={() => {
+                pendingStartRef.current = false;
+                setShowConfirm(false);
+            }}
+        />
+        </>
     );
 };
 
