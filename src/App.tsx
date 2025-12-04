@@ -18,7 +18,8 @@ const App: React.FC = () => {
     const [isConnecting, setIsConnecting] = useState(false);
     const [currentScanningPort, setCurrentScanningPort] = useState<string>("");
     const [autoConnectReady, setAutoConnectReady] = useState(false);
-    const [isUltrasoundConnected, setIsUltrasoundConnected] = useState(false);
+    // Default to ultrasound mode on first load
+    const [isUltrasoundConnected, setIsUltrasoundConnected] = useState(true);
     const [channel1Active, setChannel1Active] = useState(false);
     const [channel2Active, setChannel2Active] = useState(false);
     const cancelScanRef = useRef<(() => void) | null>(null);
@@ -380,7 +381,7 @@ const App: React.FC = () => {
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>
-                    <span className="footer__version">v1.5.8.1</span>
+                    <span className="footer__version">v1.5.8.2</span>
                 </footer>
             </div>
         </Router>
