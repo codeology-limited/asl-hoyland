@@ -272,13 +272,16 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (!runnerRef.current) return;
 
         setIsRunning(true);
+        // Setup channels (no turn on yet)
         await runnerRef.current.initializeChannel1();
-        setChannel1Active(true);
         await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
-        setChannel2Active(true);
         await runnerRef.current.initializeChannel0();
-
         await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
+        // Turn on BOTH channels together (last step before program starts)
+        await runnerRef.current.turnOnChannels();
+        // UI updates AFTER hardware commands sent
+        setChannel1Active(true);
+        setChannel2Active(true);
         await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
     };
 

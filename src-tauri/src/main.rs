@@ -30,6 +30,7 @@ fn main() {
             commands::program::send_initial_commands,
             commands::program::send_secondary_commands,
             commands::program::stop_and_reset,
+            commands::program::turn_on_both_channels,
             commands::program::sync,
             commands::program::sine_wave,
             commands::connection::reconnect_device,

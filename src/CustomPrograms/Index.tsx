@@ -173,11 +173,15 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         await loadProgram(state.selectedProgram);
         if (runnerRef.current) {
             setIsRunning(true);
+            // Setup channels (no turn on yet)
             await runnerRef.current.initializeChannel1();
-            setChannel1Active(true);
             await runnerRef.current.initializeChannel0();
-            setChannel2Active(true);
             dispatch({ type: 'SET_INTENSITY', intensity: 20 });
+            // Turn on BOTH channels together (last step before program starts)
+            await runnerRef.current.turnOnChannels();
+            // UI updates AFTER hardware commands sent
+            setChannel1Active(true);
+            setChannel2Active(true);
             await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
             resetUI();
         }

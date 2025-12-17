@@ -22,9 +22,11 @@ const SECONDARY_COMMANDS: &[&str] = &[
     "WMP000\n",
     "WMT0\n",
     "WMA005.000\n",
-    "USA2\n",   // Sync enabled BEFORE turning on channels
-    "WMN1\n",  // CH1 on  } Both channels turn on
-    "WFN1\n",  // CH2 on  } together after sync
+    "USA2\n", // Sync enabled - channel on commands moved to CHANNELS_ON_COMMANDS
+];
+const CHANNELS_ON_COMMANDS: &[&str] = &[
+    "WMN1\n", // CH1 on - sent with minimal delay
+    "WFN1\n", // CH2 on - both channels turn on together
 ];
 const STOP_COMMANDS: &[&str] = &[
     "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
@@ -203,6 +205,34 @@ pub fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, St
     send_batched_commands(state, window, STOP_COMMANDS)
 }
 
+#[tauri::command]
+pub fn turn_on_both_channels(state: State<AppState>, window: Window) -> Result<bool, String> {
+    println!(
+        "turn_on_both_channels called with port_name: {}",
+        PORT_NAME.lock().unwrap().as_str()
+    );
+
+    // Send both channel-on commands with minimal delay (50ms) so they turn on together
+    for cmd in CHANNELS_ON_COMMANDS {
+        println!("Sending channel-on command: {}", cmd);
+        match write_to_port(
+            state.clone(),
+            WriteToPortArgs {
+                data: (*cmd).to_string(),
+            },
+            window.clone(),
+        ) {
+            Ok(_) => println!("Command '{}' sent successfully", cmd),
+            Err(e) => {
+                println!("Failed to send command '{}': {}", cmd, e);
+                return Err(format!("Failed to send command '{}': {}", cmd, e));
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    Ok(true)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -274,9 +304,16 @@ mod tests {
     fn secondary_commands_include_expected_elements() {
         assert!(SECONDARY_COMMANDS.contains(&"WMO00.00\n"));
         assert!(SECONDARY_COMMANDS.contains(&"USA2\n"));
-        // Both channels turn on at the end, after sync
-        assert!(SECONDARY_COMMANDS.contains(&"WMN1\n"));
-        assert!(SECONDARY_COMMANDS.contains(&"WFN1\n"));
-        assert_eq!(SECONDARY_COMMANDS.len(), 9);
+        // Channel on commands moved to CHANNELS_ON_COMMANDS
+        assert!(!SECONDARY_COMMANDS.contains(&"WMN1\n"));
+        assert!(!SECONDARY_COMMANDS.contains(&"WFN1\n"));
+        assert_eq!(SECONDARY_COMMANDS.len(), 7);
+    }
+
+    #[test]
+    fn channels_on_commands_has_both_channels() {
+        assert!(CHANNELS_ON_COMMANDS.contains(&"WMN1\n"));
+        assert!(CHANNELS_ON_COMMANDS.contains(&"WFN1\n"));
+        assert_eq!(CHANNELS_ON_COMMANDS.len(), 2);
     }
 }

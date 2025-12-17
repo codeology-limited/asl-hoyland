@@ -137,6 +137,7 @@ export default class ProgramRunner {
 
     async initializeChannel1() { await this.gen.sendInitialCommands(); }
     async initializeChannel0() { await this.gen.sendSecondaryCommands(); }
+    async turnOnChannels() { await this.gen.turnOnBothChannels(); }
 
     async setChannel1StartFrequency(programName: string) {
         const program = await this.loadProgram(programName);
