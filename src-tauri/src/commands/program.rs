@@ -12,7 +12,7 @@ const INITIAL_COMMANDS: &[&str] = &[
     "WFP000\n",
     "WFT0\n",
     "WFF3100000.000000\n",
-    // WFN1 removed - CH2 turns on with CH1 in SECONDARY_COMMANDS
+    "WFN1\n", // CH2 on (matches VB6 - turns on in initial, before CH1 setup)
 ];
 const SYNC_COMMANDS: &[&str] = &["USA0\n", "USA1\n", "USA2\n", "USA3\n", "USA4\n"];
 const SECONDARY_COMMANDS: &[&str] = &[
@@ -22,11 +22,8 @@ const SECONDARY_COMMANDS: &[&str] = &[
     "WMP000\n",
     "WMT0\n",
     "WMA005.000\n",
-    "USA2\n", // Sync enabled - channel on commands moved to CHANNELS_ON_COMMANDS
-];
-const CHANNELS_ON_COMMANDS: &[&str] = &[
-    "WFN1\n", // CH2 on first (matches VB6 order)
-    "WMN1\n", // CH1 on second
+    "WMN1\n", // CH1 on (after CH1 setup, before sync)
+    "USA2\n", // Sync enabled - links both channels together
 ];
 const STOP_COMMANDS: &[&str] = &[
     "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
@@ -205,34 +202,6 @@ pub fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, St
     send_batched_commands(state, window, STOP_COMMANDS)
 }
 
-#[tauri::command]
-pub fn turn_on_both_channels(state: State<AppState>, window: Window) -> Result<bool, String> {
-    println!(
-        "turn_on_both_channels called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
-    );
-
-    // Send both channel-on commands with minimal delay (50ms) so they turn on together
-    for cmd in CHANNELS_ON_COMMANDS {
-        println!("Sending channel-on command: {}", cmd);
-        match write_to_port(
-            state.clone(),
-            WriteToPortArgs {
-                data: (*cmd).to_string(),
-            },
-            window.clone(),
-        ) {
-            Ok(_) => println!("Command '{}' sent successfully", cmd),
-            Err(e) => {
-                println!("Failed to send command '{}': {}", cmd, e);
-                return Err(format!("Failed to send command '{}': {}", cmd, e));
-            }
-        }
-        std::thread::sleep(std::time::Duration::from_millis(50));
-    }
-    Ok(true)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -289,7 +258,8 @@ mod tests {
     #[test]
     fn initial_commands_begin_with_sync() {
         assert_eq!(INITIAL_COMMANDS.first().copied(), Some("USA2\n"));
-        assert_eq!(INITIAL_COMMANDS.len(), 7); // WFN1 moved to SECONDARY_COMMANDS
+        assert!(INITIAL_COMMANDS.contains(&"WFN1\n")); // CH2 on at end
+        assert_eq!(INITIAL_COMMANDS.len(), 8);
     }
 
     #[test]
@@ -303,17 +273,8 @@ mod tests {
     #[test]
     fn secondary_commands_include_expected_elements() {
         assert!(SECONDARY_COMMANDS.contains(&"WMO00.00\n"));
-        assert!(SECONDARY_COMMANDS.contains(&"USA2\n"));
-        // Channel on commands moved to CHANNELS_ON_COMMANDS
-        assert!(!SECONDARY_COMMANDS.contains(&"WMN1\n"));
-        assert!(!SECONDARY_COMMANDS.contains(&"WFN1\n"));
-        assert_eq!(SECONDARY_COMMANDS.len(), 7);
-    }
-
-    #[test]
-    fn channels_on_commands_has_both_channels() {
-        assert!(CHANNELS_ON_COMMANDS.contains(&"WMN1\n"));
-        assert!(CHANNELS_ON_COMMANDS.contains(&"WFN1\n"));
-        assert_eq!(CHANNELS_ON_COMMANDS.len(), 2);
+        assert!(SECONDARY_COMMANDS.contains(&"WMN1\n")); // CH1 on
+        assert!(SECONDARY_COMMANDS.contains(&"USA2\n")); // Sync at end
+        assert_eq!(SECONDARY_COMMANDS.len(), 8);
     }
 }

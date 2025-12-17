@@ -144,11 +144,6 @@ export default class HoylandController {
         });
     }
 
-    async turnOnBothChannels() {
-        const ok = await this.invokeCmd<boolean>('turn_on_both_channels');
-        console.log(ok ? 'Both channels turned on' : 'Failed to turn on channels');
-    }
-
     async stopAndReset() {
         await this.invokeCmd<void>('stop_and_reset');
     }
