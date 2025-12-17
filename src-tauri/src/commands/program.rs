@@ -25,8 +25,8 @@ const SECONDARY_COMMANDS: &[&str] = &[
     "USA2\n", // Sync enabled - channel on commands moved to CHANNELS_ON_COMMANDS
 ];
 const CHANNELS_ON_COMMANDS: &[&str] = &[
-    "WMN1\n", // CH1 on - sent with minimal delay
-    "WFN1\n", // CH2 on - both channels turn on together
+    "WFN1\n", // CH2 on first (matches VB6 order)
+    "WMN1\n", // CH1 on second
 ];
 const STOP_COMMANDS: &[&str] = &[
     "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
