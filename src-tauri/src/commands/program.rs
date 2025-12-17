@@ -12,7 +12,7 @@ const INITIAL_COMMANDS: &[&str] = &[
     "WFP000\n",
     "WFT0\n",
     "WFF3100000.000000\n",
-    "WFN1\n",
+    // WFN1 removed - CH2 turns on with CH1 in SECONDARY_COMMANDS
 ];
 const SYNC_COMMANDS: &[&str] = &["USA0\n", "USA1\n", "USA2\n", "USA3\n", "USA4\n"];
 const SECONDARY_COMMANDS: &[&str] = &[
@@ -21,12 +21,15 @@ const SECONDARY_COMMANDS: &[&str] = &[
     "WMD50.0\n",
     "WMP000\n",
     "WMT0\n",
-    "WMN1\n",
     "WMA005.000\n",
-    "USA2\n",
+    "USA2\n",   // Sync enabled BEFORE turning on channels
+    "WMN1\n",  // CH1 on  } Both channels turn on
+    "WFN1\n",  // CH2 on  } together after sync
 ];
 const STOP_COMMANDS: &[&str] = &[
-    "WFF0\n", "WMF0\n", "WFN0\n", "WMN0\n", "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n",
+    "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
+    "WFF0\n", "WMF0\n",                               // Reset frequencies
+    "WFN0\n", "WMN0\n",                               // Turn off channels LAST
 ];
 
 #[derive(Deserialize)]
@@ -236,8 +239,9 @@ mod tests {
     #[test]
     fn stop_and_reset_command_sequence_expected() {
         let expected = vec![
-            "WFF0\n", "WMF0\n", "WFN0\n", "WMN0\n", "USD0\n", "USD1\n", "USD2\n", "USD3\n",
-            "USD4\n",
+            "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
+            "WFF0\n", "WMF0\n",                               // Reset frequencies
+            "WFN0\n", "WMN0\n",                               // Turn off channels LAST
         ];
         assert_eq!(expected.len(), 9);
         for s in expected {
@@ -255,7 +259,7 @@ mod tests {
     #[test]
     fn initial_commands_begin_with_sync() {
         assert_eq!(INITIAL_COMMANDS.first().copied(), Some("USA2\n"));
-        assert_eq!(INITIAL_COMMANDS.len(), 8);
+        assert_eq!(INITIAL_COMMANDS.len(), 7); // WFN1 moved to SECONDARY_COMMANDS
     }
 
     #[test]
@@ -270,6 +274,9 @@ mod tests {
     fn secondary_commands_include_expected_elements() {
         assert!(SECONDARY_COMMANDS.contains(&"WMO00.00\n"));
         assert!(SECONDARY_COMMANDS.contains(&"USA2\n"));
-        assert_eq!(SECONDARY_COMMANDS.len(), 8);
+        // Both channels turn on at the end, after sync
+        assert!(SECONDARY_COMMANDS.contains(&"WMN1\n"));
+        assert!(SECONDARY_COMMANDS.contains(&"WFN1\n"));
+        assert_eq!(SECONDARY_COMMANDS.len(), 9);
     }
 }
