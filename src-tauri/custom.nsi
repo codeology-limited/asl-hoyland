@@ -27,7 +27,7 @@ ${StrLoc}
 !define SIDEBARIMAGE ""
 !define HEADERIMAGE ""
 !define MAINBINARYNAME "Hoyland3-AlteredStates"
-!define MAINBINARYSRCPATH "${__FILEDIR__}\target\release\Hoyland3-AlteredStates.exe"
+!define MAINBINARYSRCPATH "${__FILEDIR__}\..\..\Hoyland3-AlteredStates.exe"
 !define BUNDLEID "com.hoyland.asl"
 !define COPYRIGHT ""
 !define OUTFILE "nsis-output.exe"
@@ -502,7 +502,7 @@ Section "Install CH340 Driver"
 
   ; Include the CH340 drivers from the specified source directory
   DetailPrint "Extracting CH340 drivers..."
-  File /r "${__FILEDIR__}\drivers\CH340\*.*"
+  File /r "${__FILEDIR__}\..\..\..\..\drivers\CH340\*.*"
 
   ; Install CH340 Driver based on system architecture
   DetailPrint "Reading system architecture..."
