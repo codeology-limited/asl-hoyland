@@ -52,7 +52,7 @@
           "language": "en-US"
         },
         "webviewInstallMode": {
-          "type": "embedBootstrapper",
+          "type": "downloadBootstrapper",
           "silent": true
         },
         "nsis": {
