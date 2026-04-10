@@ -27,7 +27,7 @@ ${StrLoc}
 !define SIDEBARIMAGE ""
 !define HEADERIMAGE ""
 !define MAINBINARYNAME "Hoyland3-AlteredStates"
-!define MAINBINARYSRCPATH "C:\Users\User\Desktop\aslhoyland\src-tauri\target\release\Hoyland3-AlteredStates.exe"
+!define MAINBINARYSRCPATH "${__FILEDIR__}\target\release\Hoyland3-AlteredStates.exe"
 !define BUNDLEID "com.hoyland.asl"
 !define COPYRIGHT ""
 !define OUTFILE "nsis-output.exe"
@@ -37,7 +37,7 @@ ${StrLoc}
 !define DISPLAYLANGUAGESELECTOR ""
 !define INSTALLWEBVIEW2MODE "downloadBootstrapper"
 !define WEBVIEW2INSTALLERARGS "/silent"
-!define WEBVIEW2BOOTSTRAPPERPATH "C:\Users\User\AppData\Local\tauri\MicrosoftEdgeWebview2Setup.exe"
+!define WEBVIEW2BOOTSTRAPPERPATH ""
 !define WEBVIEW2INSTALLERPATH ""
 !define UNINSTKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}"
 !define MANUPRODUCTKEY "Software\${MANUFACTURER}\${PRODUCTNAME}"
@@ -501,8 +501,8 @@ Section "Install CH340 Driver"
   SetOutPath "$INSTDIR\drivers\CH340"
 
   ; Include the CH340 drivers from the specified source directory
-  DetailPrint "Extracting CH340 drivers from source: C:\Users\User\Desktop\aslhoyland\src-tauri\drivers\CH340\"
-  File /r "C:\Users\User\Desktop\aslhoyland\src-tauri\drivers\CH340\*.*"
+  DetailPrint "Extracting CH340 drivers..."
+  File /r "${__FILEDIR__}\drivers\CH340\*.*"
 
   ; Install CH340 Driver based on system architecture
   DetailPrint "Reading system architecture..."
