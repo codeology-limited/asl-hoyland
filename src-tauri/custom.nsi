@@ -35,7 +35,7 @@ ${StrLoc}
 !define PLUGINSPATH ""
 !define ALLOWDOWNGRADES "true"
 !define DISPLAYLANGUAGESELECTOR ""
-!define INSTALLWEBVIEW2MODE "embedBootstrapper"
+!define INSTALLWEBVIEW2MODE "downloadBootstrapper"
 !define WEBVIEW2INSTALLERARGS "/silent"
 !define WEBVIEW2BOOTSTRAPPERPATH "C:\Users\User\AppData\Local\tauri\MicrosoftEdgeWebview2Setup.exe"
 !define WEBVIEW2INSTALLERPATH ""
