@@ -51,12 +51,12 @@ describe('App', () => {
     render(<App />);
 
     await waitFor(() => {
-    expect(screen.getByText(/Copyright.*2024.*Altered States Limited/i)).toBeInTheDocument();
-    const versionSpan = screen.getByText((content, element) =>
-      element?.classList?.contains('footer__version') && content.includes('v1.5.7.2')
-    );
-    expect(versionSpan).toBeInTheDocument();
-  });
+      expect(screen.getByText(/Copyright.*2024.*Altered States Limited/i)).toBeInTheDocument();
+      const versionSpan = screen.getByText((content, element) =>
+        element?.classList?.contains('footer__version') && content.includes('v1.5.9')
+      );
+      expect(versionSpan).toBeInTheDocument();
+    });
   });
 
   it('renders UI immediately without blocking', () => {
@@ -136,31 +136,39 @@ describe('App', () => {
     // which would need more complex setup
   });
 
-  it('shows test-mode label when no hardware is detected', async () => {
+  it('shows no-device label and test mode toggle when no hardware is detected', async () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No device found \(IN TEST MODE\)/i)).toBeInTheDocument();
+      expect(screen.getByText('No device found')).toBeInTheDocument();
+    });
+
+    // Test mode toggle should be visible when no device is connected
+    await waitFor(() => {
+      expect(screen.getByText('Enable Test Mode')).toBeInTheDocument();
     });
   });
 
   it('enables program controls once test mode is active', async () => {
-    const { container } = render(<App />);
+    const user = userEvent.setup();
+    render(<App />);
 
-    const dropdown = await screen.findByRole('combobox');
+    // Wait for auto-connect to finish (resolves with 'TEST', no real device)
+    await waitFor(() => {
+      expect(screen.getByText('No device found')).toBeInTheDocument();
+    });
+
+    // Controls should be disabled before enabling test mode
+    const dropdown = screen.getByRole('combobox');
+    expect(dropdown).toBeDisabled();
+
+    // Enable test mode by clicking the checkbox
+    const testModeCheckbox = screen.getByRole('checkbox', { name: /Enable Test Mode/i });
+    await user.click(testModeCheckbox);
+
+    // Now controls should be enabled
     await waitFor(() => {
       expect(dropdown).not.toBeDisabled();
-    });
-
-    const defaultPrograms = await waitFor(() => {
-      const el = document.querySelector('.default-programs');
-      if (!el) throw new Error('Default programs container not found');
-      return el;
-    });
-    const startButton = defaultPrograms.querySelector<HTMLButtonElement>('button.start');
-    if (!startButton) throw new Error('Start button not found within default programs');
-    await waitFor(() => {
-      expect(startButton).not.toBeDisabled();
     });
   });
 
@@ -169,8 +177,8 @@ describe('App', () => {
     const invokeMock = invoke as ReturnType<typeof vi.fn>;
     invokeMock.mockClear();
 
-    // First auto-connect resolves immediately
-    invokeMock.mockReturnValueOnce(Promise.resolve('TEST'));
+    // First auto-connect finds a real device
+    invokeMock.mockReturnValueOnce(Promise.resolve('/dev/ttyUSB0'));
 
     // Manual reconnect stays pending until we resolve it
     let resolveReconnect: ((value: string) => void) | null = null;
@@ -179,37 +187,33 @@ describe('App', () => {
     });
     invokeMock.mockReturnValueOnce(pendingReconnect);
 
-    const { container } = render(<App />);
+    render(<App />);
 
-    const dropdown = await screen.findByRole('combobox');
+    // Wait for auto-connect to finish with real device
+    await waitFor(() => {
+      expect(screen.getByText(/Connected to \/dev\/ttyUSB0/)).toBeInTheDocument();
+    });
+
+    const dropdown = screen.getByRole('combobox');
     await waitFor(() => {
       expect(dropdown).not.toBeDisabled();
     });
 
-    const defaultPrograms = await waitFor(() => {
-      const el = document.querySelector('.default-programs');
-      if (!el) throw new Error('Default programs container not found');
-      return el;
-    });
-    const startButton = defaultPrograms.querySelector<HTMLButtonElement>('button.start');
-    if (!startButton) throw new Error('Start button not found within default programs');
-    await waitFor(() => {
-      expect(startButton).not.toBeDisabled();
-    });
-
-    const reconnectButton = await screen.findByRole('button', { name: /Reconnect/i });
+    // Click Reconnect button (shown because real device is connected)
+    const reconnectButton = screen.getByRole('button', { name: /Reconnect/i });
     await user.click(reconnectButton);
 
-    expect(dropdown).toBeDisabled();
-    expect(startButton).toBeDisabled();
+    // During reconnection, controls should be disabled
+    await waitFor(() => {
+      expect(dropdown).toBeDisabled();
+    });
 
-    resolveReconnect?.('TEST');
+    // Resolve the reconnect with a device
+    resolveReconnect?.('/dev/ttyUSB0');
 
+    // After reconnect finishes, controls should be enabled again
     await waitFor(() => {
       expect(dropdown).not.toBeDisabled();
-    });
-    await waitFor(() => {
-      expect(startButton).not.toBeDisabled();
     });
   });
 

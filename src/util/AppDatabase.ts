@@ -8,7 +8,7 @@ export interface ProgramRow {
   id?: number;
   name: string;                 // UNIQUE
   range: DBBool;                // stored as 0/1
-  data: { channel: number; frequency: number | string; runTime: number }[];
+  data: { channel: number; frequency: number | string; runTime: number; sweepTo?: number }[];
   maxTimeInMinutes: number;
   default: DBBool | boolean;              // stored as 0/1
   startFrequency: number;
@@ -50,7 +50,7 @@ export interface OldFormatProgram {
 export interface NewFormatProgram {
   default: boolean;
   range: boolean;
-  data: { f: number; s: number }[]; // f=Hz, s=seconds
+  data: { f: number; s: number; sweepTo?: number }[]; // f=Hz, s=seconds, sweepTo=end Hz for inline sweep
   runTimeInMinutes: number;
   startFrequency: number;
 
@@ -220,6 +220,7 @@ export default class AppDatabase extends Dexie {
                 channel: 1,
                 frequency: num(item.f, 0),
                 runTime: num(item.s, 0) * 1000,
+                ...(item.sweepTo !== undefined ? { sweepTo: num(item.sweepTo, 0) } : {}),
               }));
 
               const row: Omit<ProgramRow, 'id'> = {

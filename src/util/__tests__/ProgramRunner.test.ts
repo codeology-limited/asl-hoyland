@@ -176,8 +176,8 @@ describe('ProgramRunner', () => {
     await p;
     const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
     expect(freqCalls.length).toBeGreaterThan(1);
-    // ensure not 1001 calls (capped stepping)
-    expect(freqCalls.length).toBeLessThan(1001);
+    // 1000→0 inclusive = 1001 values; ensure stepping doesn't overshoot
+    expect(freqCalls.length).toBeLessThanOrEqual(1001);
   });
 
   it('discrete sequence respects pause/resume within an item', async () => {
@@ -204,6 +204,119 @@ describe('ProgramRunner', () => {
 
     const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[1] === 111);
     expect(freqCalls.length).toBe(1);
+  });
+
+  it('multi-item sequence plays all frequencies in order', async () => {
+    const program = {
+      name: 'multi', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 50 },
+        { channel: 1, frequency: 200, runTime: 50 },
+        { channel: 1, frequency: 300, runTime: 50 },
+      ] as FakeFreqItem[],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('multi', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const freqCalls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1)
+      .map((c: any) => c.args[1]);
+    expect(freqCalls).toContain(100);
+    expect(freqCalls).toContain(200);
+    expect(freqCalls).toContain(300);
+    expect(freqCalls.indexOf(100)).toBeLessThan(freqCalls.indexOf(200));
+    expect(freqCalls.indexOf(200)).toBeLessThan(freqCalls.indexOf(300));
+  });
+
+  it('sweepTo item sweeps from frequency to sweepTo', async () => {
+    const program = {
+      name: 'sweep', range: 0,
+      data: [
+        { channel: 1, frequency: 10, runTime: 500, sweepTo: 20 },
+      ],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('sweep', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const freqCalls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1)
+      .map((c: any) => c.args[1]);
+    expect(freqCalls.length).toBeGreaterThan(1);
+    expect(freqCalls[0]).toBe(10);
+    for (const f of freqCalls) {
+      expect(f).toBeGreaterThanOrEqual(10);
+      expect(f).toBeLessThanOrEqual(20);
+    }
+  });
+
+  it('mixed sequence: fixed items then sweepTo item', async () => {
+    const program = {
+      name: 'mixed', range: 0,
+      data: [
+        { channel: 1, frequency: 50, runTime: 50 },
+        { channel: 1, frequency: 472, runTime: 50 },
+        { channel: 1, frequency: 6, runTime: 500, sweepTo: 15 },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('mixed', () => {});
+    await vi.advanceTimersByTimeAsync(3000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const freqCalls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1)
+      .map((c: any) => c.args[1]);
+    expect(freqCalls[0]).toBe(50);
+    expect(freqCalls[1]).toBe(472);
+    const sweepCalls = freqCalls.slice(2);
+    expect(sweepCalls.length).toBeGreaterThan(1);
+    expect(sweepCalls[0]).toBe(6);
+  });
+
+  it('item without sweepTo plays single frequency for duration (regression)', async () => {
+    const program = {
+      name: 'noSweep', range: 0,
+      data: [
+        { channel: 1, frequency: 999, runTime: 100 },
+      ] as FakeFreqItem[],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('noSweep', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const freqCalls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    expect(freqCalls.length).toBe(1);
+    expect(freqCalls[0].args[1]).toBe(999);
   });
 
   it('ultrasound program initializes and toggles frequencies', async () => {

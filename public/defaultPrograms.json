@@ -178,8 +178,242 @@
     "sliderStepV": 1,
     "sliderPercent": 25,
     "startIntensityV": 5
+  },
+
+  "naturalKillerCell": {
+    "default": true,
+    "data": [200000],
+    "runTimeInMinutes": 480,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "parasitesAndFungus": {
+    "default": true,
+    "data": [1150, 4, 993.98, 722, 2112, 4412, 840, 250, 5000, 42000, 850000, 741, 350, 75],
+    "runTimeInMinutes": 42,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "candida": {
+    "default": true,
+    "data": [
+      {"f": 50, "s": 300},
+      {"f": 472, "s": 600},
+      {"f": 6, "s": 1800, "sweepTo": 70}
+    ],
+    "runTimeInMinutes": 45,
+    "startFrequency": 27.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "prolapse": {
+    "default": true,
+    "data": [30],
+    "runTimeInMinutes": 30,
+    "startFrequency": 27.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "staphylococcusAlbus": {
+    "default": true,
+    "data": [549070],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "anthrax": {
+    "default": true,
+    "data": [139200],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "typhoidFeverRod": {
+    "default": true,
+    "data": [759450],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "streptothrix": {
+    "default": true,
+    "data": [191800],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "streptococcusPyrogen": {
+    "default": true,
+    "data": [719150],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "gonorrhea": {
+    "default": true,
+    "data": [233000],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "tuberculosisFilterable": {
+    "default": true,
+    "data": [769000],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "tetanus": {
+    "default": true,
+    "data": [234000],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "coliFilterable": {
+    "default": true,
+    "data": [769035],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "tuberculosisRod": {
+    "default": true,
+    "data": [369430],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "syphilis": {
+    "default": true,
+    "data": [788700],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "coliRod": {
+    "default": true,
+    "data": [416510],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "typhoidFeverFilterable": {
+    "default": true,
+    "data": [1445200],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "spinalMeningitis": {
+    "default": true,
+    "data": [426860],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "cancerSarcomaBY": {
+    "default": true,
+    "data": [1529520],
+    "runTimeInMinutes": 20,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "staphylococcusAureus": {
+    "default": true,
+    "data": [477660],
+    "runTimeInMinutes": 10,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "cancerSarcomaBX": {
+    "default": true,
+    "data": [1607450],
+    "runTimeInMinutes": 20,
+    "startFrequency": 3.1,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   }
-
-
 }
   

@@ -239,13 +239,33 @@ export default class ProgramRunner {
                     if (!this.running) break;
 
                     const freq = Number(item.frequency);
-                    await this.gen.setFrequency(1, freq);
-                    setRunningFrequency(`${freq} Hz`);
 
-                    const until = Date.now() + item.runTime;
-                    while (this.running && Date.now() < until) {
-                        if (this.paused) break;
-                        await sleep(5);
+                    if ('sweepTo' in item && item.sweepTo != null) {
+                        const endF = Number(item.sweepTo);
+                        const direction = freq <= endF ? 1 : -1;
+                        const totalSteps = Math.abs(endF - freq);
+                        if (totalSteps > 0) {
+                            const interval = Math.max(1, Math.floor(item.runTime / totalSteps));
+                            const condition = direction > 0
+                                ? (f: number) => f <= endF
+                                : (f: number) => f >= endF;
+                            for (let f = freq; this.running && condition(f); f += direction) {
+                                while (this.paused && this.running) await sleep(100);
+                                if (!this.running) break;
+                                await this.gen.setFrequency(1, Math.round(f));
+                                setRunningFrequency(`${Math.round(f)} Hz`);
+                                await sleep(interval);
+                            }
+                        }
+                    } else {
+                        await this.gen.setFrequency(1, freq);
+                        setRunningFrequency(`${freq} Hz`);
+
+                        const until = Date.now() + item.runTime;
+                        while (this.running && Date.now() < until) {
+                            if (this.paused) break;
+                            await sleep(5);
+                        }
                     }
                     if (!this.running) break;
                 }
