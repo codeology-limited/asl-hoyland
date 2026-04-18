@@ -43,3 +43,21 @@ jobs:
           releaseBody: '${{ github.ref_name }}'
           releaseDraft: false
           prerelease: false
+
+      - name: Send release notification email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: 'ASL Hoyland Release ${{ github.ref_name }}'
+          body: |
+            A new release of ASL Hoyland has been published.
+
+            Version: ${{ github.ref_name }}
+            Download: https://github.com/codeology-limited/asl-hoyland/releases/tag/${{ github.ref_name }}
+          to: rob@jansens.co,tony@codeology.co.nz
+          from: ASL Hoyland CI <${{ secrets.MAIL_USERNAME }}>
