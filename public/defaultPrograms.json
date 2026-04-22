@@ -142,6 +142,21 @@
     "runTimeInMinutes": 120,
     "startFrequency": 3.1
   },
+  "insomnia": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "onkeysec": 3,
+    "offkeysec": 1,
+    "data": [42.7],
+    "runTimeInMinutes": 15,
+    "startFrequency": 27.12,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
   "lymeDisease": {
     "default": true,
     "data": [

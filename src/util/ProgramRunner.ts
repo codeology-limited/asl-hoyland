@@ -211,6 +211,11 @@ export default class ProgramRunner {
                 await this.gen.sync();
             }
 
+            // Override CH1 waveform to sine if specified
+            if (program.channel1wavetype === 'SINE') {
+                await this.gen.sinewave();
+            }
+
             if (isRange) {
                 const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
                 const startF = Number(startItem?.frequency);
@@ -258,13 +263,37 @@ export default class ProgramRunner {
                             }
                         }
                     } else {
-                        await this.gen.setFrequency(1, freq);
-                        setRunningFrequency(`${freq} Hz`);
+                        const onMs = num(program.onkeysec, 0) * 1000;
+                        const offMs = num(program.offkeysec, 0) * 1000;
 
-                        const until = Date.now() + item.runTime;
-                        while (this.running && Date.now() < until) {
-                            if (this.paused) break;
-                            await sleep(5);
+                        if (onMs > 0 && offMs > 0) {
+                            // Pulsed mode: on for onMs, off for offMs
+                            const until = Date.now() + item.runTime;
+                            while (this.running && Date.now() < until) {
+                                while (this.paused && this.running) await sleep(100);
+                                if (!this.running || Date.now() >= until) break;
+
+                                await this.gen.setFrequency(1, freq);
+                                setRunningFrequency(`${freq} Hz`);
+                                const onEnd = Math.min(Date.now() + onMs, until);
+                                while (this.running && !this.paused && Date.now() < onEnd) await sleep(5);
+                                if (!this.running || Date.now() >= until) break;
+
+                                await this.gen.setFrequency(1, 0);
+                                setRunningFrequency(`${freq} Hz (off)`);
+                                const offEnd = Math.min(Date.now() + offMs, until);
+                                while (this.running && !this.paused && Date.now() < offEnd) await sleep(5);
+                            }
+                        } else {
+                            // Continuous mode
+                            await this.gen.setFrequency(1, freq);
+                            setRunningFrequency(`${freq} Hz`);
+
+                            const until = Date.now() + item.runTime;
+                            while (this.running && Date.now() < until) {
+                                if (this.paused) break;
+                                await sleep(5);
+                            }
                         }
                     }
                     if (!this.running) break;

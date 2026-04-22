@@ -18,6 +18,7 @@ const mkFakeGen = () => {
       (this.calls as any).push({ m: 'setSquare', args: [] });
     }),
     sync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sync', args: [] }); }),
+    sinewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sinewave', args: [] }); }),
     sendInitialCommands: vi.fn(async () => {}),
     sendSecondaryCommands: vi.fn(async () => {}),
     stopAndReset: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'stop', args: [] }); }),
@@ -317,6 +318,55 @@ describe('ProgramRunner', () => {
       .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
     expect(freqCalls.length).toBe(1);
     expect(freqCalls[0].args[1]).toBe(999);
+  });
+
+  it('channel1wavetype SINE calls sinewave()', async () => {
+    const program = {
+      name: 'insomnia', range: 0,
+      data: [{ channel: 1, frequency: 42.7, runTime: 100 }],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 27.12,
+      channel1wavetype: 'SINE',
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('insomnia', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    expect(gen.sinewave).toHaveBeenCalled();
+    // Should NOT call square wave (startFrequency > 0, not ultra)
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+  });
+
+  it('onkeysec/offkeysec pulses frequency on and off', async () => {
+    const program = {
+      name: 'pulsed', range: 0,
+      data: [{ channel: 1, frequency: 42.7, runTime: 8000 }],
+      maxTimeInMinutes: 0.15, default: 0, startFrequency: 27.12,
+      onkeysec: 3,
+      offkeysec: 1,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('pulsed', () => {});
+    await vi.advanceTimersByTimeAsync(9000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const freqCalls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    // Should have multiple on (42.7) and off (0) calls
+    const onCalls = freqCalls.filter((c: any) => c.args[1] === 42.7);
+    const offCalls = freqCalls.filter((c: any) => c.args[1] === 0);
+    expect(onCalls.length).toBeGreaterThan(0);
+    expect(offCalls.length).toBeGreaterThan(0);
   });
 
   it('ultrasound program initializes and toggles frequencies', async () => {
