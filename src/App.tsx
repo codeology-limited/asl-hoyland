@@ -381,7 +381,7 @@ const App: React.FC = () => {
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>
-                    <span className="footer__version">v1.6.0</span>
+                    <span className="footer__version">v1.6.1</span>
                 </footer>
             </div>
         </Router>
