@@ -56,7 +56,10 @@ pub fn reconnect_device(
             Ok(mut serial_port) => {
                 println!("Opened port: {}", port.port_name);
                 let mut buffer: Vec<u8> = vec![0; 100];
-                serial_port.write_all(b"UMO\r\n").expect("Write failed");
+                if let Err(e) = serial_port.write_all(b"UMO\r\n") {
+                    println!("Failed to write to port {}: {}", port.port_name, e);
+                    continue;
+                }
                 std::thread::sleep(std::time::Duration::from_millis(500));
                 match serial_port.read(buffer.as_mut_slice()) {
                     Ok(bytes_read) => {

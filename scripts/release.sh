@@ -19,20 +19,24 @@ fi
 NEW="$MAJOR.$MINOR.$PATCH"
 echo "New version: $NEW"
 
-# Update tauri.conf.json
+# Update all version files using node (cross-platform)
 node -e "
 const fs = require('fs');
-const f = 'src-tauri/tauri.conf.json';
-const j = JSON.parse(fs.readFileSync(f,'utf8'));
+
+// tauri.conf.json
+const tc = 'src-tauri/tauri.conf.json';
+const j = JSON.parse(fs.readFileSync(tc,'utf8'));
 j.package.version = '$NEW';
-fs.writeFileSync(f, JSON.stringify(j, null, 2) + '\n');
+fs.writeFileSync(tc, JSON.stringify(j, null, 2) + '\n');
+
+// App.tsx
+const app = 'src/App.tsx';
+fs.writeFileSync(app, fs.readFileSync(app,'utf8').replace('v$CURRENT', 'v$NEW'));
+
+// App.test.tsx
+const test = 'src/__tests__/App.test.tsx';
+fs.writeFileSync(test, fs.readFileSync(test,'utf8').replace('v$CURRENT', 'v$NEW'));
 "
-
-# Update App.tsx footer
-sed -i.bak "s/v${CURRENT}/v${NEW}/g" src/App.tsx && rm -f src/App.tsx.bak
-
-# Update App.test.tsx
-sed -i.bak "s/v${CURRENT}/v${NEW}/g" src/__tests__/App.test.tsx && rm -f src/__tests__/App.test.tsx.bak
 
 # Commit, tag, push
 git add src-tauri/tauri.conf.json src/App.tsx src/__tests__/App.test.tsx

@@ -130,6 +130,22 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         }
     }, [appDatabase, isUltrasoundOnly]);
 
+    // Sync intensity to program config when program is selected
+    useEffect(() => {
+        if (!state.selectedProgram || !appDatabase) return;
+        (async () => {
+            try {
+                const program = await appDatabase.loadData(state.selectedProgram);
+                if (!program) return;
+                const min = program.sliderMinV ?? 1;
+                const max = program.sliderMaxV ?? 20;
+                const startV = program.startIntensityV ?? Math.round(min + 0.25 * (max - min));
+                const clamped = Math.min(Math.max(startV, min), max);
+                dispatch({ type: 'SET_INTENSITY', intensity: clamped });
+            } catch { /* ignore */ }
+        })();
+    }, [state.selectedProgram, appDatabase]);
+
     // Memoize the handleProgressUpdate to avoid unnecessary re-renders
     const handleProgressUpdate = useCallback((currentStep: number, totalSteps: number, currentF: number) => {
         dispatch({ type: 'SET_PROGRESS', currentStep, totalSteps, currentFrequency: currentF });
@@ -173,15 +189,18 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         await loadProgram(state.selectedProgram);
         if (runnerRef.current) {
             setIsRunning(true);
-            // Setup CH2 and turn it on (WFN1 in INITIAL_COMMANDS)
+            // Configure CH2 (no output yet)
             await runnerRef.current.initializeChannel1();
             setChannel1Active(true);
-            // Setup CH1, turn it on (WMN1), and sync (USA2) in SECONDARY_COMMANDS
+            // Set CH2 carrier frequency from program config
+            await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
+            // Configure CH1 (no output yet)
             await runnerRef.current.initializeChannel0();
             setChannel2Active(true);
-            dispatch({ type: 'SET_INTENSITY', intensity: 20 });
+            // Apply intensity from UI slider
+            await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
+            // Start program — enables outputs after all settings configured
             await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
-            resetUI();
         }
     };
 

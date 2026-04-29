@@ -18,9 +18,9 @@ ${StrLoc}
 
 !define MANUFACTURER "hoyland"
 !define PRODUCTNAME "Hoyland3-AlteredStates"
-!define VERSION "0.0.1"
-!define VERSIONWITHBUILD "0.0.1.0"
-!define SHORTDESCRIPTION "A Tauri App"
+!define VERSION "1.6.2"
+!define VERSIONWITHBUILD "1.6.2.0"
+!define SHORTDESCRIPTION "Hoyland Frequency Generator Controller"
 !define INSTALLMODE "currentUser"
 !define LICENSE ""
 !define INSTALLERICON ""

@@ -33,7 +33,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const [testMode, setTestMode] = useState<boolean>(false);
 
     const addEvent = useCallback((event: AppEvent) => {
-        setEvents((prev) => [...prev, event]);
+        setEvents((prev) => {
+            const next = [...prev, event];
+            return next.length > 100 ? next.slice(-100) : next;
+        });
     }, []);
 
     // Create long-lived singletons once, in Provider scope

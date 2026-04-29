@@ -9,7 +9,7 @@ interface ProgramEditorProps {
 }
 
 
-type EditRow = { channel: number; frequency: string; runTime: string };
+type EditRow = { channel: number; frequency: string; runTime: string; sweepTo?: string };
 
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
@@ -66,26 +66,28 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
 
 
     const handleSave = async () => {
-        if (isSaving) return; // Prevent multiple calls
+        if (isSaving) return;
+        if (!programName.trim()) { alert('Please enter a program name.'); return; }
+        if (rows.every(r => !r.frequency.trim())) { alert('Please enter at least one frequency.'); return; }
         setIsSaving(true);
 
         try {
-            // Convert frequency and runtime strings to numbers for saving
             const validatedRows: ProgramItem[] = rows.map(row => ({
                 channel: row.channel,
                 frequency: parseFloat(row.frequency) || 0,
                 runTime: (parseFloat(row.runTime) || 0) * 60_000,
+                ...(row.sweepTo ? { sweepTo: parseFloat(row.sweepTo) } : {}),
             }));
 
             const maxTimeInMinutes = validatedRows.reduce((total, item) => total + item.runTime / 60_000, 0);
 
             const program: Program = {
-                name: programName,
+                name: programName.trim(),
                 range,
                 data: validatedRows,
                 maxTimeInMinutes,
                 default: false,
-                startFrequency: 3.1, // Adjust as needed
+                startFrequency: 0,
             };
 
             console.log('Saving program:', JSON.stringify(program));
@@ -107,6 +109,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                 channel: row.channel,
                 frequency: String(row.frequency),
                 runTime: String(row.runTime / 60_000),
+                ...(row.sweepTo != null ? { sweepTo: String(row.sweepTo) } : {}),
             }));
 
             setProgramName(programName);

@@ -57,6 +57,10 @@ pub fn set_frequency(
         args.channel, args.frequency
     );
 
+    if args.frequency < 0.0 {
+        return Err("Frequency must be non-negative".to_string());
+    }
+
     let mhz_part = args.frequency.trunc() as u64;
     let fractional_part = (args.frequency.fract() * 1_000_000.0).round() as u64;
 
@@ -96,7 +100,11 @@ pub fn set_amplitude(
         args.channel, args.amplitude
     );
 
-    let commands = [format!("WMA{:05.2}\n", args.amplitude)];
+    let prefix = match args.channel {
+        2 => "WFA",
+        _ => "WMA",
+    };
+    let commands = [format!("{}{:05.2}\n", prefix, args.amplitude)];
 
     for cmd in &commands {
         match write_to_port(
@@ -159,7 +167,7 @@ pub fn set_both_channels_to_square_wave(
 ) -> Result<bool, String> {
     println!(
         "set_both_channels_to_square_wave called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
+        PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).as_str()
     );
 
     send_batched_commands(state, window, SQUARE_WAVE_COMMANDS)
@@ -169,7 +177,7 @@ pub fn set_both_channels_to_square_wave(
 pub fn send_initial_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
         "send_initial_commands called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
+        PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).as_str()
     );
 
     send_batched_commands(state, window, INITIAL_COMMANDS)
@@ -179,7 +187,7 @@ pub fn send_initial_commands(state: State<AppState>, window: Window) -> Result<b
 pub fn sync(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
         "sync called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
+        PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).as_str()
     );
 
     send_batched_commands(state, window, SYNC_COMMANDS)
@@ -189,7 +197,7 @@ pub fn sync(state: State<AppState>, window: Window) -> Result<bool, String> {
 pub fn send_secondary_commands(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
         "send_secondary_commands called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
+        PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).as_str()
     );
 
     send_batched_commands(state, window, SECONDARY_COMMANDS)
@@ -199,7 +207,7 @@ pub fn send_secondary_commands(state: State<AppState>, window: Window) -> Result
 pub fn enable_outputs(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
         "enable_outputs called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
+        PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).as_str()
     );
 
     send_batched_commands(state, window, ENABLE_OUTPUT_COMMANDS)
@@ -209,7 +217,7 @@ pub fn enable_outputs(state: State<AppState>, window: Window) -> Result<bool, St
 pub fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
         "stop_and_reset called with port_name: {}",
-        PORT_NAME.lock().unwrap().as_str()
+        PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).as_str()
     );
 
     send_batched_commands(state, window, STOP_COMMANDS)

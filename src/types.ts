@@ -3,6 +3,7 @@ export interface ProgramItem {
     channel: number;
     frequency: number | string;
     runTime: number;
+    sweepTo?: number;
 }
 
 export interface Program {
@@ -14,7 +15,6 @@ export interface Program {
     default: number | boolean;
     startFrequency: number;
 
-    // optional ultrasound-specific props
     channel1wavetype?: string;
     channel2wavetype?: string;
     onkeysec?: number;
@@ -24,4 +24,5 @@ export interface Program {
     sliderStepV?: number;
     sliderPercent?: number;
     startIntensityV?: number;
+    mirror?: number | boolean;
 }

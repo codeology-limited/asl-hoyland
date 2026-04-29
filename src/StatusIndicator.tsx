@@ -10,7 +10,7 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
 
     const [currentStatus, setCurrentStatus] = useState<'success' | 'fail' | null>(status);
     const [flashing, setFlashing] = useState(false);
-    const [lastEventTime, setLastEventTime] = useState<number>(Date.now());
+    const lastEventTimeRef = React.useRef<number>(Date.now());
 
     // Keep in sync if parent-provided status changes
     useEffect(() => {
@@ -27,21 +27,17 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
         } else if (latest.type === 'message_fail') {
             setCurrentStatus('fail');
         }
-        setLastEventTime(Date.now());
+        lastEventTimeRef.current = Date.now();
     }, [events]);
 
-    // Flash and auto-clear after 15s of inactivity
+    // Flash and auto-clear after 15s of inactivity — single stable interval
     useEffect(() => {
-        const flashInterval = setInterval(() => setFlashing((f) => !f), 500);
-        const clearIntervalId = setInterval(() => {
-            if (Date.now() - lastEventTime > 15000) setCurrentStatus(null);
+        const id = setInterval(() => {
+            setFlashing((f) => !f);
+            if (Date.now() - lastEventTimeRef.current > 15000) setCurrentStatus(null);
         }, 500);
-
-        return () => {
-            clearInterval(flashInterval);
-            clearInterval(clearIntervalId);
-        };
-    }, [lastEventTime]);
+        return () => clearInterval(id);
+    }, []);
 
     return <div className={`status-indicator ${flashing ? currentStatus : ''}`} />;
 };

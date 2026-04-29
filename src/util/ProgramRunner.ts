@@ -153,7 +153,7 @@ export default class ProgramRunner {
         this.paused = false;
         this.pausedTotal = 0;
 
-        const totalMs = program.maxTimeInMinutes * 60 * 1000;
+        const totalMs = Math.max(1, program.maxTimeInMinutes * 60 * 1000);
         const start = Date.now();
 
         // progress updater
@@ -238,7 +238,12 @@ export default class ProgramRunner {
 
                     await this.gen.setFrequency(1, Math.round(f));
                     setRunningFrequency(`${Math.round(f)} Hz`);
-                    await sleep(interval);
+                    const rangeEnd = Date.now() + interval;
+                    while (this.running && Date.now() < rangeEnd) {
+                        while (this.paused && this.running) await sleep(100);
+                        if (!this.running) break;
+                        await sleep(5);
+                    }
                 }
             } else {
                 for (const item of program.data) {
@@ -262,7 +267,12 @@ export default class ProgramRunner {
                                 if (!this.running) break;
                                 await this.gen.setFrequency(1, Math.round(f));
                                 setRunningFrequency(`${Math.round(f)} Hz`);
-                                await sleep(interval);
+                                const sweepEnd = Date.now() + interval;
+                                while (this.running && Date.now() < sweepEnd) {
+                                    while (this.paused && this.running) await sleep(100);
+                                    if (!this.running) break;
+                                    await sleep(5);
+                                }
                             }
                         }
                     } else {
@@ -294,7 +304,8 @@ export default class ProgramRunner {
 
                             const until = Date.now() + item.runTime;
                             while (this.running && Date.now() < until) {
-                                if (this.paused) break;
+                                while (this.paused && this.running) await sleep(100);
+                                if (!this.running) break;
                                 await sleep(5);
                             }
                         }
