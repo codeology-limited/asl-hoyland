@@ -144,6 +144,11 @@ export default class HoylandController {
         });
     }
 
+    async enableOutputs() {
+        const ok = await this.invokeCmd<boolean>('enable_outputs');
+        console.log(ok ? 'outputs enabled (WFN1, WMN1, USA2)' : 'Failed to enable outputs');
+    }
+
     async stopAndReset() {
         await this.invokeCmd<void>('stop_and_reset');
     }

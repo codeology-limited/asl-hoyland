@@ -29,6 +29,7 @@ fn main() {
             commands::program::set_both_channels_to_square_wave,
             commands::program::send_initial_commands,
             commands::program::send_secondary_commands,
+            commands::program::enable_outputs,
             commands::program::stop_and_reset,
             commands::program::sync,
             commands::program::sine_wave,

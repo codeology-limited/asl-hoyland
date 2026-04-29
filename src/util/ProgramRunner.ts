@@ -180,6 +180,7 @@ export default class ProgramRunner {
             setRunningFrequency(`${initialHz} Hz`);
             await this.gen.setBothChannelsToSquareWave();
             await this.gen.sync();
+            await this.gen.enableOutputs();
             await this.runSpecialCase(setRunningFrequency);
         } else {
             const nameLc = program.name.toLowerCase();
@@ -205,16 +206,18 @@ export default class ProgramRunner {
                 setRunningFrequency(`${initialHz} Hz`);
             }
 
-            // Enable outputs (square + sync) for ultra variants or startFrequency=0 AFTER freq/amp
-            if (nameLc.includes('ultra') || program.startFrequency === 0) {
+            // Set waveform: square on both channels, or sine on CH1
+            if (nameLc.includes('ultra') || program.startFrequency === 0 ||
+                (program.channel1wavetype === 'SQUARE' && program.channel2wavetype === 'SQUARE')) {
                 await this.gen.setBothChannelsToSquareWave();
                 await this.gen.sync();
             }
-
-            // Override CH1 waveform to sine if specified
             if (program.channel1wavetype === 'SINE') {
                 await this.gen.sinewave();
             }
+
+            // Enable outputs LAST — after all settings are configured
+            await this.gen.enableOutputs();
 
             if (isRange) {
                 const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];

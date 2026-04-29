@@ -5,25 +5,28 @@ use tauri::{State, Window};
 
 const SQUARE_WAVE_COMMANDS: &[&str] = &["WMW01\n", "WFW01\n"];
 const INITIAL_COMMANDS: &[&str] = &[
-    "USA2\n",
-    "WFW00\n",
-    "WFO00.00\n",
-    "WFD50.0\n",
-    "WFP000\n",
-    "WFT0\n",
-    "WFF3100000.000000\n",
-    "WFN1\n", // CH2 on (matches VB6 - turns on in initial, before CH1 setup)
+    "WFW00\n",              // CH2 waveform sine
+    "WFO00.00\n",           // CH2 offset
+    "WFD50.0\n",            // CH2 duty
+    "WFP000\n",             // CH2 phase
+    "WFT0\n",               // CH2 trigger
+    "WFF3100000.000000\n",  // CH2 frequency 3.1MHz
+    // WFN1 moved to ENABLE_OUTPUT_COMMANDS — outputs enabled last
 ];
 const SYNC_COMMANDS: &[&str] = &["USA0\n", "USA1\n", "USA2\n", "USA3\n", "USA4\n"];
 const SECONDARY_COMMANDS: &[&str] = &[
-    "WMW01\n",
-    "WMO00.00\n",
-    "WMD50.0\n",
-    "WMP000\n",
-    "WMT0\n",
-    "WMA005.000\n",
-    "WMN1\n", // CH1 on (after CH1 setup, before sync)
-    "USA2\n", // Sync enabled - links both channels together
+    "WMW01\n",              // CH1 waveform square
+    "WMO00.00\n",           // CH1 offset
+    "WMD50.0\n",            // CH1 duty
+    "WMP000\n",             // CH1 phase
+    "WMT0\n",               // CH1 trigger
+    "WMA005.000\n",         // CH1 amplitude
+    // WMN1 and USA2 moved to ENABLE_OUTPUT_COMMANDS — outputs enabled last
+];
+const ENABLE_OUTPUT_COMMANDS: &[&str] = &[
+    "WFN1\n",               // CH2 on
+    "WMN1\n",               // CH1 on
+    "USA2\n",               // Sync — links both channels
 ];
 const STOP_COMMANDS: &[&str] = &[
     "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
@@ -193,6 +196,16 @@ pub fn send_secondary_commands(state: State<AppState>, window: Window) -> Result
 }
 
 #[tauri::command]
+pub fn enable_outputs(state: State<AppState>, window: Window) -> Result<bool, String> {
+    println!(
+        "enable_outputs called with port_name: {}",
+        PORT_NAME.lock().unwrap().as_str()
+    );
+
+    send_batched_commands(state, window, ENABLE_OUTPUT_COMMANDS)
+}
+
+#[tauri::command]
 pub fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
         "stop_and_reset called with port_name: {}",
@@ -256,10 +269,10 @@ mod tests {
     }
 
     #[test]
-    fn initial_commands_begin_with_sync() {
-        assert_eq!(INITIAL_COMMANDS.first().copied(), Some("USA2\n"));
-        assert!(INITIAL_COMMANDS.contains(&"WFN1\n")); // CH2 on at end
-        assert_eq!(INITIAL_COMMANDS.len(), 8);
+    fn initial_commands_configure_ch2_without_enabling() {
+        assert_eq!(INITIAL_COMMANDS.first().copied(), Some("WFW00\n"));
+        assert!(!INITIAL_COMMANDS.contains(&"WFN1\n")); // CH2 on moved to enable_outputs
+        assert_eq!(INITIAL_COMMANDS.len(), 6);
     }
 
     #[test]
@@ -271,10 +284,18 @@ mod tests {
     }
 
     #[test]
-    fn secondary_commands_include_expected_elements() {
+    fn secondary_commands_configure_ch1_without_enabling() {
         assert!(SECONDARY_COMMANDS.contains(&"WMO00.00\n"));
-        assert!(SECONDARY_COMMANDS.contains(&"WMN1\n")); // CH1 on
-        assert!(SECONDARY_COMMANDS.contains(&"USA2\n")); // Sync at end
-        assert_eq!(SECONDARY_COMMANDS.len(), 8);
+        assert!(!SECONDARY_COMMANDS.contains(&"WMN1\n")); // CH1 on moved to enable_outputs
+        assert!(!SECONDARY_COMMANDS.contains(&"USA2\n")); // Sync moved to enable_outputs
+        assert_eq!(SECONDARY_COMMANDS.len(), 6);
+    }
+
+    #[test]
+    fn enable_output_commands_turn_on_channels_and_sync() {
+        assert!(ENABLE_OUTPUT_COMMANDS.contains(&"WFN1\n")); // CH2 on
+        assert!(ENABLE_OUTPUT_COMMANDS.contains(&"WMN1\n")); // CH1 on
+        assert!(ENABLE_OUTPUT_COMMANDS.contains(&"USA2\n")); // Sync
+        assert_eq!(ENABLE_OUTPUT_COMMANDS.len(), 3);
     }
 }
