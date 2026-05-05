@@ -46,6 +46,11 @@ pub struct SetAmplitudeArgs {
     pub amplitude: f64,
 }
 
+#[derive(Deserialize)]
+pub struct SetChannelsOutputArgs {
+    pub on: bool,
+}
+
 #[tauri::command]
 pub fn set_frequency(
     state: State<AppState>,
@@ -133,6 +138,41 @@ pub fn sine_wave(state: State<AppState>, window: Window) -> Result<bool, String>
     println!("sine_wave called");
     let cmd = "WMW00\n".to_string();
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
+}
+
+#[tauri::command]
+pub fn set_both_channels_to_sine_wave(
+    state: State<AppState>,
+    window: Window,
+) -> Result<bool, String> {
+    println!("set_both_channels_to_sine_wave called");
+    let commands = ["WMW00\n", "WFW00\n"];
+    send_batched_commands(state, window, &commands)
+}
+
+#[tauri::command]
+pub fn set_channels_output(
+    state: State<AppState>,
+    args: SetChannelsOutputArgs,
+    window: Window,
+) -> Result<bool, String> {
+    println!("set_channels_output called with on: {}", args.on);
+    let commands: [&str; 2] = if args.on {
+        ["WMN1\n", "WFN1\n"]
+    } else {
+        ["WMN0\n", "WFN0\n"]
+    };
+    for cmd in commands.iter() {
+        write_to_port(
+            state.clone(),
+            WriteToPortArgs {
+                data: (*cmd).to_string(),
+            },
+            window.clone(),
+        )?;
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+    Ok(true)
 }
 
 fn send_batched_commands(

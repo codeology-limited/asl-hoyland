@@ -280,19 +280,23 @@ export default class ProgramRunner {
                         const offMs = num(program.offkeysec, 0) * 1000;
 
                         if (onMs > 0 && offMs > 0) {
-                            // Pulsed mode: on for onMs, off for offMs
+                            // Pulsed mode: BOTH channels on for onMs, BOTH off for offMs.
+                            // CH1 carries the program frequency; CH2 stays at startFrequency carrier.
+                            await this.gen.setFrequency(1, freq);
+                            setRunningFrequency(`${freq} Hz`);
+
                             const until = Date.now() + item.runTime;
                             while (this.running && Date.now() < until) {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running || Date.now() >= until) break;
 
-                                await this.gen.setFrequency(1, freq);
+                                await this.gen.setChannelsOutput(true);
                                 setRunningFrequency(`${freq} Hz`);
                                 const onEnd = Math.min(Date.now() + onMs, until);
                                 while (this.running && !this.paused && Date.now() < onEnd) await sleep(5);
                                 if (!this.running || Date.now() >= until) break;
 
-                                await this.gen.setFrequency(1, 0);
+                                await this.gen.setChannelsOutput(false);
                                 setRunningFrequency(`${freq} Hz (off)`);
                                 const offEnd = Math.min(Date.now() + offMs, until);
                                 while (this.running && !this.paused && Date.now() < offEnd) await sleep(5);

@@ -106,6 +106,16 @@ export default class HoylandController {
         console.log(ok ? 'square wave set' : 'Failed to set square wave');
     }
 
+    async setBothChannelsToSineWave() {
+        const ok = await this.invokeCmd<boolean>('set_both_channels_to_sine_wave');
+        console.log(ok ? 'sine wave set on both channels' : 'Failed to set sine wave on both channels');
+    }
+
+    async setChannelsOutput(on: boolean) {
+        const ok = await this.invokeCmd<boolean>('set_channels_output', { on });
+        console.log(ok ? `outputs ${on ? 'enabled' : 'disabled'}` : `Failed to ${on ? 'enable' : 'disable'} outputs`);
+    }
+
     async sync() {
         const ok = await this.invokeCmd<boolean>('sync');
         console.log(ok ? 'sync sent successfully' : 'Failed to sync');

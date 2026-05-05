@@ -17,6 +17,12 @@ const mkFakeGen = () => {
     setBothChannelsToSquareWave: vi.fn(async function (this: any) {
       (this.calls as any).push({ m: 'setSquare', args: [] });
     }),
+    setBothChannelsToSineWave: vi.fn(async function (this: any) {
+      (this.calls as any).push({ m: 'setSine', args: [] });
+    }),
+    setChannelsOutput: vi.fn(async function (this: any, on: boolean) {
+      (this.calls as any).push({ m: 'setChannelsOutput', args: [on] });
+    }),
     sync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sync', args: [] }); }),
     sinewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sinewave', args: [] }); }),
     enableOutputs: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'enableOutputs', args: [] }); }),
@@ -343,7 +349,7 @@ describe('ProgramRunner', () => {
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
   });
 
-  it('onkeysec/offkeysec pulses frequency on and off', async () => {
+  it('onkeysec/offkeysec pulses both channel outputs on and off', async () => {
     const program = {
       name: 'pulsed', range: 0,
       data: [{ channel: 1, frequency: 42.7, runTime: 8000 }],
@@ -361,13 +367,18 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
+    // CH1 frequency is set once at the start (and not toggled to 0)
     const freqCalls = gen.calls
       .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
-    // Should have multiple on (42.7) and off (0) calls
-    const onCalls = freqCalls.filter((c: any) => c.args[1] === 42.7);
-    const offCalls = freqCalls.filter((c: any) => c.args[1] === 0);
-    expect(onCalls.length).toBeGreaterThan(0);
-    expect(offCalls.length).toBeGreaterThan(0);
+    expect(freqCalls.some((c: any) => c.args[1] === 42.7)).toBe(true);
+    expect(freqCalls.some((c: any) => c.args[1] === 0)).toBe(false);
+
+    // Both channels toggled on/off via setChannelsOutput
+    const toggleCalls = gen.calls.filter((c: any) => c.m === 'setChannelsOutput');
+    const onToggles = toggleCalls.filter((c: any) => c.args[0] === true);
+    const offToggles = toggleCalls.filter((c: any) => c.args[0] === false);
+    expect(onToggles.length).toBeGreaterThan(0);
+    expect(offToggles.length).toBeGreaterThan(0);
   });
 
   it('ultrasound program initializes and toggles frequencies', async () => {

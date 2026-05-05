@@ -27,6 +27,8 @@ fn main() {
             commands::program::set_frequency,
             commands::program::set_amplitude,
             commands::program::set_both_channels_to_square_wave,
+            commands::program::set_both_channels_to_sine_wave,
+            commands::program::set_channels_output,
             commands::program::send_initial_commands,
             commands::program::send_secondary_commands,
             commands::program::enable_outputs,
