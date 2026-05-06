@@ -184,8 +184,8 @@ describe('ProgramRunner', () => {
     await p;
     const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
     expect(freqCalls.length).toBeGreaterThan(1);
-    // 1000→0 inclusive = 1001 values; ensure stepping doesn't overshoot
-    expect(freqCalls.length).toBeLessThanOrEqual(1001);
+    // 1 prime + 1000→0 inclusive = 1002 values max; ensure stepping doesn't overshoot
+    expect(freqCalls.length).toBeLessThanOrEqual(1002);
   });
 
   it('discrete sequence respects pause/resume within an item', async () => {
@@ -211,7 +211,8 @@ describe('ProgramRunner', () => {
     await run;
 
     const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[1] === 111);
-    expect(freqCalls.length).toBe(1);
+    // 1 prime before enableOutputs + 1 in the continuous block = 2; pause shouldn't add more
+    expect(freqCalls.length).toBe(2);
   });
 
   it('multi-item sequence plays all frequencies in order', async () => {
@@ -296,9 +297,12 @@ describe('ProgramRunner', () => {
     const freqCalls = gen.calls
       .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1)
       .map((c: any) => c.args[1]);
-    expect(freqCalls[0]).toBe(50);
-    expect(freqCalls[1]).toBe(472);
-    const sweepCalls = freqCalls.slice(2);
+    // First call is the prime before enableOutputs (also 50, the first data freq).
+    // Subsequent calls play the items in order: 50, 472, then sweep 6→15.
+    expect(freqCalls[0]).toBe(50); // prime
+    expect(freqCalls[1]).toBe(50); // item 1
+    expect(freqCalls[2]).toBe(472); // item 2
+    const sweepCalls = freqCalls.slice(3);
     expect(sweepCalls.length).toBeGreaterThan(1);
     expect(sweepCalls[0]).toBe(6);
   });
@@ -323,8 +327,10 @@ describe('ProgramRunner', () => {
 
     const freqCalls = gen.calls
       .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
-    expect(freqCalls.length).toBe(1);
+    // 1 prime before enableOutputs + 1 in the continuous block = 2 calls, both at 999
+    expect(freqCalls.length).toBe(2);
     expect(freqCalls[0].args[1]).toBe(999);
+    expect(freqCalls[1].args[1]).toBe(999);
   });
 
   it('channel1wavetype SINE calls sinewave()', async () => {

@@ -185,25 +185,28 @@ export default class ProgramRunner {
         } else {
             const nameLc = program.name.toLowerCase();
             let initialHz: number | null = null;
-            if (nameLc.includes('ultra500')) initialHz = Math.round(0.5 * 1_000_000);
-            else if (nameLc.includes('ultra670')) initialHz = Math.round(0.67 * 1_000_000);
+            if (nameLc.includes('ultra500')) initialHz = 0.5 * 1_000_000;
+            else if (nameLc.includes('ultra670')) initialHz = 0.67 * 1_000_000;
 
             const isRange = asBool(program.range) && program.data.length === 2;
             if (initialHz == null) {
                 if (isRange) {
                     const [startItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
-                    initialHz = Math.round(Number(startItem?.frequency));
+                    initialHz = Number(startItem?.frequency);
                 } else if (program.data.length > 0) {
-                    initialHz = Math.round(Number(program.data[0]?.frequency));
+                    initialHz = Number(program.data[0]?.frequency);
                 }
             }
 
-            // Apply amplitude and initial frequency BEFORE enabling outputs
+            // Apply amplitude and BOTH channel frequencies BEFORE enabling outputs,
+            // so the device doesn't briefly output the previous program's frequencies.
             await this.applyCurrentIntensity(program);
-            const shouldPrimeFrequency = initialHz != null && Number.isFinite(initialHz) && program.data.length === 0;
-            if (shouldPrimeFrequency) {
-                await this.gen.setFrequency(1, initialHz!);
+            if (initialHz != null && Number.isFinite(initialHz)) {
+                await this.gen.setFrequency(1, initialHz);
                 setRunningFrequency(`${initialHz} Hz`);
+            }
+            if (program.startFrequency > 0) {
+                await this.gen.setFrequency(2, program.startFrequency * 1_000_000);
             }
 
             // Set waveform: square on both channels, or sine on CH1
@@ -290,6 +293,9 @@ export default class ProgramRunner {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running || Date.now() >= until) break;
 
+                                // Re-assert frequency on each on-cycle in case toggling outputs
+                                // resets the device's cached frequency.
+                                await this.gen.setFrequency(1, freq);
                                 await this.gen.setChannelsOutput(true);
                                 setRunningFrequency(`${freq} Hz`);
                                 const onEnd = Math.min(Date.now() + onMs, until);
