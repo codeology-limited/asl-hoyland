@@ -157,10 +157,13 @@ pub fn set_channels_output(
     window: Window,
 ) -> Result<bool, String> {
     println!("set_channels_output called with on: {}", args.on);
-    let commands: [&str; 2] = if args.on {
-        ["WMN1\n", "WFN1\n"]
+    // Match the order used by ENABLE_OUTPUT_COMMANDS (CH2 first, then CH1, then re-assert sync).
+    // The 50 ms gap is much shorter than the 600 ms used at startup, but enough for the
+    // device to register each command between rapid pulse cycles.
+    let commands: &[&str] = if args.on {
+        &["WFN1\n", "WMN1\n", "USA2\n"]
     } else {
-        ["WMN0\n", "WFN0\n"]
+        &["WFN0\n", "WMN0\n"]
     };
     for cmd in commands.iter() {
         write_to_port(
@@ -170,7 +173,7 @@ pub fn set_channels_output(
             },
             window.clone(),
         )?;
-        std::thread::sleep(std::time::Duration::from_millis(5));
+        std::thread::sleep(std::time::Duration::from_millis(50));
     }
     Ok(true)
 }

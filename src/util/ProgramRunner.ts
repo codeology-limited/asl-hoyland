@@ -209,13 +209,22 @@ export default class ProgramRunner {
                 await this.gen.setFrequency(2, program.startFrequency * 1_000_000);
             }
 
-            // Set waveform: square on both channels, or sine on CH1
+            // Set waveform.
+            // - ultra*/no-carrier/SQUARE+SQUARE → both square + sync
+            // - SINE+SINE → both sine, asserted explicitly so CH1 doesn't inherit the
+            //   square left over from SECONDARY_COMMANDS' WMW01 init.
+            // - otherwise → fall back to sinewave() if CH1 declared SINE.
+            const ch1Sine = program.channel1wavetype === 'SINE';
+            const ch2Sine = program.channel2wavetype === 'SINE';
+            const ch1Square = program.channel1wavetype === 'SQUARE';
+            const ch2Square = program.channel2wavetype === 'SQUARE';
             if (nameLc.includes('ultra') || program.startFrequency === 0 ||
-                (program.channel1wavetype === 'SQUARE' && program.channel2wavetype === 'SQUARE')) {
+                (ch1Square && ch2Square)) {
                 await this.gen.setBothChannelsToSquareWave();
                 await this.gen.sync();
-            }
-            if (program.channel1wavetype === 'SINE') {
+            } else if (ch1Sine && ch2Sine) {
+                await this.gen.setBothChannelsToSineWave();
+            } else if (ch1Sine) {
                 await this.gen.sinewave();
             }
 
@@ -293,8 +302,10 @@ export default class ProgramRunner {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running || Date.now() >= until) break;
 
-                                // Re-assert frequency on each on-cycle in case toggling outputs
-                                // resets the device's cached frequency.
+                                // Re-assert waveform and frequency on each on-cycle. Some
+                                // FY6600 firmware revisions appear to drop CH1 state when the
+                                // output is rapidly toggled, so we restate it every time.
+                                if (ch1Sine) await this.gen.sinewave();
                                 await this.gen.setFrequency(1, freq);
                                 await this.gen.setChannelsOutput(true);
                                 setRunningFrequency(`${freq} Hz`);
