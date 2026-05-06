@@ -387,6 +387,48 @@ describe('ProgramRunner', () => {
     expect(offToggles.length).toBeGreaterThan(0);
   });
 
+  it('insomnia (SINE/SINE pulsed) primes both channels and re-asserts CH1 sine each on-cycle', async () => {
+    // Mirrors the production insomnia config in defaultPrograms.json
+    const program = {
+      name: 'insomnia', range: 0,
+      data: [{ channel: 1, frequency: 42.7, runTime: 8000 }],
+      maxTimeInMinutes: 0.15, default: 1, startFrequency: 27.12,
+      channel1wavetype: 'SINE',
+      channel2wavetype: 'SINE',
+      onkeysec: 3,
+      offkeysec: 1,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('insomnia', () => {});
+    await vi.advanceTimersByTimeAsync(9000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // SINE/SINE programs use the both-channels variant at startup, not just CH1's sinewave().
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+
+    // CH2 carrier was primed to 27.12 MHz before enableOutputs.
+    const ch2FreqCalls = gen.calls.filter((c: any) =>
+      c.m === 'setFrequency' && c.args[0] === 2);
+    expect(ch2FreqCalls.some((c: any) => c.args[1] === 27_120_000)).toBe(true);
+
+    // CH1 sine wave is re-asserted on each on-cycle (defensive against device reset).
+    const sinewaveCalls = gen.calls.filter((c: any) => c.m === 'sinewave');
+    const onToggles = gen.calls.filter((c: any) =>
+      c.m === 'setChannelsOutput' && c.args[0] === true);
+    expect(sinewaveCalls.length).toBeGreaterThanOrEqual(onToggles.length);
+
+    // Both channels toggle, never via frequency-to-zero.
+    const ch1FreqZero = gen.calls.some((c: any) =>
+      c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 0);
+    expect(ch1FreqZero).toBe(false);
+  });
+
   it('ultrasound program initializes and toggles frequencies', async () => {
     const program = {
       name: 'ultrasound', range: 1,
