@@ -292,28 +292,30 @@ export default class ProgramRunner {
                         const offMs = num(program.offkeysec, 0) * 1000;
 
                         if (onMs > 0 && offMs > 0) {
-                            // Pulsed mode: BOTH channels on for onMs, BOTH off for offMs.
-                            // CH1 carries the program frequency; CH2 stays at startFrequency carrier.
-                            await this.gen.setFrequency(1, freq);
-                            setRunningFrequency(`${freq} Hz`);
+                            // Pulsed mode: toggle BOTH channels' frequencies between their
+                            // target value and 0 Hz. Toggling outputs via WMN/WFN turned out
+                            // to be unreliable on the FY6600 — once disabled, the channel
+                            // sometimes refused to re-enable mid-program (1.6.7/1.6.8 reports).
+                            // Setting frequency to 0 Hz produces DC, which is silent for the
+                            // program's purpose and leaves the output enabled the whole time.
+                            const ch2Hz = program.startFrequency > 0
+                                ? program.startFrequency * 1_000_000
+                                : 0;
 
                             const until = Date.now() + item.runTime;
                             while (this.running && Date.now() < until) {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running || Date.now() >= until) break;
 
-                                // Re-assert waveform and frequency on each on-cycle. Some
-                                // FY6600 firmware revisions appear to drop CH1 state when the
-                                // output is rapidly toggled, so we restate it every time.
-                                if (ch1Sine) await this.gen.sinewave();
                                 await this.gen.setFrequency(1, freq);
-                                await this.gen.setChannelsOutput(true);
+                                if (ch2Hz > 0) await this.gen.setFrequency(2, ch2Hz);
                                 setRunningFrequency(`${freq} Hz`);
                                 const onEnd = Math.min(Date.now() + onMs, until);
                                 while (this.running && !this.paused && Date.now() < onEnd) await sleep(5);
                                 if (!this.running || Date.now() >= until) break;
 
-                                await this.gen.setChannelsOutput(false);
+                                await this.gen.setFrequency(1, 0);
+                                if (ch2Hz > 0) await this.gen.setFrequency(2, 0);
                                 setRunningFrequency(`${freq} Hz (off)`);
                                 const offEnd = Math.min(Date.now() + offMs, until);
                                 while (this.running && !this.paused && Date.now() < offEnd) await sleep(5);

@@ -355,7 +355,7 @@ describe('ProgramRunner', () => {
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
   });
 
-  it('onkeysec/offkeysec pulses both channel outputs on and off', async () => {
+  it('onkeysec/offkeysec pulses both channel frequencies between target and 0 Hz', async () => {
     const program = {
       name: 'pulsed', range: 0,
       data: [{ channel: 1, frequency: 42.7, runTime: 8000 }],
@@ -373,21 +373,24 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    // CH1 frequency is set once at the start (and not toggled to 0)
-    const freqCalls = gen.calls
+    // CH1 toggles between 42.7 Hz and 0 Hz
+    const ch1Calls = gen.calls
       .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
-    expect(freqCalls.some((c: any) => c.args[1] === 42.7)).toBe(true);
-    expect(freqCalls.some((c: any) => c.args[1] === 0)).toBe(false);
+    expect(ch1Calls.some((c: any) => c.args[1] === 42.7)).toBe(true);
+    expect(ch1Calls.some((c: any) => c.args[1] === 0)).toBe(true);
 
-    // Both channels toggled on/off via setChannelsOutput
+    // CH2 toggles between 27.12 MHz and 0 Hz
+    const ch2Calls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2);
+    expect(ch2Calls.some((c: any) => c.args[1] === 27_120_000)).toBe(true);
+    expect(ch2Calls.some((c: any) => c.args[1] === 0)).toBe(true);
+
+    // Pulsed mode no longer touches WMN/WFN — that approach was unreliable on FY6600.
     const toggleCalls = gen.calls.filter((c: any) => c.m === 'setChannelsOutput');
-    const onToggles = toggleCalls.filter((c: any) => c.args[0] === true);
-    const offToggles = toggleCalls.filter((c: any) => c.args[0] === false);
-    expect(onToggles.length).toBeGreaterThan(0);
-    expect(offToggles.length).toBeGreaterThan(0);
+    expect(toggleCalls.length).toBe(0);
   });
 
-  it('insomnia (SINE/SINE pulsed) primes both channels and re-asserts CH1 sine each on-cycle', async () => {
+  it('insomnia (SINE/SINE pulsed) primes both channels at startup and toggles freqs each cycle', async () => {
     // Mirrors the production insomnia config in defaultPrograms.json
     const program = {
       name: 'insomnia', range: 0,
@@ -412,21 +415,11 @@ describe('ProgramRunner', () => {
     expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
 
-    // CH2 carrier was primed to 27.12 MHz before enableOutputs.
+    // CH2 carrier was primed to 27.12 MHz before enableOutputs (and toggled to 0 each off cycle).
     const ch2FreqCalls = gen.calls.filter((c: any) =>
       c.m === 'setFrequency' && c.args[0] === 2);
     expect(ch2FreqCalls.some((c: any) => c.args[1] === 27_120_000)).toBe(true);
-
-    // CH1 sine wave is re-asserted on each on-cycle (defensive against device reset).
-    const sinewaveCalls = gen.calls.filter((c: any) => c.m === 'sinewave');
-    const onToggles = gen.calls.filter((c: any) =>
-      c.m === 'setChannelsOutput' && c.args[0] === true);
-    expect(sinewaveCalls.length).toBeGreaterThanOrEqual(onToggles.length);
-
-    // Both channels toggle, never via frequency-to-zero.
-    const ch1FreqZero = gen.calls.some((c: any) =>
-      c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 0);
-    expect(ch1FreqZero).toBe(false);
+    expect(ch2FreqCalls.some((c: any) => c.args[1] === 0)).toBe(true);
   });
 
   it('ultrasound program initializes and toggles frequencies', async () => {
