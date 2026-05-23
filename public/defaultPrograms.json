@@ -109,6 +109,19 @@
     "sliderPercent": 25,
     "startIntensityV": 5
   },
+  "gammaInflammation40Hz": {
+    "default": true,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "data": [40],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
   "gonorrhea": {
     "default": true,
     "channel1wavetype": "SQUARE",
@@ -179,6 +192,32 @@
     "sliderPercent": 25,
     "startIntensityV": 5
   },
+  "lymphocyte50Hz": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [50],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "mitochondrial16Hz": {
+    "default": true,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "data": [16],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
   "naturalKillerCell": {
     "default": true,
     "channel1wavetype": "SQUARE",
@@ -192,12 +231,39 @@
     "sliderPercent": 25,
     "startIntensityV": 5
   },
+  "oxidativeStress72to75Hz": {
+    "default": true,
+    "range": true,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "data": [72, 75],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
   "parasitesAndFungus": {
     "default": true,
     "channel1wavetype": "SQUARE",
     "channel2wavetype": "SQUARE",
     "data": [1150, 4, 993.98, 722, 2112, 4412, 840, 250, 5000, 42000, 850000, 741, 350, 75],
     "runTimeInMinutes": 42,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "pemfImmune8Hz": {
+    "default": true,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "data": [8],
+    "runTimeInMinutes": 30,
     "startFrequency": 0,
     "sliderMinV": 1,
     "sliderMaxV": 20,
@@ -337,12 +403,39 @@
     "sliderPercent": 25,
     "startIntensityV": 5
   },
+  "tCells30Hz": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [30],
+    "runTimeInMinutes": 60,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
   "tetanus": {
     "default": true,
     "channel1wavetype": "SQUARE",
     "channel2wavetype": "SQUARE",
     "data": [234000],
     "runTimeInMinutes": 10,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "ttFields100to300kHz": {
+    "default": true,
+    "range": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [100000, 300000],
+    "runTimeInMinutes": 30,
     "startFrequency": 0,
     "sliderMinV": 1,
     "sliderMaxV": 20,
