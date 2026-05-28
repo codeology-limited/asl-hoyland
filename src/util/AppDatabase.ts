@@ -167,6 +167,9 @@ export default class AppDatabase extends Dexie {
         const defaults = (await res.json()) as Record<string, unknown>;
 
         await this.transaction('rw', this.programs, async () => {
+          // v1.6.11: one-shot removal — Lynne reported the machine rejects this program.
+          await this.programs.where('name').equals('ttFields100to300kHz').delete();
+
           for (const [name, programAny] of Object.entries(defaults)) {
             let dataWithRunTime: ProgramRow['data'] = [];
 
