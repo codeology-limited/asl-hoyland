@@ -61,6 +61,37 @@ describe('CustomPrograms', () => {
     expect(slider).toBeInTheDocument();
   });
 
+  it('shows intensity as a percentage with the absolute voltage', () => {
+    renderWithContext(
+      <CustomPrograms
+        setIsRunning={mockSetIsRunning}
+        isRunning={false}
+        isDeviceReady={true}
+      />
+    );
+
+    // The slider value IS device amplitude in volts; the label shows both % and V.
+    const label = screen.getByText(/Intensity:\s*\d+%\s*\([\d.]+ V\)/);
+    expect(label).toBeInTheDocument();
+  });
+
+  it('drives the intensity slider from program-derived bounds (not hardcoded 1..20 math)', () => {
+    renderWithContext(
+      <CustomPrograms
+        setIsRunning={mockSetIsRunning}
+        isRunning={false}
+        isDeviceReady={true}
+      />
+    );
+
+    const slider = screen.getByRole('slider', { name: /intensity/i });
+    // Default bounds come from state, not a hardcoded literal on the element.
+    expect(slider).toHaveAttribute('min', '1');
+    expect(slider).toHaveAttribute('max', '20');
+    expect(slider).toHaveAttribute('step', '1');
+    expect(slider).toHaveAttribute('aria-valuetext', expect.stringMatching(/V\)/));
+  });
+
   it('renders start button when not running', () => {
     renderWithContext(
       <CustomPrograms

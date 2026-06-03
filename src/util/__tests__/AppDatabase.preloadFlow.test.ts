@@ -49,7 +49,13 @@ describe('AppDatabase preload flow', () => {
       alpha: { default: true, range: false, data: [100], runTimeInMinutes: 1, startFrequency: 0 },
       beta: { default: true, range: false, data: [200], runTimeInMinutes: 1, startFrequency: 0 },
     } as const;
-    global.fetch = vi.fn().mockResolvedValue({ json: async () => data } as any);
+    // ok:true is required so the new res.ok guard in preloadDefaults passes;
+    // headers.get provided for the content-type guard.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: async () => data,
+    } as any);
 
     const db = new AppDatabase();
     const names = (await db.getDefaultPrograms()).map((p: any) => p.name).sort();
@@ -64,7 +70,11 @@ describe('AppDatabase preload flow', () => {
       delta: { default: true, range: false, data: [400], runTimeInMinutes: 1, startFrequency: 0 },
     } as const;
     // Add slight delay to simulate real fetch
-    global.fetch = vi.fn().mockResolvedValue({ json: async () => { await new Promise(r => setTimeout(r, 50)); return data; } } as any);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: async () => { await new Promise(r => setTimeout(r, 50)); return data; },
+    } as any);
 
     const db = new AppDatabase();
     // Fire two concurrent calls
@@ -75,5 +85,38 @@ describe('AppDatabase preload flow', () => {
     expect(db.preloadDone).toBe(true);
     // fetch should be called once due to single-flight
     expect((global.fetch as any).mock.calls.length).toBe(1);
+  });
+
+  it('a non-ok fetch leaves preloadDone false and is caught (no throw), allowing retry', async () => {
+    const data = {
+      epsilon: { default: true, range: false, data: [500], runTimeInMinutes: 1, startFrequency: 0 },
+    } as const;
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // First call: server returns a non-ok status -> internal throw is caught,
+    // preloadDefaults resolves, preloadDone stays false, nothing seeded.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      headers: { get: () => null },
+      json: async () => ({}),
+    } as any);
+
+    const db = new AppDatabase();
+    await expect(db.preloadDefaults()).resolves.toBeUndefined();
+    expect(db.preloadDone).toBe(false);
+    expect((await db.getDefaultPrograms()).length).toBe(0);
+
+    // Retry now succeeds.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: async () => data,
+    } as any);
+    await db.preloadDefaults();
+    expect(db.preloadDone).toBe(true);
+    expect((await db.getDefaultPrograms()).map((p: any) => p.name)).toEqual(['epsilon']);
+
+    errSpy.mockRestore();
   });
 });

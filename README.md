@@ -1,6 +1,66 @@
-# Tauri + React + Typescript
+# asl-hoyland
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+A desktop controller for **FY6600 / FY2300** series signal generators, used to
+drive Rife / biofrequency and ultrasound programs. Built with **Tauri 1.x**, a
+**React 18 + TypeScript** frontend (`src/`) and a **Rust** backend (`src-tauri/`).
+
+The frontend calls into the Rust backend over Tauri `invoke()`; the backend
+sends ASCII serial commands (see the reference tables below) to the connected
+signal generator over a serial port.
+
+> ⚠️ **SAFETY NOTE — this is a biofrequency / ultrasound device that applies
+> frequencies and amplitude to a human body.** Frequency, amplitude, duration,
+> waveform, and the order in which outputs are enabled are all safety-critical.
+> Outputs are only enabled **after** every other setting has been written
+> (waveform, frequency, amplitude), amplitude is **clamped to 0–20 V** in the
+> backend, stopping the program **zeroes the amplitude and frequency** and turns
+> both channels off, and a backend **deadman watchdog** force-stops the device if
+> the running session stops sending heartbeats (~30 s) or exceeds the maximum
+> session length. Do not bypass these guards.
+
+## Development
+
+```bash
+npm install        # install frontend deps
+npm run tauri:dev  # run the app (Vite dev server + Tauri shell)
+```
+
+`npm run dev` runs the Vite frontend alone (browser, no serial access); use
+`npm run tauri:dev` for the full desktop app with serial support.
+
+### TEST-port fallback
+
+If no real generator is found (or you are developing without hardware), the app
+falls back to a virtual **`TEST`** port. `list_ports` always appends `"TEST"`,
+and `reconnect_device` falls back to `use_test_port` when no matching device is
+present. On the `TEST` port, serial writes are logged instead of sent, so you
+can exercise the full program flow without a device attached.
+
+## Building / releasing
+
+Releases are cut with the helper script, which bumps the patch version, syncs
+the version across `tauri.conf.json`, `src/App.tsx` and `src/__tests__/App.test.tsx`,
+then commits, tags, and pushes to trigger the GitHub Actions release workflow:
+
+```bash
+./scripts/release.sh
+```
+
+To produce a build without releasing, use `npm run build` (frontend) or
+`npm run tauri` with the appropriate Tauri subcommand.
+
+## Testing
+
+```bash
+npm test                       # frontend unit tests (Vitest)
+cargo test --manifest-path src-tauri/Cargo.toml   # Rust backend tests
+```
+
+The Rust tests cover the serial command formatting/sequencing and the deadman
+watchdog; the frontend Vitest suite covers `AppDatabase`, `HoylandController`,
+and the `ProgramRunner` engine (sweep, pulsed, pause/resume, and command order).
+
+---
 
 ## Recommended IDE Setup
 
@@ -105,44 +165,73 @@ This application communicates with FY2300/FY6300 series signal generators via se
 
 ---
 
-### Typical Initialization Sequence
+### Initialization Sequence (as implemented)
+
+The legacy reference above turned CH2/CH1 on inline. **The current
+implementation deliberately enables outputs LAST**, after every channel setting
+(waveform, offset, duty, phase, frequency, amplitude) has been written. This
+avoids a brief moment where the device outputs a stale frequency from the
+previous program. The output-enable commands (`WFN1`, `WMN1`, `USA2`) and the
+deferred sync are sent only as the final step.
 
 ```
-1. UBZ1          - Turn on buzzer (confirm connection)
-2. UMS0          - Set to master mode
-3. UUL0          - Disable cascading
-4. WFW00         - Set CH2 to sine wave
-5. WFF3100000.000000 - Set CH2 frequency to 3.1MHz (carrier)
-6. WFO00.00      - Set CH2 offset to 0
-7. WFD50.0       - Set CH2 duty to 50%
-8. WFP000        - Set CH2 phase to 0
-9. WFT0          - Set CH2 attenuation to 0
-10. WFN1         - Turn CH2 on
-11. WMW01        - Set CH1 to square wave
-12. WMF<freq>    - Set CH1 frequency
-13. WMA02.00     - Set CH1 amplitude to 2V
-14. WMO00.00     - Set CH1 offset to 0
-15. WMD50.0      - Set CH1 duty to 50%
-16. WMP000       - Set CH1 phase to 0
-17. WMT0         - Set CH1 attenuation to 0
-18. WMN1         - Turn CH1 on
-19. USA2         - Synchronize voltage output
+# 1. INITIAL_COMMANDS — configure CH2 (carrier), NO output enable
+WFW00              - CH2 sine wave
+WFO00.00           - CH2 offset 0
+WFD50.0            - CH2 duty 50%
+WFP000             - CH2 phase 0
+WFT0               - CH2 attenuation 0
+WFF3100000.000000  - CH2 frequency 3.1MHz (carrier)
+                     # NOTE: WFN1 (CH2 on) is NOT here — moved to the enable step
+
+# 2. SECONDARY_COMMANDS — configure CH1, NO output enable / NO sync
+WMW01              - CH1 square wave
+WMO00.00           - CH1 offset 0
+WMD50.0            - CH1 duty 50%
+WMP000             - CH1 phase 0
+WMT0               - CH1 attenuation 0
+WMA005.000         - CH1 amplitude
+                     # NOTE: WMN1 (CH1 on) and USA2 (sync) are NOT here
+
+# 3. Per-program settings: waveform (square/sine), set CH1/CH2 frequency,
+#    set/clamp amplitude  — still with outputs OFF
+
+# 4. ENABLE_OUTPUT_COMMANDS — enable outputs LAST
+WFN1               - CH2 on
+WMN1               - CH1 on
+USA2               - Sync — links both channels
 ```
 
-### Shutdown Sequence
+### Stop / Shutdown Sequence (as implemented)
+
+`stop_and_reset` disables sync first, then **zeroes both frequencies**, then
+turns both channels off last. The deadman watchdog uses the same force-stop
+sequence if a session loses its heartbeat or exceeds the max duration.
 
 ```
-1. USD2          - Disable voltage sync
-2. WFN0          - Turn CH2 off
-3. WMN0          - Turn CH1 off
+USD0 USD1 USD2 USD3 USD4   - Disable voltage sync FIRST (all sync slots)
+WFF0  WMF0                  - Reset CH2 / CH1 frequency to 0
+WFN0  WMN0                  - Turn CH2 / CH1 off LAST
 ```
+
+Stopping also re-sends amplitude 0 via the frontend so no residual drive
+remains.
 
 ---
 
 ### Notes
 
-- All commands are terminated with `0x0A` (newline character)
-- Frequency format: `WMF` and `WFF` accept frequency in Hz with format `NNNNNNNN.NNNNNN`
-- Amplitude range: 0-20V depending on model
-- Model naming: The number after the hyphen indicates max frequency in MHz (e.g., FY2300-25M = 25MHz max)
-- Recommended delay between commands: 30-400ms depending on command complexity
+- All commands are terminated with `0x0A` (newline character).
+- **Frequency format (as implemented):** `WMF`/`WFF` take the frequency in Hz,
+  formatted as **7 integer digits + 6 fractional digits** — `NNNNNNN.NNNNNN`
+  (e.g. `WMF0000027.120000` for 27.12 Hz, `WFF0000003.100000` for 3.1 Hz). The
+  integer part is the Hz value truncated; the fraction is `fract * 1_000_000`.
+  Programs scale MHz carriers to Hz (e.g. `3.1 MHz → 3_100_000 Hz`) before
+  calling this. Frequencies must be non-negative and are intended to stay
+  **below 10 MHz** (the 7-digit integer field caps just under 10 MHz).
+- **Amplitude (as implemented):** formatted as `NN.NN` volts and **clamped to
+  0–20 V in the backend**. Stopping zeroes the amplitude.
+- Model naming: The number after the hyphen indicates max frequency in MHz
+  (e.g. FY2300-25M = 25MHz max).
+- Recommended delay between commands: 30–600ms depending on command complexity
+  (startup batches use ~600ms; rapid pulse cycles use ~50ms).

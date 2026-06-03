@@ -20,6 +20,8 @@ interface AppContextValue {
     addEvent: (event: AppEvent) => void;
     testMode: boolean;
     setTestMode: (enabled: boolean) => void;
+    /** Recent device-failure messages (payloads of "message_fail" events). */
+    errors: string[];
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -47,6 +49,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         [appDatabase, hoylandController]
     );
 
+    // Derive the most recent device-failure messages for the ErrorBar.
+    const errors = useMemo<string[]>(
+        () =>
+            events
+                .filter((e) => e.type === "message_fail")
+                .slice(-5)
+                .map((e) => e.payload),
+        [events]
+    );
+
     const value = useMemo<AppContextValue>(
         () => ({
             appDatabase,
@@ -56,8 +68,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             addEvent,
             testMode,
             setTestMode,
+            errors,
         }),
-        [appDatabase, hoylandController, programRunner, events, addEvent, testMode]
+        [appDatabase, hoylandController, programRunner, events, addEvent, testMode, errors]
     );
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

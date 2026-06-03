@@ -14,6 +14,11 @@ dist
 dist-ssr
 *.local
 
+# Build artifacts / installers
+*.exe
+/coverage/
+*.timestamp-*.mjs
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import React from 'react';
@@ -10,9 +10,41 @@ vi.mock('@tauri-apps/api/tauri', () => ({
   invoke: vi.fn().mockResolvedValue('TEST'),
 }));
 
+// Mock the Tauri event API so listeners don't hit real IPC. Captured handlers
+// let tests simulate backend window events (e.g. message_fail/message_success).
+// Use the `mock`-prefixed name so Vitest permits referencing it in the hoisted
+// vi.mock factory.
+const mockEventHandlers: Record<string, Array<(e: { payload: unknown }) => void>> = {};
+const emitTauriEvent = (event: string, payload: unknown) => {
+  (mockEventHandlers[event] ?? []).forEach((h) => h({ payload }));
+};
+const mockListenImpl = async (
+  event: string,
+  handler: (e: { payload: unknown }) => void
+) => {
+  (mockEventHandlers[event] ??= []).push(handler);
+  return () => {
+    mockEventHandlers[event] = (mockEventHandlers[event] ?? []).filter((h) => h !== handler);
+  };
+};
+// NOTE: the factory must NOT reference outer `const` bindings (e.g.
+// mockListenImpl) — vi.mock is hoisted above their initialization, so doing so
+// throws "Cannot access ... before initialization" (TDZ). We create a bare
+// vi.fn() here and install the real implementation in beforeEach below.
+vi.mock('@tauri-apps/api/event', () => ({
+  listen: vi.fn(),
+}));
+
 describe('App', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    for (const key of Object.keys(mockEventHandlers)) delete mockEventHandlers[key];
+    // The global vitest mockReset clears implementations between tests, so
+    // re-establish the listen implementation each time.
+    const { listen } = await import('@tauri-apps/api/event');
+    (listen as ReturnType<typeof vi.fn>).mockImplementation(mockListenImpl);
+    const { invoke } = await import('@tauri-apps/api/tauri');
+    (invoke as ReturnType<typeof vi.fn>).mockResolvedValue('TEST');
   });
 
   beforeEach(() => {
@@ -120,7 +152,7 @@ describe('App', () => {
 
     await waitFor(() => {
       // Editor component should be rendered
-      expect(screen.getByText(/New program or Choose Program/i)).toBeInTheDocument();
+      expect(screen.getByText(/Load a saved program/i)).toBeInTheDocument();
     });
   });
 
@@ -169,6 +201,27 @@ describe('App', () => {
     // Now controls should be enabled
     await waitFor(() => {
       expect(dropdown).not.toBeDisabled();
+    });
+  });
+
+  it('routes to the TEST port when test mode is enabled (safety: no real writes)', async () => {
+    const user = userEvent.setup();
+    const invokeMock = invoke as ReturnType<typeof vi.fn>;
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('No device found')).toBeInTheDocument();
+    });
+
+    invokeMock.mockClear();
+    invokeMock.mockResolvedValue('TEST');
+
+    const testModeCheckbox = screen.getByRole('checkbox', { name: /Enable Test Mode/i });
+    await user.click(testModeCheckbox);
+
+    // Enabling test mode must force the backend onto the inert TEST port.
+    await waitFor(() => {
+      expect(invokeMock).toHaveBeenCalledWith('use_test_port');
     });
   });
 
@@ -224,6 +277,38 @@ describe('App', () => {
       const statusIndicator = container.querySelector('.status-indicator');
       expect(statusIndicator).toBeInTheDocument();
     });
+  });
+
+  it('registers listeners for backend message_fail and message_success events', async () => {
+    const { listen } = await import('@tauri-apps/api/event');
+    const listenMock = listen as ReturnType<typeof vi.fn>;
+    render(<App />);
+
+    await waitFor(() => {
+      const events = listenMock.mock.calls.map((c) => c[0]);
+      expect(events).toContain('message_fail');
+      expect(events).toContain('message_success');
+    });
+  });
+
+  it('surfaces a backend message_fail in the ErrorBar', async () => {
+    render(<App />);
+
+    // Wait until the message_fail listener is registered.
+    await waitFor(() => {
+      expect(mockEventHandlers['message_fail']?.length).toBeGreaterThan(0);
+    });
+
+    act(() => {
+      emitTauriEvent('message_fail', 'WMF write failed: port closed');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('WMF write failed: port closed')).toBeInTheDocument();
+    });
+
+    // The ErrorBar is an assertive alert region.
+    expect(screen.getByRole('alert')).toHaveClass('error-bar');
   });
 
   it('auto-connect defers so the first paint is uninterrupted', async () => {

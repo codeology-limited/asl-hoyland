@@ -1,5 +1,32 @@
 # Program Format Standardization Proposal
 
+> **Status: mostly PROPOSED, partially IMPLEMENTED.**
+>
+> The unified `{mode, frequencies, duration, waveform, pulse, intensity, options}`
+> schema described below is **not** what the code uses today — it remains a
+> design proposal. What is **actually implemented** is a smaller, incremental
+> step that supports two `data` shapes side by side:
+>
+> - **Old format (`number[]`):** `data` is a flat list of frequencies, e.g.
+>   `"data": [322, 339, 343, ...]` (sequence) or `"data": [1, 40000]` with
+>   `"range": true`. This is still the format used by almost every program in
+>   `public/defaultPrograms.json`.
+> - **New format (`{f, s, sweepTo}[]`):** `data` is a list of objects where
+>   `f` = frequency in Hz, `s` = seconds to hold, and optional `sweepTo` = end
+>   frequency for an inline sweep, e.g.
+>   `"data": [{"f": 50, "s": 300}, {"f": 6, "s": 1800, "sweepTo": 70}]`.
+>   **`candida` is currently the only program authored in this new format.**
+>
+> `AppDatabase` normalizes both shapes into the persisted `ProgramRow`
+> (`data: { channel, frequency, runTime, sweepTo? }[]`), and `ProgramRunner`
+> reads `frequency` / `runTime` / `sweepTo` from those rows. Pulsed playback
+> still uses the existing `onkeysec` / `offkeysec` fields, `mirror` and
+> `range` are still booleans on the program, waveform is still driven by the
+> `channel1wavetype` / `channel2wavetype` strings, and the `ultrasound` /
+> `ultra500` / `ultra670` special cases still exist via `runSpecialCase` and
+> name checks. The single-`mode`-field unification, the deletion of special
+> cases, and the editor changes (Phases 3–4 below) are **not** done.
+
 ## Current Problems
 
 1. **Hardcoded special cases** in ProgramRunner.ts:

@@ -28,9 +28,11 @@ const ENABLE_OUTPUT_COMMANDS: &[&str] = &[
     "WMN1\n",               // CH1 on
     "USA2\n",               // Sync — links both channels
 ];
-const STOP_COMMANDS: &[&str] = &[
+// pub so the R2 watchdog/force-stop path can reference these exact STOP commands.
+pub const STOP_COMMANDS: &[&str] = &[
     "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
     "WFF0\n", "WMF0\n",                               // Reset frequencies
+    "WFA00.00\n", "WMA00.00\n",                       // Zero amplitude so STOP can't leave a latched DC offset
     "WFN0\n", "WMN0\n",                               // Turn off channels LAST
 ];
 
@@ -51,6 +53,63 @@ pub struct SetChannelsOutputArgs {
     pub on: bool,
 }
 
+// SAFETY: this device drives a signal applied to a human body. The FY6600 amplitude
+// field is fixed-width {:05.2}, so it cannot widen once values are capped at 20.00.
+const MAX_AMPLITUDE_V: f64 = 20.0;
+
+// The frequency integer field is {:07}, so the integer part must stay below 10 MHz to
+// avoid widening the (proven) command format on hardware. All shipped programs are well
+// under this; this just rejects out-of-protocol garbage before it reaches the device.
+const MAX_FREQUENCY_HZ: f64 = 9_999_999.0;
+
+/// Pure validation + formatting for a frequency command. Shared by `set_frequency` and the
+/// tests so the test expectations can never drift from production behavior.
+pub fn format_frequency_cmd(channel: u8, frequency: f64) -> Result<String, String> {
+    if !frequency.is_finite() {
+        return Err("Frequency must be a finite number".to_string());
+    }
+    if frequency < 0.0 {
+        return Err("Frequency must be non-negative".to_string());
+    }
+    if frequency > MAX_FREQUENCY_HZ {
+        return Err("Frequency exceeds device/protocol maximum".to_string());
+    }
+
+    let prefix = match channel {
+        1 => "WMF",
+        2 => "WFF",
+        _ => return Err("Invalid channel. Must be 1 or 2".to_string()),
+    };
+
+    // Compute total micro-Hz first so the int/frac split cannot carry-round independently
+    // (e.g. 1.9999995 must become 2.000000, not 1.000000) and cannot overflow.
+    let total_uhz = (frequency * 1_000_000.0).round() as u64;
+    let int_part = total_uhz / 1_000_000;
+    let frac_part = total_uhz % 1_000_000;
+
+    Ok(format!("{}{:07}.{:06}\n", prefix, int_part, frac_part))
+}
+
+/// Pure validation + formatting for an amplitude command. Shared by `set_amplitude` and the
+/// tests so the test expectations can never drift from production behavior.
+pub fn format_amplitude_cmd(channel: u8, amplitude: f64) -> Result<String, String> {
+    // Reject invalid amplitude BEFORE formatting; the {:05.2} field cannot widen once capped.
+    if !amplitude.is_finite() || !(0.0..=MAX_AMPLITUDE_V).contains(&amplitude) {
+        return Err(format!(
+            "Amplitude must be between 0.0 and {:.1} V",
+            MAX_AMPLITUDE_V
+        ));
+    }
+
+    let prefix = match channel {
+        1 => "WMA",
+        2 => "WFA",
+        _ => return Err("Invalid channel. Must be 1 or 2".to_string()),
+    };
+
+    Ok(format!("{}{:05.2}\n", prefix, amplitude))
+}
+
 #[tauri::command]
 pub fn set_frequency(
     state: State<AppState>,
@@ -62,25 +121,7 @@ pub fn set_frequency(
         args.channel, args.frequency
     );
 
-    if args.frequency < 0.0 {
-        return Err("Frequency must be non-negative".to_string());
-    }
-
-    let mhz_part = args.frequency.trunc() as u64;
-    let fractional_part = (args.frequency.fract() * 1_000_000.0).round() as u64;
-
-    println!(
-        "MHz part: {}, Fractional part: {}",
-        mhz_part, fractional_part
-    );
-
-    let prefix = match args.channel {
-        1 => "WMF",
-        2 => "WFF",
-        _ => return Err("Invalid channel. Must be 1 or 2".to_string()),
-    };
-
-    let cmd = format!("{}{:07}.{:06}\n", prefix, mhz_part, fractional_part);
+    let cmd = format_frequency_cmd(args.channel, args.frequency)?;
     println!("Outgoing command: {}", cmd);
 
     match write_to_port(state, WriteToPortArgs { data: cmd.clone() }, window) {
@@ -105,11 +146,7 @@ pub fn set_amplitude(
         args.channel, args.amplitude
     );
 
-    let prefix = match args.channel {
-        2 => "WFA",
-        _ => "WMA",
-    };
-    let commands = [format!("{}{:05.2}\n", prefix, args.amplitude)];
+    let commands = [format_amplitude_cmd(args.channel, args.amplitude)?];
 
     for cmd in &commands {
         match write_to_port(
@@ -270,33 +307,83 @@ pub fn stop_and_reset(state: State<AppState>, window: Window) -> Result<bool, St
 mod tests {
     use super::*;
 
-    fn format_frequency_cmd(prefix: &str, frequency: f64) -> String {
-        let mhz_part = frequency.trunc() as u64;
-        let fractional_part = (frequency.fract() * 1_000_000.0).round() as u64;
-        format!("{}{:07}.{:06}\n", prefix, mhz_part, fractional_part)
-    }
-
-    fn format_amplitude_cmd(amplitude: f64) -> String {
-        format!("WMA{:05.2}\n", amplitude)
-    }
+    // Tests call the REAL production formatting functions so expectations cannot drift.
 
     #[test]
     fn frequency_formatting_channel1() {
-        let cmd = format_frequency_cmd("WMF", 27.12);
+        let cmd = format_frequency_cmd(1, 27.12).expect("valid frequency");
         assert_eq!(cmd, "WMF0000027.120000\n");
     }
 
     #[test]
     fn frequency_formatting_channel2() {
-        let cmd = format_frequency_cmd("WFF", 3.1);
+        // Channel 2 uses the WFF prefix.
+        let cmd = format_frequency_cmd(2, 3.1).expect("valid frequency");
         assert_eq!(cmd, "WFF0000003.100000\n");
     }
 
     #[test]
+    fn frequency_negative_is_rejected() {
+        assert!(format_frequency_cmd(1, -1.0).is_err());
+    }
+
+    #[test]
+    fn frequency_at_protocol_max_is_rejected() {
+        // 10 MHz would overflow the {:07} integer field; must be rejected.
+        assert!(format_frequency_cmd(1, 10_000_000.0).is_err());
+    }
+
+    #[test]
+    fn frequency_non_finite_is_rejected() {
+        assert!(format_frequency_cmd(1, f64::NAN).is_err());
+        assert!(format_frequency_cmd(1, f64::INFINITY).is_err());
+    }
+
+    #[test]
+    fn frequency_invalid_channel_is_rejected() {
+        assert!(format_frequency_cmd(0, 1.0).is_err());
+        assert!(format_frequency_cmd(3, 1.0).is_err());
+    }
+
+    #[test]
+    fn frequency_fractional_carry_rounds_up_cleanly() {
+        // The total-micro-Hz split must carry into the integer part instead of
+        // rounding each half independently: 1.9999995 -> 2.000000, not 1.000000.
+        let cmd = format_frequency_cmd(1, 1.9999995).expect("valid frequency");
+        assert_eq!(cmd, "WMF0000002.000000\n");
+    }
+
+    #[test]
     fn amplitude_formatting_min_and_rounding() {
-        assert_eq!(format_amplitude_cmd(1.5), "WMA01.50\n");
-        assert_eq!(format_amplitude_cmd(20.0), "WMA20.00\n");
-        assert_eq!(format_amplitude_cmd(0.0), "WMA00.00\n");
+        assert_eq!(format_amplitude_cmd(1, 1.5).expect("valid"), "WMA01.50\n");
+        assert_eq!(format_amplitude_cmd(1, 20.0).expect("valid"), "WMA20.00\n");
+        assert_eq!(format_amplitude_cmd(1, 0.0).expect("valid"), "WMA00.00\n");
+    }
+
+    #[test]
+    fn amplitude_channel2_uses_wfa_prefix() {
+        assert_eq!(format_amplitude_cmd(2, 5.0).expect("valid"), "WFA05.00\n");
+    }
+
+    #[test]
+    fn amplitude_above_max_is_rejected() {
+        assert!(format_amplitude_cmd(1, 100.0).is_err());
+    }
+
+    #[test]
+    fn amplitude_negative_is_rejected() {
+        assert!(format_amplitude_cmd(1, -1.0).is_err());
+    }
+
+    #[test]
+    fn amplitude_non_finite_is_rejected() {
+        assert!(format_amplitude_cmd(1, f64::NAN).is_err());
+    }
+
+    #[test]
+    fn amplitude_invalid_channel_is_rejected() {
+        assert!(format_amplitude_cmd(0, 5.0).is_err());
+        assert!(format_amplitude_cmd(3, 5.0).is_err());
     }
 
     #[test]
@@ -304,9 +391,12 @@ mod tests {
         let expected = vec![
             "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
             "WFF0\n", "WMF0\n",                               // Reset frequencies
+            "WFA00.00\n", "WMA00.00\n",                       // Zero amplitude before turning off
             "WFN0\n", "WMN0\n",                               // Turn off channels LAST
         ];
-        assert_eq!(expected.len(), 9);
+        // The const STOP_COMMANDS must match this exact order/length.
+        assert_eq!(STOP_COMMANDS, expected.as_slice());
+        assert_eq!(expected.len(), 11);
         for s in expected {
             assert!(s.ends_with('\n'));
             let first = s.chars().next().unwrap_or(' ');

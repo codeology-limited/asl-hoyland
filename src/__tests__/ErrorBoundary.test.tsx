@@ -55,6 +55,39 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
   });
 
+  it('default fallback shows the error message and a reload affordance', () => {
+    render(
+      <ErrorBoundary>
+        <ThrowError errorMessage="Boom in render" />
+      </ErrorBoundary>
+    );
+
+    // The message is surfaced visibly (not only logged)
+    expect(screen.getByText('Boom in render')).toBeInTheDocument();
+    // A reload button is offered for recovery
+    const reloadButton = screen.getByRole('button', { name: /reload/i });
+    expect(reloadButton).toBeInTheDocument();
+    // The fallback is announced as an alert
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+
+  it('reload button triggers window.location.reload', () => {
+    const reloadSpy = vi.spyOn(window.location, 'reload').mockImplementation(() => {});
+
+    try {
+      render(
+        <ErrorBoundary>
+          <ThrowError />
+        </ErrorBoundary>
+      );
+
+      screen.getByRole('button', { name: /reload/i }).click();
+      expect(reloadSpy).toHaveBeenCalled();
+    } finally {
+      reloadSpy.mockRestore();
+    }
+  });
+
   it('renders custom fallback UI when provided', () => {
     render(
       <ErrorBoundary fallback={<div>Custom error UI</div>}>

@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { BrowserRouter as Router, Route, NavLink, Routes } from "react-router-dom";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/tauri";
 import "./assets/App.css";
 import DefaultPrograms from "./DefaultPrograms/Index";
 import CustomPrograms from "./CustomPrograms/Index";
 import ProgramEditor from "./ProgramEditor";
 import StatusIndicator from "./StatusIndicator";
+import ErrorBar from "./ErrorBar";
 import { AppProvider, useAppContext } from "./AppContext";
 import { ProgramItem } from "./types";
 
 const App: React.FC = () => {
-    const { hoylandController, appDatabase, testMode, setTestMode } = useAppContext();
+    const { hoylandController, appDatabase, testMode, setTestMode, addEvent, errors } = useAppContext();
 
     const [portLabel, setPortLabel] = useState<string>("Not Connected");
     const [isRunning, setIsRunning] = useState(false);
@@ -56,10 +58,8 @@ const App: React.FC = () => {
         (async () => {
             try {
                 unlisten = await listen<string>('scanning_port', (event) => {
-                    console.log('Received scanning_port event:', event.payload);
                     setCurrentScanningPort(event.payload);
                 });
-                console.log('scanning_port listener set up successfully');
             } catch (err) {
                 console.error('Failed to setup scanning_port listener:', err);
             }
@@ -70,25 +70,45 @@ const App: React.FC = () => {
         };
     }, []);
 
-    // Debug: log when isConnecting or currentScanningPort changes
+    // Bridge backend device-write outcomes into the app event stream.
+    // The Rust backend (io.rs write_to_port) emits "message_fail"/"message_success"
+    // window events; surfacing them here makes failures visible (ErrorBar /
+    // StatusIndicator) for this safety-critical device.
     useEffect(() => {
-        console.log('State changed - isConnecting:', isConnecting, 'currentScanningPort:', currentScanningPort);
-    }, [isConnecting, currentScanningPort]);
+        const unlistenFns: Array<() => void> = [];
+
+        (async () => {
+            try {
+                const unlistenFail = await listen<string>('message_fail', (event) => {
+                    addEvent({ type: 'message_fail', payload: event.payload });
+                });
+                unlistenFns.push(unlistenFail);
+
+                const unlistenSuccess = await listen<string>('message_success', (event) => {
+                    addEvent({ type: 'message_success', payload: event.payload });
+                });
+                unlistenFns.push(unlistenSuccess);
+            } catch (err) {
+                console.error('Failed to setup device message listeners:', err);
+            }
+        })();
+
+        return () => {
+            for (const fn of unlistenFns) fn();
+        };
+    }, [addEvent]);
 
     const updateConnectionState = useCallback(
         async (isCancelled?: () => boolean) => {
             if (!hoylandController) return null;
-            console.log('Setting isConnecting to TRUE');
             setIsConnecting(true);
             setCurrentScanningPort(""); // Clear any previous scanning state
 
             // Allow React to render the "Connecting..." state before starting the scan
             await new Promise(resolve => setTimeout(resolve, 50));
-            console.log('Starting reconnectDevice()');
 
             try {
                 const result = await hoylandController.reconnectDevice();
-                console.log('reconnectDevice() result:', result);
                 if (isCancelled?.()) {
                     // Scanning was cancelled, set to "No device found" state
                     setPortLabel("No device found");
@@ -127,16 +147,8 @@ const App: React.FC = () => {
 
     // Auto-connect when button becomes visible
     useEffect(() => {
-        console.log('[AUTO-CONNECT] Effect triggered - hoylandController:', !!hoylandController, 'autoConnectReady:', autoConnectReady);
-        if (!hoylandController) {
-            console.log('[AUTO-CONNECT] No hoylandController, returning');
-            return;
-        }
-        if (!autoConnectReady) {
-            console.log('[AUTO-CONNECT] autoConnectReady is false, returning');
-            return;
-        }
-        console.log('[AUTO-CONNECT] Starting auto-connect...');
+        if (!hoylandController) return;
+        if (!autoConnectReady) return;
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
@@ -148,7 +160,6 @@ const App: React.FC = () => {
         // Wait 100ms to ensure the UI is fully painted and visible before auto-connecting
         const handle = window.setTimeout(() => {
             if (!cancelled) {
-                console.log('[AUTO-CONNECT] Calling updateConnectionState');
                 void updateConnectionState(checkCancelled);
             }
         }, 100);
@@ -162,7 +173,6 @@ const App: React.FC = () => {
 
     // Handle manual connect button click
     const handleConnectClick = useCallback(() => {
-        console.log('[MANUAL CONNECT] Button clicked');
         let cancelled = false;
         const checkCancelled = () => cancelled;
 
@@ -171,26 +181,49 @@ const App: React.FC = () => {
             cancelled = true;
         };
 
-        console.log('[MANUAL CONNECT] Calling updateConnectionState');
         void updateConnectionState(checkCancelled);
     }, [updateConnectionState]);
 
-    // editor callbacks (ProgramEditor already saves to DB; we just ack)
+    // [H13] Test Mode must actually route writes to the TEST port, not just gate
+    // the Start button. Enabling Test Mode forces the backend PORT_NAME to "TEST"
+    // (via use_test_port) so no real ASCII commands reach a connected FY6600 /
+    // ultrasound device. This guarantees test runs are inert on real hardware.
+    const handleTestModeChange = useCallback(
+        async (enabled: boolean) => {
+            if (enabled) {
+                try {
+                    // Force the backend onto the inert TEST port before allowing a run.
+                    await invoke<string>("use_test_port");
+                    setPortLabel("No device found");
+                    setIsPortConnected(false);
+                } catch (err) {
+                    // If we cannot guarantee the TEST port, do NOT enable test mode —
+                    // leaving it off keeps the user aware they are on real hardware.
+                    console.error("Failed to switch to TEST port for test mode:", err);
+                    setTestMode(false);
+                    return;
+                }
+            }
+            setTestMode(enabled);
+        },
+        [setTestMode]
+    );
+
+    // editor callbacks (ProgramEditor already saves to DB and shows its own
+    // inline success/error feedback — no blocking alert here).
     const handleSave = async (
         programName: string,
         _programData: ProgramItem[],
         _programMaxTime: number,
         _range: boolean
     ) => {
-        console.log("[Editor] Saved:", programName);
-        alert("Program saved successfully!");
+        console.log('[Editor] Saved:', programName);
     };
 
     // ESC key handler to cancel scanning
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape' && isConnecting && cancelScanRef.current) {
-                console.log('ESC pressed - cancelling device scan');
                 cancelScanRef.current();
             }
         };
@@ -347,8 +380,8 @@ const App: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* StatusIndicator expects a prop; pass null for now */}
-                    <StatusIndicator status={null}/>
+                    {/* StatusIndicator derives its state purely from context events */}
+                    <StatusIndicator/>
 
                     <div className="ultrasound-connection-toggle">
                         <label>
@@ -371,12 +404,15 @@ const App: React.FC = () => {
                             <input
                                 type="checkbox"
                                 checked={testMode}
-                                onChange={(e) => setTestMode(e.target.checked)}
+                                onChange={(e) => void handleTestModeChange(e.target.checked)}
                             />
                             <span>Enable Test Mode</span>
                         </label>
                     </div>
                 )}
+
+                {/* Surface recent backend device-write failures so they are visible. */}
+                <ErrorBar messages={errors}/>
 
 
                 <footer>

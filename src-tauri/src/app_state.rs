@@ -3,6 +3,7 @@ use serialport::SerialPort;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::Mutex;
+use std::time::Instant;
 
 lazy_static! {
     pub static ref PORT_NAME: Mutex<String> = Mutex::new("TEST".to_string());
@@ -10,8 +11,19 @@ lazy_static! {
 
 pub struct PortHandle(pub Mutex<Option<Box<dyn SerialPort + Send>>>);
 
+/// Deadman/heartbeat session tracking for the watchdog. When a therapeutic
+/// session is `active`, the watchdog force-stops the device if no heartbeat has
+/// arrived within HEARTBEAT_TIMEOUT or the session has run past MAX_SESSION.
+#[derive(Default)]
+pub struct SessionState {
+    pub active: bool,
+    pub last_heartbeat: Option<Instant>,
+    pub started_at: Option<Instant>,
+}
+
 pub struct AppState {
     pub ports: Mutex<HashMap<String, PortHandle>>,
+    pub session: Mutex<SessionState>,
 }
 
 pub fn log_test_port_data(data: &str) -> Result<bool, String> {
@@ -23,13 +35,15 @@ pub fn perform_real_port_write(
     ports: &Mutex<HashMap<String, PortHandle>>,
     data: &str,
 ) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
+    // Poison-tolerant locks: a panic elsewhere must never brick the write/STOP
+    // path on this safety-critical device. Recover the inner guard either way.
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
     println!(
         "perform_real_port_write called with port_name: {} and data: {}",
         port_name, data
     );
-    if let Some(handle) = ports.lock().unwrap().get(&port_name) {
-        if let Some(port) = handle.0.lock().unwrap().as_mut() {
+    if let Some(handle) = ports.lock().unwrap_or_else(|e| e.into_inner()).get(&port_name) {
+        if let Some(port) = handle.0.lock().unwrap_or_else(|e| e.into_inner()).as_mut() {
             port.write_all(data.as_bytes()).map_err(|e| {
                 println!("Failed to write to port: {}", e);
                 e.to_string()
@@ -42,6 +56,20 @@ pub fn perform_real_port_write(
         }
     }
     Err("Port not found".to_string())
+}
+
+/// Best-effort synchronous force-stop of the device. Writes every command in
+/// STOP_COMMANDS (disable sync, reset frequencies, turn off channels) ignoring
+/// per-write errors so a single failure can't abort the safety shutdown. Used by
+/// the window-close handler and the deadman watchdog — keep it bounded (no
+/// sleeps/loops beyond iterating the fixed STOP_COMMANDS list).
+pub fn force_stop(ports: &Mutex<HashMap<String, PortHandle>>) {
+    for cmd in crate::commands::program::STOP_COMMANDS.iter() {
+        if let Err(e) = perform_real_port_write(ports, cmd) {
+            // Best-effort: log and keep going so every STOP command is attempted.
+            println!("force_stop: write of {:?} failed: {}", cmd, e);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -208,6 +236,7 @@ mod tests {
         let dummy = DummyPort::new(buffer.clone());
         let state = AppState {
             ports: Mutex::new(HashMap::new()),
+            session: Mutex::new(SessionState::default()),
         };
         state.ports.lock().unwrap().insert(
             "TEST".to_string(),
@@ -218,5 +247,56 @@ mod tests {
         assert_eq!(res, Ok(true));
         let written = buffer.lock().unwrap().clone();
         assert_eq!(written, b"HELLO");
+    }
+
+    #[test]
+    fn perform_real_port_write_recovers_poisoned_lock() {
+        // A poisoned ports mutex must not brick the write path.
+        let buffer = Arc::new(Mutex::new(Vec::new()));
+        let dummy = DummyPort::new(buffer.clone());
+        let ports: Mutex<HashMap<String, PortHandle>> = Mutex::new(HashMap::new());
+        ports.lock().unwrap().insert(
+            "TEST".to_string(),
+            PortHandle(Mutex::new(Some(Box::new(dummy)))),
+        );
+
+        // Poison the mutex by panicking while holding the lock.
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _guard = ports.lock().unwrap();
+            panic!("intentional poison");
+        }));
+        assert!(ports.is_poisoned());
+
+        let res = perform_real_port_write(&ports, "HELLO");
+        assert_eq!(res, Ok(true));
+        assert_eq!(buffer.lock().unwrap_or_else(|e| e.into_inner()).clone(), b"HELLO");
+    }
+
+    #[test]
+    fn force_stop_writes_all_stop_commands() {
+        let buffer = Arc::new(Mutex::new(Vec::new()));
+        let dummy = DummyPort::new(buffer.clone());
+        let ports: Mutex<HashMap<String, PortHandle>> = Mutex::new(HashMap::new());
+        ports.lock().unwrap().insert(
+            "TEST".to_string(),
+            PortHandle(Mutex::new(Some(Box::new(dummy)))),
+        );
+
+        force_stop(&ports);
+
+        let written = String::from_utf8(buffer.lock().unwrap().clone()).unwrap();
+        let expected: String = crate::commands::program::STOP_COMMANDS.concat();
+        assert_eq!(written, expected);
+        // Sanity: sync is disabled before channels are turned off.
+        let usd0 = written.find("USD0").unwrap();
+        let wfn0 = written.find("WFN0").unwrap();
+        assert!(usd0 < wfn0, "sync must be disabled before channels turn off");
+    }
+
+    #[test]
+    fn force_stop_is_best_effort_when_no_port() {
+        // No port present: force_stop must not panic, just swallow errors.
+        let ports: Mutex<HashMap<String, PortHandle>> = Mutex::new(HashMap::new());
+        force_stop(&ports);
     }
 }

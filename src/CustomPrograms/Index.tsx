@@ -31,6 +31,10 @@ interface State {
     isPaused: boolean;
     isStopping: boolean;
     isConnected: boolean;
+    // Programme-derived slider bounds (the slider value IS device amplitude in volts).
+    intensityMin: number;
+    intensityMax: number;
+    intensityStep: number;
 }
 
 const initialState: State = {
@@ -43,12 +47,16 @@ const initialState: State = {
     isPaused: false,
     isStopping: false,
     isConnected: false,
+    intensityMin: 1,
+    intensityMax: 20,
+    intensityStep: 1,
 };
 
 type Action =
     | { type: 'SET_PROGRESS'; currentStep: number; totalSteps: number; currentFrequency: number }
     | { type: 'SET_PROGRAM_OPTIONS'; options: ProgramOption[] }
     | { type: 'SET_INTENSITY'; intensity: number }
+    | { type: 'SET_BOUNDS_AND_INTENSITY'; min: number; max: number; step: number; intensity: number }
     | { type: 'SET_CONNECTED'; isConnected: boolean }
     | { type: 'SET_SELECTED_PROGRAM'; selectedProgram: string }
     | { type: 'TOGGLE_PAUSE' }
@@ -68,6 +76,14 @@ const reducer = (state: State, action: Action): State => {
             return { ...state, programOptions: action.options };
         case 'SET_INTENSITY':
             return { ...state, intensity: action.intensity };
+        case 'SET_BOUNDS_AND_INTENSITY':
+            return {
+                ...state,
+                intensityMin: action.min,
+                intensityMax: action.max,
+                intensityStep: action.step,
+                intensity: action.intensity,
+            };
         case 'SET_CONNECTED':
             return { ...state, isConnected: action.isConnected };
         case 'SET_SELECTED_PROGRAM':
@@ -130,7 +146,9 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         }
     }, [appDatabase, isUltrasoundOnly]);
 
-    // Sync intensity to program config when program is selected
+    // Sync slider bounds + starting intensity to program config when program is selected.
+    // The slider value IS the device amplitude in volts, so use the programme-derived
+    // bounds rather than the old hardcoded min=1/max=20.
     useEffect(() => {
         if (!state.selectedProgram || !appDatabase) return;
         (async () => {
@@ -139,9 +157,10 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 if (!program) return;
                 const min = program.sliderMinV ?? 1;
                 const max = program.sliderMaxV ?? 20;
+                const step = program.sliderStepV ?? 1;
                 const startV = program.startIntensityV ?? Math.round(min + 0.25 * (max - min));
                 const clamped = Math.min(Math.max(startV, min), max);
-                dispatch({ type: 'SET_INTENSITY', intensity: clamped });
+                dispatch({ type: 'SET_BOUNDS_AND_INTENSITY', min, max, step, intensity: clamped });
             } catch { /* ignore */ }
         })();
     }, [state.selectedProgram, appDatabase]);
@@ -189,14 +208,14 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         await loadProgram(state.selectedProgram);
         if (runnerRef.current) {
             setIsRunning(true);
-            // Configure CH2 (no output yet)
+            // initializeChannel1() configures hardware CH2 (WFW path) — light the CH2 LED.
             await runnerRef.current.initializeChannel1();
-            setChannel1Active(true);
+            setChannel2Active(true);
             // Set CH2 carrier frequency from program config
             await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
-            // Configure CH1 (no output yet)
+            // initializeChannel0() configures hardware CH1 (WMW path) — light the CH1 LED.
             await runnerRef.current.initializeChannel0();
-            setChannel2Active(true);
+            setChannel1Active(true);
             // Apply intensity from UI slider
             await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
             // Start program — enables outputs after all settings configured
@@ -244,6 +263,27 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         runnerRef.current = null;
     };
 
+    // Stop the runner on unmount so navigating away never leaves the device running.
+    useEffect(() => {
+        return () => {
+            runnerRef.current
+                ?.stopProgram()
+                .catch((error) => {
+                    console.error('Error stopping program on unmount:', error);
+                });
+            runnerRef.current = null;
+        };
+    }, []);
+
+    // Relative % label based on current programme-derived bounds.
+    const relativePct = Math.round(
+        ((state.intensity - state.intensityMin) / (state.intensityMax - state.intensityMin)) * 100
+    );
+    // The slider value IS the device amplitude in volts. Show it next to the %.
+    const intensityPctText = Number.isFinite(relativePct) ? relativePct : 0;
+    const intensityVoltsText = Number.isFinite(state.intensity) ? state.intensity.toFixed(2) : '0.00';
+    const intensityLabel = `Intensity: ${intensityPctText}% (${intensityVoltsText} V)`;
+
     const canUseControls = isDeviceReady || testMode;
 
     return (
@@ -286,20 +326,25 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             </div>
 
             <div>
-                <label>Intensity: {Math.floor(((state.intensity || 0) / 20) * 100)}%</label>
+                <label htmlFor="custom-intensity-slider">{intensityLabel}</label>
                 <input
+                    id="custom-intensity-slider"
                     type="range"
-                    min="1"
-                    max="20"
+                    aria-label="Intensity"
+                    aria-valuetext={intensityLabel}
+                    min={state.intensityMin}
+                    max={state.intensityMax}
+                    step={state.intensityStep}
                     value={state.intensity}
-                    onChange={(e) => dispatch({ type: 'SET_INTENSITY', intensity: parseInt(e.target.value, 10) })}
+                    onChange={(e) => dispatch({ type: 'SET_INTENSITY', intensity: Number(e.target.value) })}
                     disabled={state.isStopping}
                 />
             </div>
         </div>
         <ConfirmModal
             open={showConfirm}
-            title="Is Ultrasound device disconnected"
+            title="Start electrode program? Confirm the ultrasound applicator is disconnected."
+            message="This will enable output on the electrode path. Make sure the ultrasound applicator is NOT in contact with the body before continuing."
             onYes={async () => {
                 setShowConfirm(false);
                 if (pendingStartRef.current) {

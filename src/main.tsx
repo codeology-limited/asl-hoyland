@@ -5,7 +5,8 @@ import ErrorBoundary from "./ErrorBoundary";
 
 const Root = () => {
     const handleShowError = (message: string) => {
-        // Handle error display logic here
+        // The ErrorBoundary's fallback UI already surfaces the message visibly
+        // (with a Reload affordance), so here we just log for diagnostics.
         console.error(message);
     };
 

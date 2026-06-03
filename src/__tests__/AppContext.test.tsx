@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, renderHook, waitFor } from '@testing-library/react';
+import { render, screen, renderHook, waitFor, act } from '@testing-library/react';
 import { AppProvider, useAppContext, AppEvent } from '../AppContext';
 import React from 'react';
 
@@ -87,6 +87,45 @@ describe('AppContext', () => {
       expect(result.current.events[1]).toEqual(event2);
       expect(result.current.events[2]).toEqual(event3);
     });
+  });
+
+  it('initializes with an empty errors array', () => {
+    const { result } = renderHook(() => useAppContext(), {
+      wrapper: AppProvider,
+    });
+
+    expect(result.current.errors).toEqual([]);
+  });
+
+  it('derives errors from the most recent message_fail events', () => {
+    const { result } = renderHook(() => useAppContext(), {
+      wrapper: AppProvider,
+    });
+
+    act(() => {
+      result.current.addEvent({ type: 'message_success', payload: 'ok' });
+      result.current.addEvent({ type: 'message_fail', payload: 'WMF failed' });
+      result.current.addEvent({ type: 'reconnected', payload: '/dev/ttyUSB0' });
+      result.current.addEvent({ type: 'message_fail', payload: 'WFF failed' });
+    });
+
+    expect(result.current.errors).toEqual(['WMF failed', 'WFF failed']);
+  });
+
+  it('errors only retains the last 5 failure messages', () => {
+    const { result } = renderHook(() => useAppContext(), {
+      wrapper: AppProvider,
+    });
+
+    act(() => {
+      for (let i = 1; i <= 7; i++) {
+        result.current.addEvent({ type: 'message_fail', payload: `fail ${i}` });
+      }
+    });
+
+    expect(result.current.errors).toHaveLength(5);
+    expect(result.current.errors[0]).toBe('fail 3');
+    expect(result.current.errors[4]).toBe('fail 7');
   });
 
   it('throws error when useAppContext is used outside AppProvider', () => {

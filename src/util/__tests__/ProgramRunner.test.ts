@@ -29,6 +29,10 @@ const mkFakeGen = () => {
     sendInitialCommands: vi.fn(async () => {}),
     sendSecondaryCommands: vi.fn(async () => {}),
     stopAndReset: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'stop', args: [] }); }),
+    // Deadman/heartbeat contract — no-op stubs so the runner can call them.
+    sessionStart: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sessionStart', args: [] }); }),
+    sessionStop: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sessionStop', args: [] }); }),
+    heartbeat: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'heartbeat', args: [] }); }),
   } as any;
 };
 
@@ -86,6 +90,9 @@ describe('ProgramRunner', () => {
       sendInitialCommands: vi.fn(async () => {}),
       sendSecondaryCommands: vi.fn(async () => {}),
       stopAndReset: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'stop', args: [] }); }),
+      sessionStart: vi.fn(async () => {}),
+      sessionStop: vi.fn(async () => {}),
+      heartbeat: vi.fn(async () => {}),
     };
     const db = mkFakeDb(program);
     const pr = new ProgramRunner(db, gen, null);
@@ -127,6 +134,28 @@ describe('ProgramRunner', () => {
     await p;
     expect(gen.setBothChannelsToSquareWave).toHaveBeenCalled();
     expect(gen.sync).toHaveBeenCalled();
+  });
+
+  it('SINE/SINE program with no carrier (startFrequency==0) emits sine, not square', async () => {
+    // Regression for the Lynne 2 Jun report: lymphocyte50Hz / tCells30Hz are
+    // declared SINE/SINE with startFrequency 0, but the `startFrequency === 0`
+    // square trigger used to shadow the sine branch so they came up square.
+    const program = {
+      name: 'lymphocyte50Hz', range: 0,
+      data: [{ channel: 1, frequency: 50, runTime: 50 }],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 0,
+      channel1wavetype: 'SINE', channel2wavetype: 'SINE',
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('lymphocyte50Hz', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
   });
 
   it('ascending range iterates with <= end condition', async () => {
@@ -184,8 +213,12 @@ describe('ProgramRunner', () => {
     await p;
     const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
     expect(freqCalls.length).toBeGreaterThan(1);
-    // 1 prime + 1000→0 inclusive = 1002 values max; ensure stepping doesn't overshoot
-    expect(freqCalls.length).toBeLessThanOrEqual(1002);
+    // span 1000, MAX_STEPS 2000 → stepSize 1, so the sweep walks 1000→0 inclusive (1001),
+    // plus 1 prime before enableOutputs, plus the explicit endpoint emit = 1003 max.
+    // The write cap guarantees we never exceed ~MAX_STEPS + a small constant.
+    expect(freqCalls.length).toBeLessThanOrEqual(1003);
+    // Last CH1 frequency must be the exact endpoint (0), not an overshoot.
+    expect(freqCalls[freqCalls.length - 1].args[1]).toBe(0);
   });
 
   it('discrete sequence respects pause/resume within an item', async () => {
@@ -446,6 +479,254 @@ describe('ProgramRunner', () => {
     expect(ampCalls.length).toBeGreaterThan(0);
     // Frequency toggles happened and label updated
     expect(updates.some((t) => t.includes('500000'))).toBe(true);
+  });
+
+  // --- SAFETY INVARIANT (H11): enableOutputs() must come AFTER amplitude,
+  //     initial frequency and waveform are configured. A helper asserts the
+  //     ordering inside gen.calls for several program shapes.
+  const assertEnableOutputsLast = (gen: any) => {
+    const idx = (pred: (c: any) => boolean) => gen.calls.findIndex(pred);
+    const lastIdx = (pred: (c: any) => boolean) => {
+      for (let i = gen.calls.length - 1; i >= 0; i--) if (pred(gen.calls[i])) return i;
+      return -1;
+    };
+    const enableIdx = idx((c: any) => c.m === 'enableOutputs');
+    expect(enableIdx).toBeGreaterThanOrEqual(0);
+
+    const lastAmpIdx = lastIdx((c: any) => c.m === 'setAmplitude');
+    expect(lastAmpIdx).toBeGreaterThanOrEqual(0);
+    expect(enableIdx).toBeGreaterThan(lastAmpIdx);
+
+    // Initial CH1 frequency prime happens before outputs are enabled.
+    const firstFreqIdx = idx((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    expect(firstFreqIdx).toBeGreaterThanOrEqual(0);
+    expect(enableIdx).toBeGreaterThan(firstFreqIdx);
+
+    // Waveform selection (square or sine) happens before outputs are enabled.
+    const waveIdx = idx((c: any) => c.m === 'setSquare' || c.m === 'setSine' || c.m === 'sinewave');
+    expect(waveIdx).toBeGreaterThanOrEqual(0);
+    expect(enableIdx).toBeGreaterThan(waveIdx);
+  };
+
+  it('H11: enableOutputs comes after amplitude, initial frequency and waveform (continuous)', async () => {
+    const program = {
+      name: 'continuous', range: 0,
+      data: [{ channel: 1, frequency: 727, runTime: 100 }],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    await pr.setIntensity(5, { applyNow: false });
+
+    const p = pr.startProgram('continuous', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    assertEnableOutputsLast(gen);
+  });
+
+  it('H11: enableOutputs comes after amplitude, initial frequency and waveform (ultra500)', async () => {
+    const program = {
+      name: 'ultra500', range: 0,
+      data: [{ channel: 1, frequency: 500000, runTime: 50 }],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 0.5,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('ultra500', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    assertEnableOutputsLast(gen);
+  });
+
+  it('H11: enableOutputs comes after amplitude, initial frequency and waveform (ultrasound)', async () => {
+    const program = {
+      name: 'ultrasound', range: 1,
+      data: [{ channel: 1, frequency: 500000, runTime: 0 }, { channel: 1, frequency: 670000, runTime: 0 }],
+      maxTimeInMinutes: 0.15, default: 1, startFrequency: 0.5,
+      sliderMinV: 0.3, sliderMaxV: 1.8, sliderStepV: 0.01,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('ultrasound', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    assertEnableOutputsLast(gen);
+  });
+
+  it('arms the deadman watchdog (sessionStart) only after outputs are enabled', async () => {
+    const program = {
+      name: 'continuous', range: 0,
+      data: [{ channel: 1, frequency: 100, runTime: 100 }],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('continuous', () => {});
+    await vi.advanceTimersByTimeAsync(300);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const enableIdx = gen.calls.findIndex((c: any) => c.m === 'enableOutputs');
+    const sessionStartIdx = gen.calls.findIndex((c: any) => c.m === 'sessionStart');
+    expect(sessionStartIdx).toBeGreaterThan(enableIdx);
+    // sessionStop and stopAndReset always run in cleanup.
+    expect(gen.sessionStop).toHaveBeenCalled();
+    expect(gen.stopAndReset).toHaveBeenCalled();
+  });
+
+  it('sweepTo sweep starts at startF, ends at exact endF, and bounds the write count', async () => {
+    // A 0→40000 Hz span would be ~40000 single-Hz writes without the cap.
+    const program = {
+      name: 'bigSweep', range: 0,
+      data: [{ channel: 1, frequency: 0, runTime: 1000, sweepTo: 40000 }],
+      maxTimeInMinutes: 0.5, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('bigSweep', () => {});
+    // 2000 steps * 10ms min interval = 20000ms; advance past so the sweep completes
+    // naturally (and emits the exact endpoint) before we stop.
+    await vi.advanceTimersByTimeAsync(25000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const sweepCalls = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1)
+      .map((c: any) => c.args[1]);
+    expect(sweepCalls.length).toBeGreaterThan(1);
+    // First write is the start frequency (also the prime), last is the exact endpoint.
+    expect(sweepCalls[0]).toBe(0);
+    expect(sweepCalls[sweepCalls.length - 1]).toBe(40000);
+    // Bounded: MAX_STEPS is 2000; allow prime + endpoint slack. Far below 40000.
+    expect(sweepCalls.length).toBeLessThanOrEqual(2010);
+  });
+
+  it('guards a corrupt (NaN) continuous frequency instead of latching 0 Hz DC', async () => {
+    const program = {
+      name: 'corrupt', range: 0,
+      data: [
+        { channel: 1, frequency: 'oops' as any, runTime: 100 },
+        { channel: 1, frequency: 222, runTime: 100 },
+      ],
+      maxTimeInMinutes: 0.05, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p = pr.startProgram('corrupt', () => {});
+    await vi.advanceTimersByTimeAsync(1000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const ch1 = gen.calls
+      .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1)
+      .map((c: any) => c.args[1]);
+    // The corrupt item must NOT have emitted a 0 (DC) or NaN; the valid item plays.
+    expect(ch1.some((f: any) => Number.isNaN(f))).toBe(false);
+    expect(ch1).toContain(222);
+  });
+
+  it('re-entrancy: a second startProgram while running is ignored', async () => {
+    const program = {
+      name: 'x', range: 0,
+      data: [{ channel: 1, frequency: 100, runTime: 1000 }],
+      maxTimeInMinutes: 0.05, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const p1 = pr.startProgram('x', () => {});
+    await vi.advanceTimersByTimeAsync(50);
+    // Second call must return immediately without re-running the setup.
+    const enableBefore = gen.calls.filter((c: any) => c.m === 'enableOutputs').length;
+    await pr.startProgram('x', () => {});
+    const enableAfter = gen.calls.filter((c: any) => c.m === 'enableOutputs').length;
+    expect(enableAfter).toBe(enableBefore);
+
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p1;
+  });
+
+  it('hard stop: a program cannot overrun its advertised maxTimeInMinutes', async () => {
+    // One item with a huge runTime, but a tiny maxTime cap.
+    const program = {
+      name: 'capped', range: 0,
+      data: [{ channel: 1, frequency: 100, runTime: 10 * 60 * 1000 }],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0, // 1200ms cap
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const onStop = vi.fn();
+    const pr = new ProgramRunner(db, gen, null);
+    pr.setOnStopCallback(onStop);
+
+    const p = pr.startProgram('capped', () => {});
+    // Advance well past the cap without ever calling stopProgram.
+    await vi.advanceTimersByTimeAsync(3000);
+    await vi.runAllTimersAsync();
+    await p;
+
+    // The runner stopped itself: outputs reset and onStop fired despite no stopProgram().
+    expect(gen.stopAndReset).toHaveBeenCalled();
+    expect(onStop).toHaveBeenCalled();
+  });
+
+  it('keeps heart-beating while paused so the deadman watchdog cannot force-stop a paused run', async () => {
+    // Regression: the heartbeat used to be gated behind !this.paused, so a pause
+    // longer than the backend's 30s HEARTBEAT_TIMEOUT would trip the watchdog and
+    // force-stop an intentionally paused session.
+    const program = {
+      name: 'discrete', range: 0,
+      data: [{ channel: 1, frequency: 111, runTime: 600000 }], // 10-minute item
+      maxTimeInMinutes: 10, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+
+    const run = pr.startProgram('discrete', () => {});
+    await vi.advanceTimersByTimeAsync(200);
+    pr.pauseProgram();
+
+    const before = gen.calls.filter((c: any) => c.m === 'heartbeat').length;
+    // Hold the pause for 40s — well past the 30s deadman timeout.
+    await vi.advanceTimersByTimeAsync(40000);
+    const after = gen.calls.filter((c: any) => c.m === 'heartbeat').length;
+
+    // Heartbeats must keep flowing during the pause...
+    expect(after).toBeGreaterThan(before);
+    // ...and the pause must not have stopped the device.
+    expect(gen.calls.some((c: any) => c.m === 'stop')).toBe(false);
+
+    pr.resumeProgram();
+    await vi.advanceTimersByTimeAsync(200);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await run;
   });
 
   it('invokes onStop after stop', async () => {

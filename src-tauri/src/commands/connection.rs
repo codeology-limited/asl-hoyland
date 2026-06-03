@@ -23,10 +23,8 @@ pub fn reconnect_device(
     );
 
     {
-        let mut ports = state
-            .ports
-            .lock()
-            .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
+        // Poison-tolerant: a prior panic must not block disconnecting/reconnecting.
+        let mut ports = state.ports.lock().unwrap_or_else(|e| e.into_inner());
         for port_name in ports.keys().cloned().collect::<Vec<_>>() {
             println!("Disconnecting port: {}", port_name);
             ports.remove(&port_name);
@@ -55,40 +53,65 @@ pub fn reconnect_device(
         {
             Ok(mut serial_port) => {
                 println!("Opened port: {}", port.port_name);
-                let mut buffer: Vec<u8> = vec![0; 100];
                 if let Err(e) = serial_port.write_all(b"UMO\r\n") {
                     println!("Failed to write to port {}: {}", port.port_name, e);
                     continue;
                 }
-                std::thread::sleep(std::time::Duration::from_millis(500));
-                match serial_port.read(buffer.as_mut_slice()) {
-                    Ok(bytes_read) => {
-                        let response = String::from_utf8_lossy(&buffer[..bytes_read]);
-                        println!("Response from device: {}", response);
-                        if response.starts_with("FY23") || response.starts_with("FY63") {
-                            let mut ports = state
-                                .ports
-                                .lock()
-                                .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-                            ports.insert(
-                                port.port_name.clone(),
-                                PortHandle(Mutex::new(Some(serial_port))),
-                            );
+                // Robust identify read: the FY6600 can dribble its banner out
+                // over several reads, so accumulate until we see a newline /
+                // enough bytes, or a short overall deadline elapses. A read
+                // timeout is normal (no data yet) and is retried; a hard error
+                // aborts this port and continues scanning the next one.
+                let deadline = std::time::Instant::now() + std::time::Duration::from_millis(800);
+                let mut response = String::new();
+                let mut chunk = [0u8; 64];
+                let mut hard_error = false;
+                while std::time::Instant::now() < deadline {
+                    match serial_port.read(&mut chunk) {
+                        Ok(0) => {}
+                        Ok(n) => {
+                            response.push_str(&String::from_utf8_lossy(&chunk[..n]));
+                            if response.contains('\n') || response.len() >= 100 {
+                                break;
+                            }
+                        }
+                        Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {
+                            // No data this round; keep polling until the deadline.
+                            std::thread::sleep(std::time::Duration::from_millis(50));
+                        }
+                        Err(e) => {
                             println!(
-                                "Successfully connected to device on port: {}",
-                                port.port_name
+                                "Failed to read from port: {}. Error: {}",
+                                port.port_name, e
                             );
-                            PORT_NAME.lock().unwrap().clone_from(&port.port_name);
-                            reconnected_port.clone_from(&port.port_name);
-                            window
-                                .emit("reconnected", reconnected_port.clone())
-                                .unwrap();
-                            return Ok(reconnected_port);
+                            hard_error = true;
+                            break;
                         }
                     }
-                    Err(e) => {
-                        println!("Failed to read from port: {}. Error: {}", port.port_name, e);
-                    }
+                }
+                if hard_error {
+                    continue;
+                }
+                let banner = response.trim();
+                println!("Response from device: {}", banner);
+                if banner.starts_with("FY23") || banner.starts_with("FY63") {
+                    // Poison-tolerant: never fail the reconnect on a poisoned lock.
+                    let mut ports = state.ports.lock().unwrap_or_else(|e| e.into_inner());
+                    ports.insert(
+                        port.port_name.clone(),
+                        PortHandle(Mutex::new(Some(serial_port))),
+                    );
+                    println!(
+                        "Successfully connected to device on port: {}",
+                        port.port_name
+                    );
+                    PORT_NAME
+                        .lock()
+                        .unwrap_or_else(|e| e.into_inner())
+                        .clone_from(&port.port_name);
+                    reconnected_port.clone_from(&port.port_name);
+                    let _ = window.emit("reconnected", reconnected_port.clone());
+                    return Ok(reconnected_port);
                 }
             }
             Err(e) => {
@@ -98,17 +121,13 @@ pub fn reconnect_device(
     }
 
     if reconnected_port.is_empty() {
-        let mut ports = state
-            .ports
-            .lock()
-            .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
+        // Poison-tolerant: still fall back to the Test Port if a lock was poisoned.
+        let mut ports = state.ports.lock().unwrap_or_else(|e| e.into_inner());
         println!("Target device not found. Defaulting to Test Port.");
         ports.insert("TEST".to_string(), PortHandle(Mutex::new(None)));
-        *PORT_NAME.lock().unwrap() = "TEST".to_string();
+        *PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()) = "TEST".to_string();
         reconnected_port = "TEST".to_string();
-        window
-            .emit("reconnected", reconnected_port.clone())
-            .unwrap();
+        let _ = window.emit("reconnected", reconnected_port.clone());
     }
 
     Ok(reconnected_port)
@@ -116,12 +135,10 @@ pub fn reconnect_device(
 
 #[tauri::command]
 pub fn use_test_port(state: State<AppState>, window: Window) -> Result<String, String> {
-    let mut ports = state
-        .ports
-        .lock()
-        .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
+    // Poison-tolerant locks, uniform with the rest of the connection path.
+    let mut ports = state.ports.lock().unwrap_or_else(|e| e.into_inner());
     ports.insert("TEST".to_string(), PortHandle(Mutex::new(None)));
-    *PORT_NAME.lock().unwrap() = "TEST".to_string();
+    *PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()) = "TEST".to_string();
     let label = "TEST".to_string();
     let _ = window.emit("reconnected", label.clone());
     Ok(label)

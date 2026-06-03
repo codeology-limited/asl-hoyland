@@ -38,7 +38,7 @@ pub fn list_ports() -> Vec<String> {
 
 #[tauri::command]
 pub fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
     println!(
         "open_port called with port_name: {}, baud_rate: {}",
         port_name, args.baud_rate
@@ -83,7 +83,7 @@ pub fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, Str
 
 #[tauri::command]
 pub fn close_port(state: State<AppState>, _args: ClosePortArgs) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
     println!("close_port called with port_name: {}", port_name);
     let mut ports = state
         .ports
@@ -104,7 +104,7 @@ pub fn write_to_port(
     args: WriteToPortArgs,
     window: Window,
 ) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
     println!("Writing to port: {} with data: {}", port_name, args.data);
 
     let emit_event = |event: &str, message: String| {

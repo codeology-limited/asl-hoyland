@@ -34,4 +34,11 @@ describe('ErrorBar', () => {
     const container = screen.getByRole('list').parentElement;
     expect(container).toHaveClass('error-bar');
   });
+
+  it('exposes the error-bar as an assertive alert region for accessibility', () => {
+    render(<ErrorBar messages={['Test error']} />);
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveClass('error-bar');
+    expect(alert).toHaveAttribute('aria-live', 'assertive');
+  });
 });

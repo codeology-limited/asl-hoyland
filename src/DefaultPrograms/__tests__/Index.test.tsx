@@ -61,6 +61,33 @@ describe('DefaultPrograms', () => {
     expect(slider).toBeInTheDocument();
   });
 
+  it('shows intensity as a percentage with the absolute voltage', () => {
+    renderWithContext(
+      <DefaultPrograms
+        setIsRunning={mockSetIsRunning}
+        isRunning={false}
+        isDeviceReady={true}
+      />
+    );
+
+    // The slider value IS device amplitude in volts; the label shows both % and V.
+    const label = screen.getByText(/Intensity:\s*\d+%\s*\([\d.]+ V\)/);
+    expect(label).toBeInTheDocument();
+  });
+
+  it('exposes an accessible name and value text on the intensity slider', () => {
+    renderWithContext(
+      <DefaultPrograms
+        setIsRunning={mockSetIsRunning}
+        isRunning={false}
+        isDeviceReady={true}
+      />
+    );
+
+    const slider = screen.getByRole('slider', { name: /intensity/i });
+    expect(slider).toHaveAttribute('aria-valuetext', expect.stringMatching(/V\)/));
+  });
+
   it('renders start button when not running', () => {
     renderWithContext(
       <DefaultPrograms

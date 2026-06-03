@@ -785,3 +785,220 @@ input:disabled {
 
     animation: sparkly-border 2s linear infinite; /* Continuously animates the border */
 }
+
+/* ============================================================
+   Program Editor (editor-v2) — self-contained, overrides the
+   aggressive global .tab-body div / .tab-body label / table rules.
+   ============================================================ */
+.editor-v2 {
+    height: auto;
+    overflow: auto;
+    padding: 22px 28px 28px;
+    gap: 14px;
+    text-align: left;
+    color: #333;
+}
+
+/* Neutralise the global .tab-body div absolute/flex/200px-height rule */
+.editor-v2 .ed-section,
+.editor-v2 .ed-load-row,
+.editor-v2 .ed-range,
+.editor-v2 .ed-actions,
+.editor-v2 .ed-summary,
+.editor-v2 .ed-banner,
+.editor-v2 .ed-row {
+    position: static;
+    height: auto;
+    padding: 0;
+}
+
+.editor-v2 .ed-section {
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 14px;
+    margin-bottom: 2px;
+}
+
+/* Neutralise the global absolute-positioned uppercase .tab-body label */
+.editor-v2 .ed-field,
+.editor-v2 .ed-check {
+    position: static;
+    transform: none;
+    left: auto;
+    top: auto;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: normal;
+    font-size: 1rem;
+    padding: 0;
+    display: flex;
+}
+.editor-v2 .ed-field {
+    flex-direction: column;
+    gap: 6px;
+    max-width: 520px;
+}
+.editor-v2 .ed-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #6a6a6a;
+}
+
+.editor-v2 .ed-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 11px;
+    border: 1px solid #c7c7c7;
+    border-radius: 7px;
+    box-shadow: none;
+    text-indent: 0;
+    font-size: 1rem;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.editor-v2 .ed-input:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.18);
+}
+.editor-v2 .ed-input.input-error {
+    border-color: #d23b3b;
+    box-shadow: 0 0 0 3px rgba(210, 59, 59, 0.15);
+}
+
+.editor-v2 .ed-load-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.editor-v2 .ed-check {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.editor-v2 .ed-check input { width: 16px; height: 16px; cursor: pointer; }
+
+.editor-v2 .ed-hint {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #777;
+    text-transform: none;
+    letter-spacing: normal;
+    max-width: 640px;
+}
+.editor-v2 .ed-hint-warn { color: #b56a00; }
+
+.editor-v2 .ed-sweep-hint {
+    grid-column: 2 / -1;
+    font-size: 0.8rem;
+    color: #4a7; 
+    margin-top: -2px;
+}
+
+/* discrete frequency grid */
+.editor-v2 .ed-row {
+    display: grid;
+    grid-template-columns: 34px minmax(110px, 1fr) minmax(110px, 1fr) minmax(90px, 0.7fr) auto;
+    gap: 8px 10px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.editor-v2 .ed-row-head {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #8a8a8a;
+    margin-bottom: 4px;
+    border-bottom: none;
+}
+.editor-v2 .ed-col-num { text-align: center; color: #999; font-variant-numeric: tabular-nums; }
+.editor-v2 .ed-col-actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+.editor-v2 .ed-icon-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
+    background: #f7f7f7;
+    color: #555;
+    cursor: pointer;
+    box-shadow: none;
+    font-size: 0.95rem;
+    line-height: 1;
+    text-indent: 0;
+}
+.editor-v2 .ed-icon-btn:hover:not(:disabled) { background: #ececec; }
+.editor-v2 .ed-icon-btn:disabled { opacity: 0.35; cursor: default; }
+.editor-v2 .ed-icon-danger:hover:not(:disabled) { background: #fde8e8; border-color: #e0a0a0; color: #b00020; }
+
+/* range layout */
+.editor-v2 .ed-range {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.editor-v2 .ed-range .ed-field { max-width: 200px; flex: 1 1 160px; }
+
+.editor-v2 .ed-summary {
+    font-size: 0.95rem;
+    color: #444;
+    padding: 4px 0;
+}
+.editor-v2 .ed-summary strong { color: #1f6f1f; }
+
+.editor-v2 .ed-banner {
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+}
+.editor-v2 .ed-banner-error { background: #fdecec; color: #a01622; border: 1px solid #f1b5b5; }
+.editor-v2 .ed-banner-success { background: #e9f8ec; color: #1c6a2c; border: 1px solid #aedcb8; }
+
+.editor-v2 .ed-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding-top: 4px;
+}
+
+/* buttons */
+.editor-v2 .ed-btn {
+    padding: 9px 16px;
+    border-radius: 7px;
+    border: 1px solid #cfcfcf;
+    background: #f2f2f2;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: none;
+    text-indent: 0;
+    width: auto;
+}
+.editor-v2 .ed-btn:hover:not(:disabled) { background: #e7e7e7; }
+.editor-v2 .ed-btn:disabled { opacity: 0.5; cursor: default; }
+.editor-v2 .ed-btn-primary { background: #2f7fd1; border-color: #2f7fd1; color: #fff; }
+.editor-v2 .ed-btn-primary:hover:not(:disabled) { background: #2a72bd; }
+.editor-v2 .ed-btn-add { background: #eef5fc; border: 1px dashed #9bc0e6; color: #2f6aa8; margin-top: 4px; }
+.editor-v2 .ed-btn-add:hover:not(:disabled) { background: #e2eefa; }
+.editor-v2 .ed-btn-danger { background: #fff; border-color: #e0a0a0; color: #b00020; }
+.editor-v2 .ed-btn-danger:hover:not(:disabled) { background: #fde8e8; }
+.editor-v2 .ed-btn-ghost { background: transparent; border-color: transparent; color: #777; }
+.editor-v2 .ed-btn-ghost:hover:not(:disabled) { background: #f0f0f0; color: #444; }
+
+@media (max-width: 720px) {
+    .editor-v2 .ed-row { grid-template-columns: 28px 1fr 1fr; }
+    .editor-v2 .ed-col-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}

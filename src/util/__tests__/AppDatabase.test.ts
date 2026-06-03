@@ -77,11 +77,18 @@ describe('AppDatabase (with mocked Dexie)', () => {
   let AppDatabase: any;
 
   beforeEach(async () => {
+    // ensure a fresh module (and fresh preloadDone state) per test
+    vi.resetModules();
     // lazy import after mock
     AppDatabase = (await import('../AppDatabase')).default;
-    // mock fetch to return default programs
+    // mock fetch to return default programs. Mark ok:true so the new res.ok
+    // guard passes; supply a json content-type header for the content-type guard.
     const data = readJSON(publicJsonPath);
-    global.fetch = vi.fn().mockResolvedValue({ json: async () => data } as any);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: async () => data,
+    } as any);
   });
 
   it('preloads defaults idempotently and lists default programs', async () => {
@@ -174,5 +181,141 @@ describe('AppDatabase (with mocked Dexie)', () => {
     await db.clearDatabase();
     const after = await db.getDefaultPrograms();
     expect(after.length).toBeGreaterThan(0);
+  });
+
+  it('a non-ok fetch leaves preloadDone false and does NOT throw out of preloadDefaults', async () => {
+    // Non-ok HTTP response: the internal throw must be caught and logged, not
+    // propagated, and the DB must remain un-preloaded so a later call can retry.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      headers: { get: () => 'text/plain' },
+      json: async () => ({}),
+    } as any);
+
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const db = new AppDatabase();
+
+    // Should resolve (not reject) even though the fetch failed.
+    await expect(db.preloadDefaults()).resolves.toBeUndefined();
+    expect(db.preloadDone).toBe(false);
+
+    // No default programs got written.
+    const defaults = await db.getDefaultPrograms();
+    expect(defaults.length).toBe(0);
+
+    errSpy.mockRestore();
+  });
+
+  it('a non-ok fetch can be retried successfully on a later call', async () => {
+    const data = readJSON(publicJsonPath);
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // First attempt fails.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      headers: { get: () => null },
+      json: async () => ({}),
+    } as any);
+
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+    expect(db.preloadDone).toBe(false);
+
+    // Second attempt succeeds and seeds the defaults.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: async () => data,
+    } as any);
+
+    await db.preloadDefaults();
+    expect(db.preloadDone).toBe(true);
+    expect((await db.getDefaultPrograms()).length).toBeGreaterThan(0);
+
+    errSpy.mockRestore();
+  });
+
+  it('saveData throws when a custom save collides with an existing default name', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    // Pick any seeded default program name.
+    const existingDefault = (await db.getDefaultPrograms())[0];
+    expect(existingDefault).toBeTruthy();
+
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(
+      db.saveData({
+        name: existingDefault.name,
+        range: false,
+        data: [{ channel: 1, frequency: 1, runTime: 1000 }],
+        maxTimeInMinutes: 1,
+        default: 0, // falsy => custom save, must NOT clobber the default
+        startFrequency: 0,
+      })
+    ).rejects.toThrowError(/default program named .* already exists/i);
+    errSpy.mockRestore();
+
+    // The original default row must be untouched (still default, original data).
+    const reloaded = await db.loadData(existingDefault.name);
+    expect(!!reloaded.default).toBe(true);
+    expect(reloaded.data).toEqual(existingDefault.data);
+  });
+
+  it('saveData still updates an existing DEFAULT when the incoming save is also default', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+    const existingDefault = (await db.getDefaultPrograms())[0];
+
+    // default:1 incoming => allowed to update (this is how seeding/curated
+    // updates work); collision guard only blocks custom-over-default.
+    await db.saveData({
+      name: existingDefault.name,
+      range: true,
+      data: [{ channel: 1, frequency: 999, runTime: 2000 }],
+      maxTimeInMinutes: 5,
+      default: 1,
+      startFrequency: 0,
+    });
+
+    const reloaded = await db.loadData(existingDefault.name);
+    expect(reloaded.range).toBe(1);
+    expect(reloaded.maxTimeInMinutes).toBe(5);
+  });
+
+  it('a normal custom save still works (no collision with a default name)', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    const name = 'uniqueCustomThatIsNotADefault';
+    await db.saveData({
+      name,
+      range: false,
+      data: [{ channel: 1, frequency: 42, runTime: 1000 }],
+      maxTimeInMinutes: 1,
+      default: 0,
+      startFrequency: 0,
+    });
+
+    const loaded = await db.loadData(name);
+    expect(loaded.name).toBe(name);
+    expect(loaded.default).toBe(0);
+
+    // Re-saving the same custom name (still custom) must not throw.
+    await expect(
+      db.saveData({
+        name,
+        range: true,
+        data: [{ channel: 1, frequency: 43, runTime: 1000 }],
+        maxTimeInMinutes: 2,
+        default: 0,
+        startFrequency: 0,
+      })
+    ).resolves.toBeUndefined();
+    const reloaded = await db.loadData(name);
+    expect(reloaded.range).toBe(1);
+    expect(reloaded.maxTimeInMinutes).toBe(2);
   });
 });

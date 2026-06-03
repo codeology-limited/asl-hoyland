@@ -11,7 +11,7 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": false
     },
     "windows": [
       {
@@ -20,11 +20,14 @@
         "y": 0,
         "width": 1200,
         "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
         "alwaysOnTop": false
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ipc: https://ipc.localhost"
     },
     "bundle": {
       "active": true,

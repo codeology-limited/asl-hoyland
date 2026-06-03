@@ -272,13 +272,15 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (!runnerRef.current) return;
 
         setIsRunning(true);
-        // Setup CH2 and turn it on (WFN1 in INITIAL_COMMANDS)
+        // initializeChannel1() configures hardware CH2 (WFW path) and turns it on
+        // (WFN1 in INITIAL_COMMANDS) — so it must light the CH2 LED, not CH1.
         await runnerRef.current.initializeChannel1();
-        setChannel1Active(true);
-        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
-        // Setup CH1, turn it on (WMN1), and sync (USA2) in SECONDARY_COMMANDS
-        await runnerRef.current.initializeChannel0();
         setChannel2Active(true);
+        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
+        // initializeChannel0() configures hardware CH1 (WMW), turns it on (WMN1),
+        // and syncs (USA2) in SECONDARY_COMMANDS — so it must light the CH1 LED.
+        await runnerRef.current.initializeChannel0();
+        setChannel1Active(true);
         await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
         await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
     };
@@ -347,6 +349,10 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const relativePct = Math.round(
         ((state.intensity - state.intensity_min) / (state.intensity_max - state.intensity_min)) * 100
     );
+    // The slider value IS the device amplitude in volts. Show it next to the %.
+    const intensityPctText = Number.isFinite(relativePct) ? relativePct : 0;
+    const intensityVoltsText = Number.isFinite(state.intensity) ? state.intensity.toFixed(2) : '0.00';
+    const intensityLabel = `Intensity: ${intensityPctText}% (${intensityVoltsText} V)`;
 
     const canUseControls = isDeviceReady || testMode;
 
@@ -393,9 +399,12 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
             </div>
 
             <div>
-                <label>Intensity: {Number.isFinite(relativePct) ? relativePct : 0}%</label>
+                <label htmlFor="default-intensity-slider">{intensityLabel}</label>
                 <input
+                    id="default-intensity-slider"
                     type="range"
+                    aria-label="Intensity"
+                    aria-valuetext={intensityLabel}
                     min={state.intensity_min}
                     max={state.intensity_max}
                     step={state.intensity_step}
@@ -429,7 +438,8 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         </div>
         <ConfirmModal
             open={showConfirm}
-            title="Is Ultrasound device disconnected"
+            title="Start electrode program? Confirm the ultrasound applicator is disconnected."
+            message="This will enable output on the electrode path. Make sure the ultrasound applicator is NOT in contact with the body before continuing."
             onYes={async () => {
                 setShowConfirm(false);
                 if (pendingStartRef.current) {

@@ -38,28 +38,52 @@ export default class HoylandController {
         cmd: string,
         args?: Record<string, unknown>
     ): Promise<T> {
+        // Every Rust command takes a single struct parameter named `args`, so the
+        // payload must be wrapped as { args } when present (and omitted otherwise).
+        // No flat-first attempt, no substring-based retry — that hack made every
+        // command fail once and could mask real device errors.
         try {
-            // 1) Try flat args (fn reconnect_device(target_device: String, baud_rate: u32))
-            const res = await invoke<T>(cmd, args);
+            const res = await invoke<T>(cmd, args ? { args } : undefined);
             this.emit(cmd, res);
             return res;
         } catch (err: unknown) {
             const msg = err instanceof Error ? (err.message ?? String(err)) : String(err ?? '');
-            // 2) If Rust expects a single param named "args" (fn reconnect_device(args: X))
-            const needsArgsWrapper =
-                msg.includes('missing required key args') ||
-                msg.includes('invalid args `args`') ||
-                msg.includes('unknown field `target_device`'); // common variant
-
-            if (needsArgsWrapper && args && !('args' in args)) {
-                const res2 = await invoke<T>(cmd, { args });
-                this.emit(cmd, res2);
-                return res2;
-            }
-
             console.error(`[${cmd}] failed:`, err);
+            // Surface to the UI so a failed device command is visible to the operator.
+            this.emit('message_fail', msg);
+            // Keep the structured per-command error event for any listener that wants it.
             this.emit(`${cmd}:error`, msg);
+            // Re-throw so callers/await still see the failure (ProgramRunner must stop).
             throw err;
+        }
+    }
+
+    /**
+     * Deadman/heartbeat contract (see backend session_start/session_stop/heartbeat).
+     * These are best-effort: a missing or failing command must NEVER crash a run,
+     * so errors are swallowed with a console.warn.
+     */
+    async sessionStart(): Promise<void> {
+        try {
+            await invoke('session_start');
+        } catch (err) {
+            console.warn('session_start failed (continuing):', err);
+        }
+    }
+
+    async sessionStop(): Promise<void> {
+        try {
+            await invoke('session_stop');
+        } catch (err) {
+            console.warn('session_stop failed (continuing):', err);
+        }
+    }
+
+    async heartbeat(): Promise<void> {
+        try {
+            await invoke('heartbeat');
+        } catch (err) {
+            console.warn('heartbeat failed (continuing):', err);
         }
     }
 

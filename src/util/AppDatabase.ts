@@ -132,6 +132,10 @@ export default class AppDatabase extends Dexie {
     const obj = p as Record<string, unknown>;
     const data = obj.data as unknown;
     if (!Array.isArray(data)) return false;
+    // Old format: data is a flat number[] (Hz values). An EMPTY data array is
+    // ambiguous (could be either shape) but is treated as old-format here as
+    // long as the runtime/start markers exist — preloadDefaults checks
+    // isOldFormat first, so empty-data programs fall into the old-format path.
     if (data.length > 0 && typeof data[0] !== 'number') return false;
     return 'runTimeInMinutes' in obj && 'startFrequency' in obj;
   }
@@ -141,7 +145,12 @@ export default class AppDatabase extends Dexie {
     const obj = p as Record<string, unknown>;
     const data = obj.data as unknown;
     if (!Array.isArray(data)) return false;
+    // Empty data: only the runtime/start markers distinguish a valid program
+    // shell. We accept it (same as isOldFormat) so an empty new-format blob is
+    // not misclassified as "unknown" and silently skipped.
     if (data.length === 0) return 'runTimeInMinutes' in obj && 'startFrequency' in obj;
+    // Non-empty new format: first item is an object with {f, s} (Hz, seconds).
+    // candida is currently the only new-format default — its data[0] is {f,s}.
     const first = data[0] as Record<string, unknown>;
     return typeof first === 'object' && first != null && 'f' in first && 's' in first
       && 'runTimeInMinutes' in obj && 'startFrequency' in obj;
@@ -164,6 +173,17 @@ export default class AppDatabase extends Dexie {
             : 'http://localhost';
         const defaultProgramsUrl = new URL('/defaultPrograms.json', base).toString();
         const res = await fetch(defaultProgramsUrl);
+        // Guard against silent failure: a non-ok HTTP response would otherwise
+        // (depending on the fetch impl) parse to garbage/empty and leave the DB
+        // empty while still reporting "success". Throwing here keeps preloadDone
+        // false so ensurePreloaded() can retry on the next call.
+        if (!res.ok) throw new Error('Failed to fetch defaultPrograms.json: HTTP ' + res.status);
+        // Optional defensive content-type guard (some dev servers return HTML
+        // error pages with 200); only warn so we don't break valid setups.
+        const contentType = res.headers?.get?.('content-type');
+        if (contentType && !/json/i.test(contentType)) {
+          console.warn('Unexpected content-type for defaultPrograms.json:', contentType);
+        }
         const defaults = (await res.json()) as Record<string, unknown>;
 
         await this.transaction('rw', this.programs, async () => {
@@ -354,12 +374,36 @@ export default class AppDatabase extends Dexie {
       // Upsert by name
       const existing = await this.programs.where('name').equals(program.name).first();
       if (existing) {
+        // Collision guard: a custom save (default falsy) must not silently
+        // overwrite a curated DEFAULT program of the same name. Throw clearly
+        // so the caller can prompt for a different name. (We keep the &name
+        // index/schema stable — this is the conservative fix.)
+        if (n2b(existing.default) && !n2b(program.default)) {
+          throw new Error(
+            `A default program named ${program.name} already exists; choose a different name`
+          );
+        }
         await this.programs.put({ ...existing, ...row });
       } else {
         await this.programs.put(row as ProgramRow);
       }
     } catch (err) {
       console.error('Failed to save data:', err);
+      throw err;
+    }
+  }
+
+  /** Delete a custom program by name. Default (curated) programs cannot be deleted. */
+  async deleteData(name: string): Promise<void> {
+    try {
+      const existing = await this.programs.where('name').equals(name).first();
+      if (!existing) return;
+      if (n2b(existing.default)) {
+        throw new Error(`Default program "${name}" cannot be deleted.`);
+      }
+      await this.programs.where('name').equals(name).delete();
+    } catch (err) {
+      console.error('Failed to delete data:', err);
       throw err;
     }
   }

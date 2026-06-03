@@ -9,7 +9,7 @@ const ErrorBar: React.FC<ErrorBarProps> = ({ messages }) => {
     if (!messages.length) return null;
 
     return (
-        <div className="error-bar">
+        <div className="error-bar" role="alert" aria-live="assertive">
             <ul>
                 {messages.map((msg, idx) => (
                     <li key={idx}>{msg}</li>

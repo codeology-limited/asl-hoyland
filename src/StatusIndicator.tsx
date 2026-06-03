@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useAppContext } from './AppContext';
 
 interface StatusIndicatorProps {
-    status: 'success' | 'fail' | null;
+    /**
+     * Optional initial status. Kept optional for backwards compatibility;
+     * the indicator now derives its status purely from context events
+     * (message_success / message_fail / reconnected).
+     */
+    status?: 'success' | 'fail' | null;
 }
 
-const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
+const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status = null }) => {
     const { events } = useAppContext();
 
     const [currentStatus, setCurrentStatus] = useState<'success' | 'fail' | null>(status);
     const [flashing, setFlashing] = useState(false);
     const lastEventTimeRef = React.useRef<number>(Date.now());
-
-    // Keep in sync if parent-provided status changes
-    useEffect(() => {
-        setCurrentStatus(status);
-    }, [status]);
 
     // Update status from the latest event
     useEffect(() => {
@@ -39,7 +39,24 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
         return () => clearInterval(id);
     }, []);
 
-    return <div className={`status-indicator ${flashing ? currentStatus : ''}`} />;
+    // Non-color cue for accessibility: color alone must not convey the state.
+    const label =
+        currentStatus === 'fail'
+            ? 'device error'
+            : currentStatus === 'success'
+            ? 'ok'
+            : '';
+
+    return (
+        <div
+            className={`status-indicator ${flashing ? currentStatus : ''}`}
+            role="status"
+            aria-live="polite"
+            data-status={currentStatus ?? 'none'}
+        >
+            <span className="status-indicator__label">{label}</span>
+        </div>
+    );
 };
 
 export default StatusIndicator;
