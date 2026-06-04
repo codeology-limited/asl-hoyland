@@ -129,6 +129,28 @@ describe('ProgramRunner', () => {
     expect(gen.sync).toHaveBeenCalled();
   });
 
+  it('SINE/SINE program with no carrier (startFrequency==0) emits sine, not square', async () => {
+    // Regression for the Lynne 2 Jun report: lymphocyte50Hz / tCells30Hz are
+    // declared SINE/SINE with startFrequency 0, but the `startFrequency === 0`
+    // square trigger used to shadow the sine branch so they came up square.
+    const program = {
+      name: 'lymphocyte50Hz', range: 0,
+      data: [{ channel: 1, frequency: 50, runTime: 50 }],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 0,
+      channel1wavetype: 'SINE', channel2wavetype: 'SINE',
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('lymphocyte50Hz', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+  });
+
   it('ascending range iterates with <= end condition', async () => {
     const program = {
       name: 'rangeUp', range: 1,

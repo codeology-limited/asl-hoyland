@@ -210,20 +210,23 @@ export default class ProgramRunner {
             }
 
             // Set waveform.
-            // - ultra*/no-carrier/SQUARE+SQUARE → both square + sync
             // - SINE+SINE → both sine, asserted explicitly so CH1 doesn't inherit the
-            //   square left over from SECONDARY_COMMANDS' WMW01 init.
+            //   square left over from SECONDARY_COMMANDS' WMW01 init. Checked FIRST: a
+            //   no-carrier (startFrequency===0) SINE/SINE program such as lymphocyte50Hz
+            //   / tCells30Hz was previously shadowed by the startFrequency===0 square
+            //   trigger and wrongly emitted square. (Lynne 2 Jun)
+            // - ultra*/no-carrier/SQUARE+SQUARE → both square + sync.
             // - otherwise → fall back to sinewave() if CH1 declared SINE.
             const ch1Sine = program.channel1wavetype === 'SINE';
             const ch2Sine = program.channel2wavetype === 'SINE';
             const ch1Square = program.channel1wavetype === 'SQUARE';
             const ch2Square = program.channel2wavetype === 'SQUARE';
-            if (nameLc.includes('ultra') || program.startFrequency === 0 ||
+            if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
+                await this.gen.setBothChannelsToSineWave();
+            } else if (nameLc.includes('ultra') || program.startFrequency === 0 ||
                 (ch1Square && ch2Square)) {
                 await this.gen.setBothChannelsToSquareWave();
                 await this.gen.sync();
-            } else if (ch1Sine && ch2Sine) {
-                await this.gen.setBothChannelsToSineWave();
             } else if (ch1Sine) {
                 await this.gen.sinewave();
             }
