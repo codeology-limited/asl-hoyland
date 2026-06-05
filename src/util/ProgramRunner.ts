@@ -198,11 +198,22 @@ export default class ProgramRunner {
                 }
             }
 
+            // CH2-mirrors-CH1: a no-carrier (startFrequency===0) SINE/SINE program
+            // (lymphocyte50Hz, tCells30Hz) must drive CH2 at the SAME frequency as CH1,
+            // not leave it at the 3.1 MHz init carrier (WFF3100000 from INITIAL_COMMANDS).
+            // Scoped to SINE/SINE + no-carrier so the square PEMF programs (which Lynne
+            // confirmed correct) and carrier programs (insomnia) are untouched. (Lynne 4 Jun)
+            const mirrorCh2ToCh1 =
+                program.channel1wavetype === 'SINE' &&
+                program.channel2wavetype === 'SINE' &&
+                program.startFrequency === 0;
+
             // Apply amplitude and BOTH channel frequencies BEFORE enabling outputs,
             // so the device doesn't briefly output the previous program's frequencies.
             await this.applyCurrentIntensity(program);
             if (initialHz != null && Number.isFinite(initialHz)) {
                 await this.gen.setFrequency(1, initialHz);
+                if (mirrorCh2ToCh1) await this.gen.setFrequency(2, initialHz);
                 setRunningFrequency(`${initialHz} Hz`);
             }
             if (program.startFrequency > 0) {
@@ -252,6 +263,7 @@ export default class ProgramRunner {
                     if (!this.running) break;
 
                     await this.gen.setFrequency(1, Math.round(f));
+                    if (mirrorCh2ToCh1) await this.gen.setFrequency(2, Math.round(f));
                     setRunningFrequency(`${Math.round(f)} Hz`);
                     const rangeEnd = Date.now() + interval;
                     while (this.running && Date.now() < rangeEnd) {
@@ -281,6 +293,7 @@ export default class ProgramRunner {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running) break;
                                 await this.gen.setFrequency(1, Math.round(f));
+                                if (mirrorCh2ToCh1) await this.gen.setFrequency(2, Math.round(f));
                                 setRunningFrequency(`${Math.round(f)} Hz`);
                                 const sweepEnd = Date.now() + interval;
                                 while (this.running && Date.now() < sweepEnd) {
@@ -326,6 +339,7 @@ export default class ProgramRunner {
                         } else {
                             // Continuous mode
                             await this.gen.setFrequency(1, freq);
+                            if (mirrorCh2ToCh1) await this.gen.setFrequency(2, freq);
                             setRunningFrequency(`${freq} Hz`);
 
                             const until = Date.now() + item.runTime;

@@ -151,6 +151,29 @@ describe('ProgramRunner', () => {
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
   });
 
+  it('SINE/SINE no-carrier program drives CH2 at CH1 frequency, not the 3.1MHz carrier', async () => {
+    // Lynne 4 Jun: lymphocyte50Hz / tCells30Hz had CH2 stuck at the 3.1 MHz init
+    // carrier; CH2 must mirror CH1 (50/30 Hz). Scoped to SINE/SINE + startFrequency 0.
+    const program = {
+      name: 'lymphocyte50Hz', range: 0,
+      data: [{ channel: 1, frequency: 50, runTime: 50 }],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 0,
+      channel1wavetype: 'SINE', channel2wavetype: 'SINE',
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('lymphocyte50Hz', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+    const ch2Freqs = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
+    // CH2 was driven to 50 Hz (mirroring CH1) and never to the 3.1MHz carrier.
+    expect(ch2Freqs).toContain(50);
+    expect(ch2Freqs).not.toContain(3_100_000);
+  });
+
   it('ascending range iterates with <= end condition', async () => {
     const program = {
       name: 'rangeUp', range: 1,
