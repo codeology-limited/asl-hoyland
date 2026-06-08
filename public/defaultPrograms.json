@@ -550,5 +550,57 @@
     "sliderStepV": 0.015,
     "sliderPercent": 35,
     "startIntensityV": 0.825
+  },
+  "mcf7Breast150kHz": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [150000],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "mdaMB231Breast150kHz": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [150000],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "b16Melanoma120kHz": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [120000],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "f98Glioma200kHz": {
+    "default": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [200000],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   }
 }
