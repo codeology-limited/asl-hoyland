@@ -198,15 +198,29 @@ export default class ProgramRunner {
                 }
             }
 
+            // Per-frequency waveform (editor "sine/square per frequency"): when any data
+            // item carries its own wavetype, the program drives that waveform per step on
+            // BOTH channels at the step's frequency. Backward-compatible — programs without
+            // per-item wavetype keep the program-level waveform logic. (Lynne 9 Jun)
+            const hasItemWaveform = program.data.some(
+                (it) => it.wavetype === 'SINE' || it.wavetype === 'SQUARE'
+            );
+            const applyItemWaveform = async (wt?: 'SINE' | 'SQUARE') => {
+                if (wt === 'SINE') await this.gen.setBothChannelsToSineWave();
+                else if (wt === 'SQUARE') await this.gen.setBothChannelsToSquareWave();
+            };
+
             // CH2-mirrors-CH1: a no-carrier (startFrequency===0) SINE/SINE program
             // (lymphocyte50Hz, tCells30Hz) must drive CH2 at the SAME frequency as CH1,
             // not leave it at the 3.1 MHz init carrier (WFF3100000 from INITIAL_COMMANDS).
-            // Scoped to SINE/SINE + no-carrier so the square PEMF programs (which Lynne
-            // confirmed correct) and carrier programs (insomnia) are untouched. (Lynne 4 Jun)
+            // Per-frequency-waveform programs mirror too, so both channels output each
+            // step's frequency. Otherwise scoped to SINE/SINE + no-carrier so the square
+            // PEMF programs and carrier programs (insomnia) are untouched. (Lynne 4/9 Jun)
             const mirrorCh2ToCh1 =
-                program.channel1wavetype === 'SINE' &&
-                program.channel2wavetype === 'SINE' &&
-                program.startFrequency === 0;
+                hasItemWaveform ||
+                (program.channel1wavetype === 'SINE' &&
+                    program.channel2wavetype === 'SINE' &&
+                    program.startFrequency === 0);
 
             // Apply amplitude and BOTH channel frequencies BEFORE enabling outputs,
             // so the device doesn't briefly output the previous program's frequencies.
@@ -232,7 +246,12 @@ export default class ProgramRunner {
             const ch2Sine = program.channel2wavetype === 'SINE';
             const ch1Square = program.channel1wavetype === 'SQUARE';
             const ch2Square = program.channel2wavetype === 'SQUARE';
-            if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
+            if (hasItemWaveform) {
+                // Per-frequency waveform: assert the first step's waveform before outputs
+                // enable; the run loop re-asserts each step's waveform. enableOutputs sends
+                // USA2 so no explicit sync() is needed (same as the SINE/SINE path).
+                await applyItemWaveform(program.data[0]?.wavetype);
+            } else if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
                 await this.gen.setBothChannelsToSineWave();
             } else if (nameLc.includes('ultra') || program.startFrequency === 0 ||
                 (ch1Square && ch2Square)) {
@@ -281,6 +300,7 @@ export default class ProgramRunner {
                     const freq = Number(item.frequency);
 
                     if ('sweepTo' in item && item.sweepTo != null) {
+                        if (item.wavetype) await applyItemWaveform(item.wavetype);
                         const endF = Number(item.sweepTo);
                         const direction = freq <= endF ? 1 : -1;
                         const totalSteps = Math.abs(endF - freq);
@@ -338,6 +358,7 @@ export default class ProgramRunner {
                             }
                         } else {
                             // Continuous mode
+                            if (item.wavetype) await applyItemWaveform(item.wavetype);
                             await this.gen.setFrequency(1, freq);
                             if (mirrorCh2ToCh1) await this.gen.setFrequency(2, freq);
                             setRunningFrequency(`${freq} Hz`);

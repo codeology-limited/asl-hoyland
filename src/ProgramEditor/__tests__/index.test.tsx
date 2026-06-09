@@ -161,12 +161,19 @@ describe('ProgramEditor', () => {
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
 
     await waitFor(() => {
-      const dropdown = screen.getByRole('combobox');
+      // First combobox is the program-load dropdown (per-row Wave selects are also comboboxes now).
+      const dropdown = screen.getAllByRole('combobox')[0];
       expect(dropdown).toBeInTheDocument();
 
       const newProgramOption = screen.getByRole('option', { name: /New Program/i });
       expect(newProgramOption).toBeInTheDocument();
     });
+  });
+
+  it('renders a per-frequency waveform select with Sine and Square', () => {
+    renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
+    expect(screen.getByRole('option', { name: /^Sine$/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^Square$/i })).toBeInTheDocument();
   });
 
   it('allows entering runtime values', async () => {

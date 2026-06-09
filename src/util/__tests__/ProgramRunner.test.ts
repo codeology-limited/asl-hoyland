@@ -174,6 +174,34 @@ describe('ProgramRunner', () => {
     expect(ch2Freqs).not.toContain(3_100_000);
   });
 
+  it('per-frequency wavetype: applies each item waveform on both channels and mirrors CH2', async () => {
+    // Lynne 9 Jun: editor sine/square-per-frequency. Each item plays with its own
+    // waveform on BOTH channels at that frequency (CH2 mirrors CH1).
+    const program = {
+      name: 'mixedWave', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 50, wavetype: 'SINE' },
+        { channel: 1, frequency: 200, runTime: 50, wavetype: 'SQUARE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('mixedWave', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+    // Both waveforms were asserted (one per item).
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.setBothChannelsToSquareWave).toHaveBeenCalled();
+    // CH2 mirrored both step frequencies (both channels output each frequency).
+    const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
+    expect(ch2).toContain(100);
+    expect(ch2).toContain(200);
+  });
+
   it('ascending range iterates with <= end condition', async () => {
     const program = {
       name: 'rangeUp', range: 1,

@@ -8,7 +8,7 @@ export interface ProgramRow {
   id?: number;
   name: string;                 // UNIQUE
   range: DBBool;                // stored as 0/1
-  data: { channel: number; frequency: number | string; runTime: number; sweepTo?: number }[];
+  data: { channel: number; frequency: number | string; runTime: number; sweepTo?: number; wavetype?: 'SINE' | 'SQUARE' }[];
   maxTimeInMinutes: number;
   default: DBBool | boolean;              // stored as 0/1
   startFrequency: number;

@@ -4,6 +4,7 @@ export interface ProgramItem {
     frequency: number | string;
     runTime: number;
     sweepTo?: number;
+    wavetype?: 'SINE' | 'SQUARE';
 }
 
 export interface Program {

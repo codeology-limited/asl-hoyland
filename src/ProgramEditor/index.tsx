@@ -9,12 +9,12 @@ interface ProgramEditorProps {
 }
 
 
-type EditRow = { channel: number; frequency: string; runTime: string; sweepTo?: string };
+type EditRow = { channel: number; frequency: string; runTime: string; sweepTo?: string; wavetype: 'SINE' | 'SQUARE' };
 
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
-    const [rows, setRows] = useState<EditRow[]>([{ channel: 1, frequency: '', runTime: '' }]);
+    const [rows, setRows] = useState<EditRow[]>([{ channel: 1, frequency: '', runTime: '', wavetype: 'SINE' }]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -32,17 +32,17 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     useEffect(() => {
         if (range) {
             setRows([
-                { channel: 1, frequency: '', runTime: '' },
-                { channel: 1, frequency: '', runTime: '' },
+                { channel: 1, frequency: '', runTime: '', wavetype: 'SINE' },
+                { channel: 1, frequency: '', runTime: '', wavetype: 'SINE' },
             ]);
         } else {
-            setRows([{ channel: 1, frequency: '', runTime: '' }]);
+            setRows([{ channel: 1, frequency: '', runTime: '', wavetype: 'SINE' }]);
         }
     }, [range]);
 
     const handleAddRow = () => {
         if (!range) {
-            setRows([...rows, { channel: 1, frequency: '', runTime: '' }]);
+            setRows([...rows, { channel: 1, frequency: '', runTime: '', wavetype: 'SINE' }]);
         }
     };
 
@@ -64,6 +64,12 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         }
     };
 
+    const handleWavetypeChange = (index: number, value: 'SINE' | 'SQUARE') => {
+        const newRows = [...rows];
+        newRows[index] = { ...newRows[index], wavetype: value } as EditRow;
+        setRows(newRows);
+    };
+
 
     const handleSave = async () => {
         if (isSaving) return;
@@ -76,6 +82,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                 channel: row.channel,
                 frequency: parseFloat(row.frequency) || 0,
                 runTime: (parseFloat(row.runTime) || 0) * 60_000,
+                wavetype: row.wavetype,
                 ...(row.sweepTo ? { sweepTo: parseFloat(row.sweepTo) } : {}),
             }));
 
@@ -109,6 +116,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                 channel: row.channel,
                 frequency: String(row.frequency),
                 runTime: String(row.runTime / 60_000),
+                wavetype: row.wavetype ?? (program.channel1wavetype === 'SQUARE' ? 'SQUARE' : 'SINE'),
                 ...(row.sweepTo != null ? { sweepTo: String(row.sweepTo) } : {}),
             }));
 
@@ -159,6 +167,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                         <th></th>
                         <th>Frequency in Hertz</th>
                         <th>{range ? 'Total run time' : 'Minutes per frequency'}</th>
+                        <th>Wave</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -185,6 +194,16 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                                     onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
                                     placeholder="Time in minutes"
                                 />
+                            </td>
+                            <td>
+                                <select
+                                    value={row.wavetype}
+                                    onChange={(e) => handleWavetypeChange(index, e.target.value as 'SINE' | 'SQUARE')}
+                                    aria-label={`Waveform for frequency ${index + 1}`}
+                                >
+                                    <option value="SINE">Sine</option>
+                                    <option value="SQUARE">Square</option>
+                                </select>
                             </td>
                             <td className="add-frequency-btn">
                                 {!range && index === rows.length - 1 && (
