@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Hoyland3-AlteredStates",
-    "version": "1.6.16"
+    "version": "1.7.0"
   },
   "tauri": {
     "allowlist": {
