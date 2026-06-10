@@ -26,7 +26,9 @@ const SECONDARY_COMMANDS: &[&str] = &[
 const ENABLE_OUTPUT_COMMANDS: &[&str] = &[
     "WFN1\n",               // CH2 on
     "WMN1\n",               // CH1 on
-    "USA2\n",               // Sync — links both channels
+    "USA2\n",               // Amplitude sync — CH2 follows CH1 amplitude.
+                            // (FY6600 protocol: USA0=waveform, USA1=frequency,
+                            // USA2=amplitude, USA3=offset, USA4=duty.)
 ];
 const STOP_COMMANDS: &[&str] = &[
     "USD0\n", "USD1\n", "USD2\n", "USD3\n", "USD4\n", // Disable sync FIRST
@@ -346,7 +348,7 @@ mod tests {
     fn enable_output_commands_turn_on_channels_and_sync() {
         assert!(ENABLE_OUTPUT_COMMANDS.contains(&"WFN1\n")); // CH2 on
         assert!(ENABLE_OUTPUT_COMMANDS.contains(&"WMN1\n")); // CH1 on
-        assert!(ENABLE_OUTPUT_COMMANDS.contains(&"USA2\n")); // Sync
+        assert!(ENABLE_OUTPUT_COMMANDS.contains(&"USA2\n")); // Amplitude sync
         assert_eq!(ENABLE_OUTPUT_COMMANDS.len(), 3);
     }
 }

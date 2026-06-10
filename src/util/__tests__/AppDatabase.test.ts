@@ -96,6 +96,35 @@ describe('AppDatabase (with mocked Dexie)', () => {
     expect(names1.length).toBeGreaterThan(0);
   });
 
+  it('naturalKillerCell preloads as SINE/SINE (Lynne 10 Jun: was square)', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    const nkc = await db.loadData('naturalKillerCell');
+    expect(nkc).toBeTruthy();
+    expect(nkc.channel1wavetype).toBe('SINE');
+    expect(nkc.channel2wavetype).toBe('SINE');
+    expect(nkc.startFrequency).toBe(0);
+    expect(nkc.data[0].frequency).toBe(200000);
+  });
+
+  it('preload upsert flips an existing SQUARE naturalKillerCell row to SINE (existing installs)', async () => {
+    const db = new AppDatabase();
+    // Simulate an install that already stored the pre-change SQUARE config; the
+    // {...existing, ...row} upsert must overwrite the wavetypes from the JSON.
+    await (db as any).programs.put({
+      name: 'naturalKillerCell',
+      data: [{ channel: 1, frequency: 200000, runTime: 28800000 }],
+      range: 0, default: 1, maxTimeInMinutes: 480, startFrequency: 0,
+      channel1wavetype: 'SQUARE', channel2wavetype: 'SQUARE',
+    });
+    await db.preloadDefaults();
+
+    const nkc = await db.loadData('naturalKillerCell');
+    expect(nkc.channel1wavetype).toBe('SINE');
+    expect(nkc.channel2wavetype).toBe('SINE');
+  });
+
   it('saves and retrieves custom programs with correct coercions', async () => {
     const db = new AppDatabase();
     await db.preloadDefaults();

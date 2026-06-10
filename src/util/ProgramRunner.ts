@@ -8,6 +8,14 @@ type ProgressCallback = (currentStep: number, totalSteps: number, minutesRemaini
 const asBool = (v: number | boolean | undefined) => !!Number(v);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// Minimum gap between two consecutive frequency writes (CH1 then CH2). The
+// FY6600 misses the first of two commands arriving back-to-back while a
+// program is running: per-frequency custom programs stepped CH2 correctly but
+// left CH1 stuck on its first frequency (10 Jun report) because WFF followed
+// WMF after only the 5 ms device-side settle. 50 ms is the registration
+// interval already field-proven by set_channels_output's pulse toggling.
+const FREQ_PAIR_GAP_MS = 50;
+
 // small helpers
 const num = (v: unknown, fallback: number) => {
     if (v === null || v === undefined) return fallback;
@@ -51,6 +59,18 @@ export default class ProgramRunner {
 
     setProgressCallback(cb: ProgressCallback) { this.onProgress = cb; }
     setOnStopCallback(cb: () => void) { this.onStop = cb; }
+
+    /** Set CH1 frequency, then optionally CH2, paced FREQ_PAIR_GAP_MS apart. */
+    private async setFrequencyPair(ch1Hz: number, ch2Hz: number | null) {
+        await this.gen.setFrequency(1, ch1Hz);
+        if (ch2Hz != null) {
+            await sleep(FREQ_PAIR_GAP_MS);
+            // A stop during the gap must not write after stopAndReset's cleanup.
+            // Paused runs still write so the channels never desync.
+            if (!this.running) return;
+            await this.gen.setFrequency(2, ch2Hz);
+        }
+    }
 
     /** Send amplitude to one or both channels using controller overloads */
     private async sendAmp(channel: number, amp: number) {
@@ -226,11 +246,11 @@ export default class ProgramRunner {
             // so the device doesn't briefly output the previous program's frequencies.
             await this.applyCurrentIntensity(program);
             if (initialHz != null && Number.isFinite(initialHz)) {
-                await this.gen.setFrequency(1, initialHz);
-                if (mirrorCh2ToCh1) await this.gen.setFrequency(2, initialHz);
+                await this.setFrequencyPair(initialHz, mirrorCh2ToCh1 ? initialHz : null);
                 setRunningFrequency(`${initialHz} Hz`);
             }
             if (program.startFrequency > 0) {
+                await sleep(FREQ_PAIR_GAP_MS);
                 await this.gen.setFrequency(2, program.startFrequency * 1_000_000);
             }
 
@@ -248,8 +268,9 @@ export default class ProgramRunner {
             const ch2Square = program.channel2wavetype === 'SQUARE';
             if (hasItemWaveform) {
                 // Per-frequency waveform: assert the first step's waveform before outputs
-                // enable; the run loop re-asserts each step's waveform. enableOutputs sends
-                // USA2 so no explicit sync() is needed (same as the SINE/SINE path).
+                // enable; the run loop re-asserts each step's waveform. No sync() here —
+                // like the SINE/SINE path, both channels are driven explicitly. (Note:
+                // enableOutputs' USA2 is amplitude sync only, per the FY6600 protocol.)
                 await applyItemWaveform(program.data[0]?.wavetype);
             } else if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
                 await this.gen.setBothChannelsToSineWave();
@@ -281,10 +302,12 @@ export default class ProgramRunner {
                     while (this.paused && this.running) await sleep(100);
                     if (!this.running) break;
 
-                    await this.gen.setFrequency(1, Math.round(f));
-                    if (mirrorCh2ToCh1) await this.gen.setFrequency(2, Math.round(f));
-                    setRunningFrequency(`${Math.round(f)} Hz`);
+                    // Deadline starts BEFORE the paced pair so FREQ_PAIR_GAP_MS is
+                    // absorbed into the dwell — mirrored sweeps keep their nominal
+                    // step cadence instead of gaining 50ms per step.
                     const rangeEnd = Date.now() + interval;
+                    await this.setFrequencyPair(Math.round(f), mirrorCh2ToCh1 ? Math.round(f) : null);
+                    setRunningFrequency(`${Math.round(f)} Hz`);
                     while (this.running && Date.now() < rangeEnd) {
                         while (this.paused && this.running) await sleep(100);
                         if (!this.running) break;
@@ -312,10 +335,10 @@ export default class ProgramRunner {
                             for (let f = freq; this.running && condition(f); f += direction) {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running) break;
-                                await this.gen.setFrequency(1, Math.round(f));
-                                if (mirrorCh2ToCh1) await this.gen.setFrequency(2, Math.round(f));
-                                setRunningFrequency(`${Math.round(f)} Hz`);
+                                // Deadline before the pair — see the range loop note.
                                 const sweepEnd = Date.now() + interval;
+                                await this.setFrequencyPair(Math.round(f), mirrorCh2ToCh1 ? Math.round(f) : null);
+                                setRunningFrequency(`${Math.round(f)} Hz`);
                                 while (this.running && Date.now() < sweepEnd) {
                                     while (this.paused && this.running) await sleep(100);
                                     if (!this.running) break;
@@ -343,15 +366,13 @@ export default class ProgramRunner {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running || Date.now() >= until) break;
 
-                                await this.gen.setFrequency(1, freq);
-                                if (ch2Hz > 0) await this.gen.setFrequency(2, ch2Hz);
+                                await this.setFrequencyPair(freq, ch2Hz > 0 ? ch2Hz : null);
                                 setRunningFrequency(`${freq} Hz`);
                                 const onEnd = Math.min(Date.now() + onMs, until);
                                 while (this.running && !this.paused && Date.now() < onEnd) await sleep(5);
                                 if (!this.running || Date.now() >= until) break;
 
-                                await this.gen.setFrequency(1, 0);
-                                if (ch2Hz > 0) await this.gen.setFrequency(2, 0);
+                                await this.setFrequencyPair(0, ch2Hz > 0 ? 0 : null);
                                 setRunningFrequency(`${freq} Hz (off)`);
                                 const offEnd = Math.min(Date.now() + offMs, until);
                                 while (this.running && !this.paused && Date.now() < offEnd) await sleep(5);
@@ -359,8 +380,7 @@ export default class ProgramRunner {
                         } else {
                             // Continuous mode
                             if (item.wavetype) await applyItemWaveform(item.wavetype);
-                            await this.gen.setFrequency(1, freq);
-                            if (mirrorCh2ToCh1) await this.gen.setFrequency(2, freq);
+                            await this.setFrequencyPair(freq, mirrorCh2ToCh1 ? freq : null);
                             setRunningFrequency(`${freq} Hz`);
 
                             const until = Date.now() + item.runTime;

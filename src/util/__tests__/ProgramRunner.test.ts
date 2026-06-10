@@ -7,7 +7,8 @@ const mkFakeGen = () => {
   return {
     calls: [] as Array<{ m: string; args: any[] }>,
     setFrequency: vi.fn(async function (this: any, ch: number, f: number) {
-      (this.calls as any).push({ m: 'setFrequency', args: [ch, f] });
+      // t uses the (fake) clock so tests can assert command pacing
+      (this.calls as any).push({ m: 'setFrequency', args: [ch, f], t: Date.now() });
     }),
     setAmplitude: vi.fn(async function (this: any, chOrAmp: number, ampMaybe?: number) {
       const ch = typeof ampMaybe === 'number' ? chOrAmp : 1;
@@ -200,6 +201,85 @@ describe('ProgramRunner', () => {
     const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
     expect(ch2).toContain(100);
     expect(ch2).toContain(200);
+  });
+
+  it('paces mirrored CH1/CH2 frequency writes >=50ms apart (CH1-stuck regression)', async () => {
+    // 10 Jun report: running a per-frequency custom program, CH2 stepped through
+    // the frequencies but CH1 stayed on the first one. The FY6600 drops the first
+    // of two commands that arrive back-to-back mid-program, so WFF sent ~5ms
+    // after WMF clobbered the CH1 update. Each mirrored pair must be spaced.
+    const program = {
+      name: 'mixedWave', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 200, wavetype: 'SINE' },
+        { channel: 1, frequency: 200, runTime: 200, wavetype: 'SQUARE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('mixedWave', () => {});
+    await vi.advanceTimersByTimeAsync(3000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency');
+    // Every step set CH1 (the bug left these dropped by the device)…
+    const ch1 = freqCalls.filter((c: any) => c.args[0] === 1).map((c: any) => c.args[1]);
+    expect(ch1).toContain(100);
+    expect(ch1).toContain(200);
+    // …and every CH2 write trails its CH1 partner by at least 50ms.
+    let pairs = 0;
+    for (let i = 1; i < freqCalls.length; i++) {
+      if (freqCalls[i].args[0] === 2 && freqCalls[i - 1].args[0] === 1) {
+        pairs++;
+        expect(freqCalls[i].t - freqCalls[i - 1].t).toBeGreaterThanOrEqual(50);
+      }
+    }
+    // Guard against the loop passing vacuously: prime pair + per-item pairs exist.
+    expect(pairs).toBeGreaterThanOrEqual(2);
+    // The mirrored pairs actually exist (CH2 follows CH1 at both frequencies).
+    const ch2 = freqCalls.filter((c: any) => c.args[0] === 2).map((c: any) => c.args[1]);
+    expect(ch2).toContain(100);
+    expect(ch2).toContain(200);
+  });
+
+  it('mirrored range sweep keeps nominal step cadence (50ms gap absorbed into dwell)', async () => {
+    // Review finding on the pacing fix: the step deadline must start BEFORE the
+    // paced pair, or every mirrored sweep step costs interval + 50ms and the
+    // program overruns maxTimeInMinutes (editor-saved programs attach wavetype
+    // to every row, so ranged custom programs always mirror). 0→20 over 1.2s
+    // gives a 60ms interval; the 50ms pair gap must fit inside it.
+    const program = {
+      name: 'mirroredRange', range: 1,
+      data: [
+        { channel: 1, frequency: 0, runTime: 0, wavetype: 'SINE' },
+        { channel: 1, frequency: 20, runTime: 0, wavetype: 'SINE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('mirroredRange', () => {});
+    await vi.advanceTimersByTimeAsync(1500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    // 1 prime + 21 sweep steps at ~60ms cadence all fit in 1.5s. With the
+    // deadline computed after the pair (interval + 50ms per step) only ~13 fit.
+    expect(ch1.length).toBeGreaterThanOrEqual(20);
+    // Pacing still holds within each step's pair.
+    const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency');
+    for (let i = 1; i < freqCalls.length; i++) {
+      if (freqCalls[i].args[0] === 2 && freqCalls[i - 1].args[0] === 1) {
+        expect(freqCalls[i].t - freqCalls[i - 1].t).toBeGreaterThanOrEqual(50);
+      }
+    }
   });
 
   it('ascending range iterates with <= end condition', async () => {
