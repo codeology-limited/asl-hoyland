@@ -225,9 +225,24 @@ export default class ProgramRunner {
             const hasItemWaveform = program.data.some(
                 (it) => it.wavetype === 'SINE' || it.wavetype === 'SQUARE'
             );
-            const applyItemWaveform = async (wt?: 'SINE' | 'SQUARE') => {
+            // Only switch waveform when the step actually changes it. Re-asserting
+            // sine every step left the device unable to take the frequency pair
+            // that followed (Rob 12 Jun: sine→sine steps kept the old frequency
+            // while square→square steps were fine — the firmware drops or reverts
+            // frequency writes that land in a sine switch's settle window).
+            // Returns true when a switch was actually sent.
+            let appliedWavetype: 'SINE' | 'SQUARE' | undefined;
+            const applyItemWaveform = async (wt?: 'SINE' | 'SQUARE'): Promise<boolean> => {
+                if ((wt !== 'SINE' && wt !== 'SQUARE') || wt === appliedWavetype) return false;
+                // Pace the switch against the frequency write just before it —
+                // the same 50ms registration rule as the CH1/CH2 pair — and never
+                // write after a stop's stopAndReset cleanup.
+                await sleep(FREQ_PAIR_GAP_MS);
+                if (!this.running) return false;
                 if (wt === 'SINE') await this.gen.setBothChannelsToSineWave();
-                else if (wt === 'SQUARE') await this.gen.setBothChannelsToSquareWave();
+                else await this.gen.setBothChannelsToSquareWave();
+                appliedWavetype = wt;
+                return true;
             };
 
             // CH2-mirrors-CH1: a no-carrier (startFrequency===0) SINE/SINE program
@@ -268,9 +283,9 @@ export default class ProgramRunner {
             const ch2Square = program.channel2wavetype === 'SQUARE';
             if (hasItemWaveform) {
                 // Per-frequency waveform: assert the first step's waveform before outputs
-                // enable; the run loop re-asserts each step's waveform. No sync() here —
-                // like the SINE/SINE path, both channels are driven explicitly. (Note:
-                // enableOutputs' USA2 is amplitude sync only, per the FY6600 protocol.)
+                // enable; the run loop switches waveform only when a step changes it.
+                // No sync() here — like the SINE/SINE path, both channels are driven
+                // explicitly. (enableOutputs' USA2 is amplitude sync only, per protocol.)
                 await applyItemWaveform(program.data[0]?.wavetype);
             } else if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
                 await this.gen.setBothChannelsToSineWave();
@@ -323,7 +338,6 @@ export default class ProgramRunner {
                     const freq = Number(item.frequency);
 
                     if ('sweepTo' in item && item.sweepTo != null) {
-                        if (item.wavetype) await applyItemWaveform(item.wavetype);
                         const endF = Number(item.sweepTo);
                         const direction = freq <= endF ? 1 : -1;
                         const totalSteps = Math.abs(endF - freq);
@@ -336,15 +350,30 @@ export default class ProgramRunner {
                                 while (this.paused && this.running) await sleep(100);
                                 if (!this.running) break;
                                 // Deadline before the pair — see the range loop note.
-                                const sweepEnd = Date.now() + interval;
+                                let sweepEnd = Date.now() + interval;
                                 await this.setFrequencyPair(Math.round(f), mirrorCh2ToCh1 ? Math.round(f) : null);
                                 setRunningFrequency(`${Math.round(f)} Hz`);
+                                // Waveform AFTER frequency (and only when it changes —
+                                // a no-op past the first iteration): frequency writes
+                                // landing in a sine switch's settle window don't take
+                                // effect (Rob 12 Jun). When a switch does fire, re-arm
+                                // the dwell so the device gets a full quiet interval
+                                // after it before the next frequency write.
+                                if (item.wavetype && await applyItemWaveform(item.wavetype)) {
+                                    sweepEnd = Date.now() + interval;
+                                }
                                 while (this.running && Date.now() < sweepEnd) {
                                     while (this.paused && this.running) await sleep(100);
                                     if (!this.running) break;
                                     await sleep(5);
                                 }
                             }
+                        } else if (item.wavetype) {
+                            // Degenerate sweep row (sweepTo === frequency): no sweep to
+                            // run, but the row's waveform change still applies (matches
+                            // pre-1.7.1 behavior where the waveform was set before the
+                            // step-count guard).
+                            await applyItemWaveform(item.wavetype);
                         }
                     } else {
                         const onMs = num(program.onkeysec, 0) * 1000;
@@ -378,10 +407,20 @@ export default class ProgramRunner {
                                 while (this.running && !this.paused && Date.now() < offEnd) await sleep(5);
                             }
                         } else {
-                            // Continuous mode
-                            if (item.wavetype) await applyItemWaveform(item.wavetype);
+                            // Continuous mode — frequency FIRST, waveform after, and only
+                            // when the step changes it. With the old order (waveform,
+                            // then frequency 600ms later) the frequency pair never took
+                            // effect on steps switching TO sine — the firmware drops or
+                            // reverts frequency writes that land in a sine switch's
+                            // settle window, while square settles fast (Rob 12 Jun:
+                            // sq→sq and sine→sq stepped fine, sq→sine and sine→sine
+                            // kept the old frequency). At the top of a step the device
+                            // has been idle for the whole previous dwell, so the
+                            // frequencies land; a waveform switch then settles during
+                            // this step's own dwell.
                             await this.setFrequencyPair(freq, mirrorCh2ToCh1 ? freq : null);
                             setRunningFrequency(`${freq} Hz`);
+                            if (item.wavetype) await applyItemWaveform(item.wavetype);
 
                             const until = Date.now() + item.runTime;
                             while (this.running && Date.now() < until) {

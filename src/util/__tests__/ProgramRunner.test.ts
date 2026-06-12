@@ -16,10 +16,10 @@ const mkFakeGen = () => {
       ;(this.calls as any).push({ m: 'setAmplitude', args: [ch, amp] });
     }),
     setBothChannelsToSquareWave: vi.fn(async function (this: any) {
-      (this.calls as any).push({ m: 'setSquare', args: [] });
+      (this.calls as any).push({ m: 'setSquare', args: [], t: Date.now() });
     }),
     setBothChannelsToSineWave: vi.fn(async function (this: any) {
-      (this.calls as any).push({ m: 'setSine', args: [] });
+      (this.calls as any).push({ m: 'setSine', args: [], t: Date.now() });
     }),
     setChannelsOutput: vi.fn(async function (this: any, on: boolean) {
       (this.calls as any).push({ m: 'setChannelsOutput', args: [on] });
@@ -201,6 +201,112 @@ describe('ProgramRunner', () => {
     const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
     expect(ch2).toContain(100);
     expect(ch2).toContain(200);
+  });
+
+  it('sine→sine steps do not re-assert the waveform but still step the frequency', async () => {
+    // Rob 12 Jun: steps switching TO sine kept the old frequency. Re-asserting
+    // sine every step kept the device busy and it dropped the WMF/WFF pair that
+    // followed. Unchanged waveforms must not be re-sent at all.
+    const program = {
+      name: 'sineSteps', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 200, wavetype: 'SINE' },
+        { channel: 1, frequency: 200, runTime: 200, wavetype: 'SINE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('sineSteps', () => {});
+    await vi.advanceTimersByTimeAsync(3000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // Sine asserted exactly once — at the pre-output prime — never per step.
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalledTimes(1);
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+    // Both step frequencies still reached CH1 (and mirrored CH2).
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1).map((c: any) => c.args[1]);
+    const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
+    expect(ch1).toContain(100);
+    expect(ch1).toContain(200);
+    expect(ch2).toContain(100);
+    expect(ch2).toContain(200);
+  });
+
+  it('square→sine step sets the new frequency BEFORE switching the waveform', async () => {
+    // Rob 12 Jun: with waveform-first ordering, a switch TO sine left the device
+    // busy past the 600ms batch settle and the frequency pair sent after it was
+    // dropped. Frequencies must land first (device idle after the previous
+    // dwell); the sine switch then digests during the step's own dwell.
+    const program = {
+      name: 'sqToSine', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 200, wavetype: 'SQUARE' },
+        { channel: 1, frequency: 200, runTime: 200, wavetype: 'SINE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('sqToSine', () => {});
+    await vi.advanceTimersByTimeAsync(3000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // Square asserted once at prime, sine once at the second step.
+    expect(gen.setBothChannelsToSquareWave).toHaveBeenCalledTimes(1);
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalledTimes(1);
+    // The 200 Hz pair was written before the sine switch.
+    const sineIdx = gen.calls.findIndex((c: any) => c.m === 'setSine');
+    const ch1At200Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 200);
+    const ch2At200Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 2 && c.args[1] === 200);
+    expect(ch1At200Idx).toBeGreaterThanOrEqual(0);
+    expect(ch2At200Idx).toBeGreaterThanOrEqual(0);
+    expect(sineIdx).toBeGreaterThan(ch1At200Idx);
+    expect(sineIdx).toBeGreaterThan(ch2At200Idx);
+    // …and the switch is paced ≥50ms after the CH2 write (same registration
+    // rule as the frequency pair — the switch must not clobber the WFF).
+    expect(gen.calls[sineIdx].t - gen.calls[ch2At200Idx].t).toBeGreaterThanOrEqual(50);
+  });
+
+  it('sweepTo item with a wavetype switches waveform after the first sweep pair', async () => {
+    // The sweep branch shares the freq-first rule: the waveform change fires
+    // once, after the first iteration's CH1/CH2 pair, never before it.
+    const program = {
+      name: 'sweepWave', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 200, wavetype: 'SQUARE' },
+        { channel: 1, frequency: 10, runTime: 500, sweepTo: 20, wavetype: 'SINE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('sweepWave', () => {});
+    await vi.advanceTimersByTimeAsync(4000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalledTimes(1);
+    const sineIdx = gen.calls.findIndex((c: any) => c.m === 'setSine');
+    const ch1At10Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 10);
+    const ch2At10Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 2 && c.args[1] === 10);
+    const ch1At11Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 11);
+    expect(ch1At10Idx).toBeGreaterThanOrEqual(0);
+    expect(ch2At10Idx).toBeGreaterThanOrEqual(0);
+    expect(ch1At11Idx).toBeGreaterThanOrEqual(0);
+    // After the first sweep pair…
+    expect(sineIdx).toBeGreaterThan(ch1At10Idx);
+    expect(sineIdx).toBeGreaterThan(ch2At10Idx);
+    // …but before the second iteration's pair.
+    expect(sineIdx).toBeLessThan(ch1At11Idx);
   });
 
   it('paces mirrored CH1/CH2 frequency writes >=50ms apart (CH1-stuck regression)', async () => {
