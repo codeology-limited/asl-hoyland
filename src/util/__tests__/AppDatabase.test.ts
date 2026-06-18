@@ -125,6 +125,39 @@ describe('AppDatabase (with mocked Dexie)', () => {
     expect(nkc.channel2wavetype).toBe('SINE');
   });
 
+  it('ttf program preloads with category, loop, carrier and 6 sine frequencies (Lynne 17 Jun)', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    const ttf = await db.loadData('ttf');
+    expect(ttf).toBeTruthy();
+    expect(ttf.category).toBe('ttf');
+    expect(ttf.loop).toBe(1);
+    expect(ttf.channel1wavetype).toBe('SINE');
+    expect(ttf.channel2wavetype).toBe('SINE');
+    // CH2 carrier 27.12 MHz, 12-hour total runtime.
+    expect(ttf.startFrequency).toBe(27.12);
+    expect(ttf.maxTimeInMinutes).toBe(720);
+    // 6 frequencies, 3 minutes (180000 ms) each.
+    expect(ttf.data.map((d: any) => d.frequency)).toEqual([1873.5, 2221.3, 5882.3, 6350.3, 8452.1, 10456.4]);
+    expect(ttf.data.every((d: any) => d.runTime === 180000)).toBe(true);
+  });
+
+  it('only the ttf program carries category "ttf"; the cancer TTFields stay uncategorised', async () => {
+    // Lynne 17 Jun scope decision: TTF tab holds only the new program; the
+    // existing mcf7/mdaMB231/b16/f98 programs remain in the Rife list.
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    const ttfTab = (await db.getDefaultPrograms()).filter((p: any) => (p.category || '') === 'ttf');
+    expect(ttfTab.map((p: any) => p.name)).toEqual(['ttf']);
+
+    for (const name of ['mcf7Breast150kHz', 'mdaMB231Breast150kHz', 'b16Melanoma120kHz', 'f98Glioma200kHz']) {
+      const p = await db.loadData(name);
+      expect(p.category ?? '').not.toBe('ttf');
+    }
+  });
+
   it('saves and retrieves custom programs with correct coercions', async () => {
     const db = new AppDatabase();
     await db.preloadDefaults();

@@ -32,7 +32,8 @@ describe('App', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('Default')).toBeInTheDocument();
+      expect(screen.getByText('Rife')).toBeInTheDocument();
+      expect(screen.getByText('TTF')).toBeInTheDocument();
       expect(screen.getByText('Custom')).toBeInTheDocument();
       expect(screen.getByText('Editor')).toBeInTheDocument();
     });

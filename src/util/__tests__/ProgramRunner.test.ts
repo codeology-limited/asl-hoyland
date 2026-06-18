@@ -309,6 +309,150 @@ describe('ProgramRunner', () => {
     expect(sineIdx).toBeLessThan(ch1At11Idx);
   });
 
+  it('loop program repeats the whole sequence until maxTimeInMinutes elapses', async () => {
+    // TTF (Lynne 17 Jun): play the frequency list on a continuous loop for the
+    // configured duration instead of stopping after one pass.
+    const program = {
+      name: 'looper', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 100 },
+        { channel: 1, frequency: 200, runTime: 100 },
+      ],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0, loop: 1,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('looper', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1).map((c: any) => c.args[1]);
+    // Each frequency played multiple times — the sequence looped, it didn't
+    // stop after the first pass (which would give one 100 and one 200).
+    expect(ch1.filter((f: number) => f === 100).length).toBeGreaterThan(1);
+    expect(ch1.filter((f: number) => f === 200).length).toBeGreaterThan(1);
+  });
+
+  it('non-loop program plays the sequence exactly once (do…while regression)', async () => {
+    // Wrapping the discrete loop in a do…while must not change non-loop programs:
+    // loop absent → one pass only.
+    const program = {
+      name: 'once', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 50 },
+        { channel: 1, frequency: 200, runTime: 50 },
+      ],
+      maxTimeInMinutes: 5, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('once', () => {});
+    await vi.advanceTimersByTimeAsync(500);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1).map((c: any) => c.args[1]);
+    // One prime (100) + one each in the continuous block = 100 twice, 200 once.
+    // Crucially NOT repeated despite maxTimeInMinutes (5) far exceeding the
+    // 0.1s of actual playback — the old behaviour, preserved.
+    expect(ch1.filter((f: number) => f === 100).length).toBe(2);
+    expect(ch1.filter((f: number) => f === 200).length).toBe(1);
+  });
+
+  it('TTF program: CH1 loops sine frequencies while CH2 holds the 27.12MHz carrier', async () => {
+    // Mirrors the production ttf config: SINE/SINE, startFrequency 27.12 (CH2
+    // carrier), looped. mirrorCh2ToCh1 must stay OFF (startFrequency != 0), so
+    // CH2 holds the carrier and never mirrors CH1's audio frequencies.
+    const program = {
+      name: 'ttf', range: 0,
+      data: [
+        { channel: 1, frequency: 1873.5, runTime: 60 },
+        { channel: 1, frequency: 2221.3, runTime: 60 },
+      ],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 27.12, loop: 1,
+      channel1wavetype: 'SINE', channel2wavetype: 'SINE',
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('ttf', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // Both channels driven sine (program-level SINE/SINE), no per-step switching.
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1).map((c: any) => c.args[1]);
+    const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
+    // CH1 steps the audio frequencies and loops them. Assert on the SECOND
+    // frequency (2221.3): unlike the first it isn't primed before outputs enable,
+    // so >1 occurrence can only come from the sequence actually looping.
+    expect(ch1).toContain(1873.5);
+    expect(ch1.filter((f: number) => f === 2221.3).length).toBeGreaterThan(1);
+    // CH2 holds ONLY the 27.12MHz carrier — never mirrors a CH1 audio frequency.
+    expect(ch2).toContain(27_120_000);
+    expect(ch2).not.toContain(1873.5);
+    expect(ch2.every((f: number) => f === 27_120_000)).toBe(true);
+  });
+
+  it('loop self-terminates at maxTimeInMinutes without an external stop (bounded writes)', async () => {
+    // Pins the loop's own duration cutoff: with no stopProgram(), the do…while
+    // must end at totalMs and stopAndReset, not run forever. Also exercises the
+    // mid-pass break that bounds overshoot to a single step.
+    const program = {
+      name: 'selfStop', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 50 },
+        { channel: 1, frequency: 200, runTime: 50 },
+      ],
+      maxTimeInMinutes: 0.005, default: 0, startFrequency: 0, loop: 1,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('selfStop', () => {});
+    // Advance well past totalMs (0.005 min = 300ms) — the loop must stop on its own.
+    await vi.advanceTimersByTimeAsync(5000);
+    await vi.runAllTimersAsync();
+    await p; // resolves only if the loop terminated without stopProgram()
+
+    expect(gen.stopAndReset).toHaveBeenCalled();
+    // ~300ms / (2×50ms per pass) ≈ 3 passes → bounded, nowhere near a spin.
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    expect(ch1.length).toBeGreaterThan(2);
+    expect(ch1.length).toBeLessThan(40);
+  });
+
+  it('loop program with all-zero runTimes does not spin (seqMs guard)', async () => {
+    // Defensive: a future loop program authored with 0-duration steps must not
+    // busy-loop against the wall clock for the whole maxTime. seqMs===0 → no loop.
+    const program = {
+      name: 'zeroDur', range: 0,
+      data: [{ channel: 1, frequency: 100, runTime: 0 }],
+      maxTimeInMinutes: 0.01, default: 0, startFrequency: 0, loop: 1,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('zeroDur', () => {});
+    await vi.advanceTimersByTimeAsync(1000);
+    await vi.runAllTimersAsync();
+    await p; // resolves: the zero-duration sequence did not loop (seqMs guard)
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    // One prime + one step, no repetition.
+    expect(ch1.length).toBeLessThanOrEqual(2);
+    expect(gen.stopAndReset).toHaveBeenCalled();
+  });
+
   it('paces mirrored CH1/CH2 frequency writes >=50ms apart (CH1-stuck regression)', async () => {
     // 10 Jun report: running a per-frequency custom program, CH2 stepped through
     // the frequencies but CH1 stayed on the first one. The FY6600 drops the first

@@ -330,10 +330,27 @@ export default class ProgramRunner {
                     }
                 }
             } else {
+                // Loop the whole sequence until the configured duration elapses
+                // for loop programs (TTF: 6 frequencies × 3 min, repeated for
+                // 12 h). The do…while runs the body exactly once for non-loop
+                // programs (loop falsy → condition fails after the first pass),
+                // so existing programs are unchanged. Pause time is excluded via
+                // pausedTotal so a paused loop still runs its full active duration.
+                const isLoop = asBool(program.loop);
+                // Total active playback time of one pass. A loop pass with no dwell
+                // (all-zero runTimes) would spin against the wall clock, so a loop
+                // program is required to have a positive-duration sequence.
+                const seqMs = program.data.reduce((s, it) => s + num(it.runTime, 0), 0);
+                const elapsedActive = () => Date.now() - start - this.pausedTotal;
+                do {
                 for (const item of program.data) {
                     if (!this.running) break;
                     while (this.paused && this.running) await sleep(100);
                     if (!this.running) break;
+                    // Loop programs: don't START another step once the duration is up,
+                    // so a 12h loop ends within one step of 12h rather than overshooting
+                    // a whole pass. (Checked after the pause-wait so pausedTotal is current.)
+                    if (isLoop && elapsedActive() >= totalMs) break;
 
                     const freq = Number(item.frequency);
 
@@ -432,6 +449,12 @@ export default class ProgramRunner {
                     }
                     if (!this.running) break;
                 }
+                } while (
+                    isLoop &&
+                    this.running &&
+                    seqMs > 0 &&
+                    elapsedActive() < totalMs
+                );
             }
         }
 

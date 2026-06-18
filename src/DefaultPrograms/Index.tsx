@@ -12,6 +12,8 @@ interface DefaultProgramsProps {
     isUltrasoundOnly: boolean;
     setChannel1Active: (active: boolean) => void;
     setChannel2Active: (active: boolean) => void;
+    /** Which tab this list serves: 'ttf' → TTF programs; anything else → Rife. */
+    category?: string;
 }
 
 function convertToMinutesAndSeconds(decimalMinutes: number): string {
@@ -144,7 +146,7 @@ function reducer(state: State, action: Action): State {
 
 import ConfirmModal from '../components/ConfirmModal';
 
-const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active }) => {
+const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active, category }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
 
@@ -161,7 +163,15 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 const s = (n || '').trim().toLowerCase();
                 return s.startsWith('ultra') || s === 'ultrasound';
             };
-            programs = programs.filter(p => (isUltrasoundOnly ? isUltra(p.name) : !isUltra(p.name)));
+            const progCat = (p: ProgramRow) => (p.category || '').trim().toLowerCase();
+            if (category === 'ttf') {
+                // TTF tab: only TTF-category programs (ultrasound filter doesn't apply).
+                programs = programs.filter(p => progCat(p) === 'ttf');
+            } else {
+                // Rife tab: everything that isn't TTF, honouring the ultrasound filter.
+                programs = programs.filter(p => progCat(p) !== 'ttf'
+                    && (isUltrasoundOnly ? isUltra(p.name) : !isUltra(p.name)));
+            }
 
             const options: ProgramOption[] = programs.map((program) => ({
                 name: program.name,
@@ -173,7 +183,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         } catch (error) {
             console.error('Failed to load default programs:', error);
         }
-    }, [appDatabase, isUltrasoundOnly]);
+    }, [appDatabase, isUltrasoundOnly, category]);
 
     useEffect(() => {
         loadDefaultPrograms();

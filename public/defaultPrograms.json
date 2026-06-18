@@ -602,5 +602,27 @@
     "sliderStepV": 1,
     "sliderPercent": 25,
     "startIntensityV": 5
+  },
+  "ttf": {
+    "default": true,
+    "category": "ttf",
+    "loop": true,
+    "channel1wavetype": "SINE",
+    "channel2wavetype": "SINE",
+    "data": [
+      { "f": 1873.5, "s": 180 },
+      { "f": 2221.3, "s": 180 },
+      { "f": 5882.3, "s": 180 },
+      { "f": 6350.3, "s": 180 },
+      { "f": 8452.1, "s": 180 },
+      { "f": 10456.4, "s": 180 }
+    ],
+    "runTimeInMinutes": 720,
+    "startFrequency": 27.12,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
   }
 }

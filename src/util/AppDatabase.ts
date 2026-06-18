@@ -25,6 +25,13 @@ export interface ProgramRow {
   onkeysec?: number;
   offkeysec?: number;
   mirror?: DBBool;
+
+  // Repeat the data sequence until maxTimeInMinutes elapses (e.g. the TTF
+  // program loops its 6 frequencies for 12 h). Absent/0 = play once.
+  loop?: DBBool;
+  // UI grouping: which tab the program appears under ('ttf' → TTF tab).
+  // Absent → the default "Rife" tab.
+  category?: string;
 }
 
 export interface OldFormatProgram {
@@ -45,6 +52,8 @@ export interface OldFormatProgram {
   onkeysec?: number;
   offkeysec?: number;
   mirror?: boolean;
+  loop?: boolean;
+  category?: string;
 }
 
 export interface NewFormatProgram {
@@ -65,6 +74,8 @@ export interface NewFormatProgram {
   onkeysec?: number;
   offkeysec?: number;
   mirror?: boolean;
+  loop?: boolean;
+  category?: string;
 }
 
 const b2n = (b: boolean): DBBool => (b ? 1 : 0);
@@ -206,6 +217,8 @@ export default class AppDatabase extends Dexie {
                 ...(program.onkeysec !== undefined ? { onkeysec: num(program.onkeysec, 0) } : {}),
                 ...(program.offkeysec !== undefined ? { offkeysec: num(program.offkeysec, 0) } : {}),
                 ...(program.mirror !== undefined ? { mirror: b2n(!!program.mirror) } : {}),
+                ...(program.loop !== undefined ? { loop: b2n(!!program.loop) } : {}),
+                ...(program.category !== undefined ? { category: program.category } : {}),
               };
 
               // Upsert by UNIQUE name
@@ -245,6 +258,8 @@ export default class AppDatabase extends Dexie {
                 ...(program.onkeysec !== undefined ? { onkeysec: num(program.onkeysec, 0) } : {}),
                 ...(program.offkeysec !== undefined ? { offkeysec: num(program.offkeysec, 0) } : {}),
                 ...(program.mirror !== undefined ? { mirror: b2n(!!program.mirror) } : {}),
+                ...(program.loop !== undefined ? { loop: b2n(!!program.loop) } : {}),
+                ...(program.category !== undefined ? { category: program.category } : {}),
               };
 
               // Upsert by UNIQUE name

@@ -174,3 +174,55 @@ describe('DefaultPrograms', () => {
     });
   });
 });
+
+// Lynne 17 Jun: Rife/TTF split. These pin the component-level filter (the DB
+// tests only check which rows carry category='ttf', not that the dropdown
+// consumes it). An inverted ttf condition would be caught here.
+describe('DefaultPrograms category/ultrasound filtering', () => {
+  const commonProps = {
+    setIsRunning: vi.fn(),
+    isRunning: false,
+    isDeviceReady: true,
+    testMode: false,
+    setChannel1Active: vi.fn(),
+    setChannel2Active: vi.fn(),
+  };
+
+  const optionValues = () =>
+    screen.getAllByRole('option')
+      .map((o) => (o as HTMLOptionElement).value)
+      .filter(Boolean);
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it('TTF tab shows only the ttf program (not Rife/cancer/ultrasound)', async () => {
+    renderWithContext(
+      <DefaultPrograms {...commonProps} isUltrasoundOnly={false} category="ttf" />
+    );
+    await waitFor(() => expect(optionValues()).toContain('ttf'));
+    expect(optionValues()).toEqual(['ttf']);
+  });
+
+  it('Rife tab (ultrasound off) lists Rife + cancer programs, excludes ttf and ultra', async () => {
+    renderWithContext(
+      <DefaultPrograms {...commonProps} isUltrasoundOnly={false} category="rife" />
+    );
+    await waitFor(() => expect(optionValues().length).toBeGreaterThan(1));
+    const vals = optionValues();
+    expect(vals).toContain('anthrax');
+    expect(vals).toContain('mcf7Breast150kHz'); // cancer TTFields stay in Rife
+    expect(vals).not.toContain('ttf');
+    expect(vals).not.toContain('ultra500');
+  });
+
+  it('Rife tab (ultrasound on) lists only ultrasound programs, never ttf', async () => {
+    renderWithContext(
+      <DefaultPrograms {...commonProps} isUltrasoundOnly={true} category="rife" />
+    );
+    await waitFor(() => expect(optionValues()).toContain('ultra500'));
+    const vals = optionValues();
+    expect(vals).toContain('ultra670');
+    expect(vals).not.toContain('ttf');
+    expect(vals).not.toContain('anthrax');
+  });
+});

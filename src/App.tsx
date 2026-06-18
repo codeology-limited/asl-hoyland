@@ -255,7 +255,16 @@ const App: React.FC = () => {
                                     className={isRunning ? "disabled" : ""}
                                     tabIndex={isRunning ? -1 : 0}
                                 >
-                                    Default
+                                    Rife
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/ttf"
+                                    className={isRunning ? "disabled" : ""}
+                                    tabIndex={isRunning ? -1 : 0}
+                                >
+                                    TTF
                                 </NavLink>
                             </li>
                             <li>
@@ -287,6 +296,22 @@ const App: React.FC = () => {
                                 path="/"
                                 element={
                                     <DefaultPrograms
+                                        category="rife"
+                                        setIsRunning={setIsRunning}
+                                        isRunning={isRunning}
+                                        isDeviceReady={isDeviceReady}
+                                        testMode={testMode}
+                                        isUltrasoundOnly={isUltrasoundConnected}
+                                        setChannel1Active={setChannel1Active}
+                                        setChannel2Active={setChannel2Active}
+                                    />
+                                }
+                            />
+                            <Route
+                                path="/ttf"
+                                element={
+                                    <DefaultPrograms
+                                        category="ttf"
                                         setIsRunning={setIsRunning}
                                         isRunning={isRunning}
                                         isDeviceReady={isDeviceReady}
