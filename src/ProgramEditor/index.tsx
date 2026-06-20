@@ -11,12 +11,16 @@ interface ProgramEditorProps {
 
 type EditRow = { channel: number; frequency: string; runTime: string; sweepTo?: string; wavetype: 'SINE' | 'SQUARE' };
 
+const newRow = (): EditRow => ({ channel: 1, frequency: '', runTime: '', wavetype: 'SINE' });
+
 const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [programName, setProgramName] = useState('');
     const [range, setRange] = useState(false);
-    const [rows, setRows] = useState<EditRow[]>([{ channel: 1, frequency: '', runTime: '', wavetype: 'SINE' }]);
+    const [rows, setRows] = useState<EditRow[]>([newRow()]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [dragIndex, setDragIndex] = useState<number | null>(null);
+    const [dropIndex, setDropIndex] = useState<number | null>(null);
 
     const { appDatabase } = useAppContext();
 
@@ -31,18 +35,15 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
 
     useEffect(() => {
         if (range) {
-            setRows([
-                { channel: 1, frequency: '', runTime: '', wavetype: 'SINE' },
-                { channel: 1, frequency: '', runTime: '', wavetype: 'SINE' },
-            ]);
+            setRows([newRow(), newRow()]);
         } else {
-            setRows([{ channel: 1, frequency: '', runTime: '', wavetype: 'SINE' }]);
+            setRows([newRow()]);
         }
     }, [range]);
 
     const handleAddRow = () => {
         if (!range) {
-            setRows([...rows, { channel: 1, frequency: '', runTime: '', wavetype: 'SINE' }]);
+            setRows([...rows, newRow()]);
         }
     };
 
@@ -54,14 +55,10 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     };
 
     const handleInputChange = (index: number, field: 'frequency' | 'runTime', value: string) => {
-        // Allow only numbers and at most one decimal point
-        const isValid = /^(\d+\.?\d*|\.\d*)$/.test(value);
-
-        if (isValid || value === '') { // Allow clearing the field
-            const newRows = [...rows];
-            newRows[index] = { ...newRows[index], [field]: value } as EditRow;
-            setRows(newRows);
-        }
+        // Native number inputs already constrain to numeric; store the raw value.
+        const newRows = [...rows];
+        newRows[index] = { ...newRows[index], [field]: value } as EditRow;
+        setRows(newRows);
     };
 
     const handleWavetypeChange = (index: number, value: 'SINE' | 'SQUARE') => {
@@ -70,6 +67,19 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         setRows(newRows);
     };
 
+    // Drag-to-reorder (non-range only). The handle is the drag source; each row
+    // is a drop target. Reorder on drop, moving the dragged row before the target.
+    const moveRow = (from: number, to: number) => {
+        if (from === to) return;
+        setRows(prev => {
+            const moved = prev[from];
+            if (!moved) return prev;
+            const next = [...prev];
+            next.splice(from, 1);
+            next.splice(to, 0, moved);
+            return next;
+        });
+    };
 
     const handleSave = async () => {
         if (isSaving) return;
@@ -126,110 +136,158 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         }
     };
 
+    // One combined field: typing a name creates a new program; choosing (or typing)
+    // the exact name of a saved program loads it for editing.
+    const handleProgramNameChange = (value: string) => {
+        setProgramName(value);
+        if (customPrograms.includes(value)) {
+            void handleLoadProgram(value);
+        }
+    };
+
     return (
-        <div id="editor" className="tab-body editor">
-            <div>
-                <label>
-                    New program or Choose Program:<br />
-                    <select onChange={(e) => handleLoadProgram(e.target.value)}>
-                        <option value="">New Program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+        <div id="editor" className="tab-body program-editor">
+            <div className="pe-top">
+                <div className="pe-field">
+                    <span className="pe-label">Program name</span>
+                    <div className="pe-namerow">
+                        <input
+                            className="pe-input"
+                            type="text"
+                            list="pe-programs"
+                            autoComplete="off"
+                            placeholder="Enter or choose a program name"
+                            value={programName}
+                            onChange={(e) => handleProgramNameChange(e.target.value)}
+                        />
+                        <button type="button" className="pe-save" onClick={handleSave} disabled={isSaving}>
+                            {isSaving ? 'Saving…' : 'Save program'}
+                        </button>
+                    </div>
+                    <datalist id="pe-programs">
                         {customPrograms.map(name => (
-                            <option key={name} value={name}>{name}</option>
+                            <option key={name} value={name} />
                         ))}
-                    </select>
-                </label>
+                    </datalist>
+                    <span className="pe-fieldhint">
+                        Type a name to create a new program, or choose a saved program to edit it.
+                    </span>
+                </div>
             </div>
-            <div>
-                <label>
-                    Program Name:<br />
+
+            <div className="pe-rangebar">
+                <label className="pe-switch">
                     <input
-                        type="text"
-                        placeholder="Enter program name"
-                        value={programName}
-                        onChange={(e) => setProgramName(e.target.value)}
+                        type="checkbox"
+                        checked={range}
+                        onChange={(e) => setRange(e.target.checked)}
                     />
+                    <span className="pe-switch__track"><span className="pe-switch__thumb" /></span>
+                    <span className="pe-switch__label">Ranged program</span>
                 </label>
+                <p className="pe-hint">
+                    {range
+                        ? 'Sweeps from a start frequency to an end frequency over the total run time.'
+                        : 'One row per frequency. Max 400 frequency adjustments per minute. Drag the handle to reorder.'}
+                </p>
             </div>
-            <div id="range-selector">
-                <label><input
-                    type="checkbox"
-                    checked={range}
-                    onChange={(e) => setRange(e.target.checked)}
-                />&nbsp;&nbsp;This is a ranged program.<br />
-                    Note 1: If this program is a range you must supply a start and an end frequency.<br />
-                    Note 2: More than 400 frequency adjustments per minute not supported.)<br />
-                </label>
-            </div>
-            <div className='program-table'>
-                <table className={range ? 'range' : ''}>
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Frequency in Hertz</th>
-                        <th>{range ? 'Total run time' : 'Minutes per frequency'}</th>
-                        <th>Wave</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {rows.map((row, index) => (
-                        <tr key={index}>
-                            <td className="drag-handle">
-                                <span>|||</span>
-                            </td>
-                            <td>
+
+            <div className="pe-grid">
+                <div className="pe-grid__head">
+                    <span className="pe-c-handle" aria-hidden="true" />
+                    <span className="pe-c-freq">Frequency (Hz)</span>
+                    <span className="pe-c-time">{range ? 'Total run time (min)' : 'Minutes per frequency'}</span>
+                    <span className="pe-c-wave">Waveform</span>
+                    <span className="pe-c-act" aria-hidden="true" />
+                </div>
+
+                {rows.map((row, index) => {
+                    const showTime = !range || index === 0;
+                    const draggable = !range && rows.length > 1;
+                    return (
+                        <div
+                            className={`pe-grid__row${dragIndex === index ? ' is-dragging' : ''}${dropIndex === index && dragIndex !== index ? ' is-dropTarget' : ''}`}
+                            key={index}
+                            onDragOver={draggable ? (e) => { e.preventDefault(); if (dropIndex !== index) setDropIndex(index); } : undefined}
+                            onDrop={draggable ? (e) => {
+                                e.preventDefault();
+                                if (dragIndex !== null) moveRow(dragIndex, index);
+                                setDragIndex(null);
+                                setDropIndex(null);
+                            } : undefined}
+                        >
+                            <span
+                                className="pe-c-handle"
+                                title={draggable ? 'Drag to reorder' : undefined}
+                                aria-hidden="true"
+                                draggable={draggable}
+                                onDragStart={draggable ? (e) => { setDragIndex(index); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(index)); } : undefined}
+                                onDragEnd={() => { setDragIndex(null); setDropIndex(null); }}
+                            >⠿</span>
+
+                            <input
+                                className="pe-num pe-c-freq"
+                                type="number"
+                                inputMode="decimal"
+                                min="0"
+                                step="any"
+                                value={row.frequency}
+                                onChange={(e) => handleInputChange(index, 'frequency', e.target.value)}
+                                placeholder={range ? (index === 0 ? 'Start Frequency' : 'End Frequency') : 'Frequency'}
+                            />
+
+                            {showTime ? (
                                 <input
-                                    type="text"
-                                    value={row.frequency}
-                                    onChange={(e) => handleInputChange(index, 'frequency', e.target.value)}
-                                    placeholder={range ? (index === 0 ? 'Start Frequency' : 'End Frequency') : 'Frequency'}
-                                />
-                            </td>
-                            <td>
-                                <input
-                                    className='time'
-                                    type="text"
+                                    className="pe-num pe-c-time"
+                                    type="number"
+                                    inputMode="decimal"
+                                    min="0"
+                                    step="any"
                                     value={row.runTime}
                                     onChange={(e) => handleInputChange(index, 'runTime', e.target.value)}
                                     placeholder="Time in minutes"
                                 />
-                            </td>
-                            <td>
-                                <select
-                                    value={row.wavetype}
-                                    onChange={(e) => handleWavetypeChange(index, e.target.value as 'SINE' | 'SQUARE')}
-                                    aria-label={`Waveform for frequency ${index + 1}`}
-                                >
-                                    <option value="SINE">Sine</option>
-                                    <option value="SQUARE">Square</option>
-                                </select>
-                            </td>
-                            <td className="add-frequency-btn">
-                                {!range && index === rows.length - 1 && (
-                                    <button type="button" onClick={handleAddRow}>
-                                        +
-                                    </button>
-                                )}
-                            </td>
-                            <td>
-                                {!range && index !== 0 && (
+                            ) : (
+                                <span className="pe-c-time pe-c-time--empty" aria-hidden="true" />
+                            )}
+
+                            <div className="pe-seg pe-c-wave" role="group" aria-label={`Waveform for frequency ${index + 1}`}>
+                                <button
+                                    type="button"
+                                    className={row.wavetype === 'SINE' ? 'is-active' : ''}
+                                    aria-pressed={row.wavetype === 'SINE'}
+                                    onClick={() => handleWavetypeChange(index, 'SINE')}
+                                >Sine</button>
+                                <button
+                                    type="button"
+                                    className={row.wavetype === 'SQUARE' ? 'is-active' : ''}
+                                    aria-pressed={row.wavetype === 'SQUARE'}
+                                    onClick={() => handleWavetypeChange(index, 'SQUARE')}
+                                >Square</button>
+                            </div>
+
+                            <span className="pe-c-act">
+                                {!range && (index === rows.length - 1 ? (
                                     <button
                                         type="button"
+                                        className="pe-add"
+                                        title="Add frequency"
+                                        aria-label="Add frequency"
+                                        onClick={handleAddRow}
+                                    >+</button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        className="pe-del"
+                                        title="Remove frequency"
+                                        aria-label={`Remove frequency ${index + 1}`}
                                         onClick={() => handleDeleteRow(index)}
-                                        className="delete-frequency-btn"
-                                    >
-                                        -
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
-            <div>
-                <button type="button" onClick={handleSave} disabled={isSaving}>Save</button>
+                                    >×</button>
+                                ))}
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

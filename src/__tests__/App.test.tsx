@@ -121,7 +121,7 @@ describe('App', () => {
 
     await waitFor(() => {
       // Editor component should be rendered
-      expect(screen.getByText(/New program or Choose Program/i)).toBeInTheDocument();
+      expect(screen.getByText(/Program name/i)).toBeInTheDocument();
     });
   });
 

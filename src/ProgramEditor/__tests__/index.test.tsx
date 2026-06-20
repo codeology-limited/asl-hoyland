@@ -25,9 +25,9 @@ describe('ProgramEditor', () => {
   it('renders the program editor', () => {
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
 
-    expect(screen.getByText(/New program or Choose Program/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter program name')).toBeInTheDocument();
-    expect(screen.getByText(/This is a ranged program/i)).toBeInTheDocument();
+    expect(screen.getByText(/Program name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter or choose a program name')).toBeInTheDocument();
+    expect(screen.getByText(/Ranged program/i)).toBeInTheDocument();
   });
 
   it('renders initial row for non-range program', () => {
@@ -41,7 +41,7 @@ describe('ProgramEditor', () => {
     const user = userEvent.setup();
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
 
-    const nameInput = screen.getByPlaceholderText('Enter program name');
+    const nameInput = screen.getByPlaceholderText('Enter or choose a program name');
     await user.type(nameInput, 'My Test Program');
 
     expect(nameInput).toHaveValue('My Test Program');
@@ -77,8 +77,8 @@ describe('ProgramEditor', () => {
     let frequencyInputs = screen.getAllByPlaceholderText(/Frequency|Start Frequency|End Frequency/i);
     expect(frequencyInputs).toHaveLength(1);
 
-    // Click the + button
-    const addButton = screen.getByText('+');
+    // Click the add-frequency button
+    const addButton = screen.getByRole('button', { name: /add frequency/i });
     await user.click(addButton);
 
     // Should now have 2 rows
@@ -93,7 +93,7 @@ describe('ProgramEditor', () => {
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
 
     // Add a second row first
-    const addButton = screen.getByText('+');
+    const addButton = screen.getByRole('button', { name: /add frequency/i });
     await user.click(addButton);
 
     await waitFor(() => {
@@ -102,7 +102,7 @@ describe('ProgramEditor', () => {
     });
 
     // Delete the second row
-    const deleteButton = screen.getByText('-');
+    const deleteButton = screen.getByRole('button', { name: /remove frequency/i });
     await user.click(deleteButton);
 
     await waitFor(() => {
@@ -118,7 +118,7 @@ describe('ProgramEditor', () => {
     const frequencyInput = screen.getByPlaceholderText(/Frequency/i);
     await user.type(frequencyInput, '1000');
 
-    expect(frequencyInput).toHaveValue('1000');
+    expect(frequencyInput).toHaveValue(1000);
   });
 
   it('allows entering decimal values for frequency', async () => {
@@ -128,7 +128,7 @@ describe('ProgramEditor', () => {
     const frequencyInput = screen.getByPlaceholderText(/Frequency/i);
     await user.type(frequencyInput, '123.45');
 
-    expect(frequencyInput).toHaveValue('123.45');
+    expect(frequencyInput).toHaveValue(123.45);
   });
 
   it('renders save button', () => {
@@ -144,7 +144,7 @@ describe('ProgramEditor', () => {
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
 
     // Enter program name and frequency
-    const nameInput = screen.getByPlaceholderText('Enter program name');
+    const nameInput = screen.getByPlaceholderText('Enter or choose a program name');
     await user.type(nameInput, 'Test');
 
     const frequencyInput = screen.getByPlaceholderText(/Frequency/i);
@@ -157,23 +157,38 @@ describe('ProgramEditor', () => {
     // Note: This test may need adjustment based on actual async behavior
   });
 
-  it('renders custom program dropdown', async () => {
+  it('combines load + name into one program field backed by a datalist', async () => {
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
 
-    await waitFor(() => {
-      // First combobox is the program-load dropdown (per-row Wave selects are also comboboxes now).
-      const dropdown = screen.getAllByRole('combobox')[0];
-      expect(dropdown).toBeInTheDocument();
+    // Single field: type a new name to create, or choose a saved program to edit.
+    const field = screen.getByPlaceholderText('Enter or choose a program name');
+    expect(field).toHaveAttribute('list', 'pe-programs');
 
-      const newProgramOption = screen.getByRole('option', { name: /New Program/i });
-      expect(newProgramOption).toBeInTheDocument();
+    await waitFor(() => {
+      const list = document.getElementById('pe-programs');
+      expect(list?.tagName.toLowerCase()).toBe('datalist');
     });
   });
 
-  it('renders a per-frequency waveform select with Sine and Square', () => {
+  it('renders a per-frequency waveform toggle with Sine and Square', () => {
     renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
-    expect(screen.getByRole('option', { name: /^Sine$/i })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /^Square$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Sine$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Square$/i })).toBeInTheDocument();
+  });
+
+  it('toggles the per-frequency waveform between Sine and Square', async () => {
+    const user = userEvent.setup();
+    renderWithContext(<ProgramEditor onSave={mockOnSave} onCancel={mockOnCancel} />);
+
+    const sineBtn = screen.getByRole('button', { name: /^Sine$/i });
+    const squareBtn = screen.getByRole('button', { name: /^Square$/i });
+    // Defaults to Sine
+    expect(sineBtn).toHaveAttribute('aria-pressed', 'true');
+    expect(squareBtn).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(squareBtn);
+    expect(squareBtn).toHaveAttribute('aria-pressed', 'true');
+    expect(sineBtn).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('allows entering runtime values', async () => {
@@ -189,7 +204,7 @@ describe('ProgramEditor', () => {
     // Clear first then type
     await user.clear(timeInputs[0]);
     await user.type(timeInputs[0], '5');
-    expect(timeInputs[0]).toHaveValue('5');
+    expect(timeInputs[0]).toHaveValue(5);
   });
 
   it('does not allow adding rows in range mode', async () => {
@@ -204,8 +219,8 @@ describe('ProgramEditor', () => {
       expect(rangeCheckbox).toBeChecked();
     });
 
-    // Should not have a + button in range mode
-    const addButton = screen.queryByText('+');
+    // Should not have an add-frequency button in range mode
+    const addButton = screen.queryByRole('button', { name: /add frequency/i });
     expect(addButton).not.toBeInTheDocument();
   });
 
@@ -221,8 +236,8 @@ describe('ProgramEditor', () => {
       expect(rangeCheckbox).toBeChecked();
     });
 
-    // Should not have a - button in range mode
-    const deleteButton = screen.queryByText('-');
+    // Should not have a remove button in range mode
+    const deleteButton = screen.queryByRole('button', { name: /remove frequency/i });
     expect(deleteButton).not.toBeInTheDocument();
   });
 });
