@@ -16,6 +16,16 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // interval already field-proven by set_channels_output's pulse toggling.
 const FREQ_PAIR_GAP_MS = 50;
 
+// Gap between the (already-set) frequency pair and a per-step waveform switch.
+// A waveform switch re-latches each channel's frequency from a snapshot taken
+// when the switch executes; a frequency write that hasn't "committed" by then is
+// reverted to the old value. CH1's write commits (~110 ms before the switch) and
+// survives, but CH2's — set last, only ~55 ms before the switch — did not, so CH2
+// kept the previous frequency on every sq↔sine step (25 Jun report; same-waveform
+// steps were fine because no switch is sent). 200 ms gives CH2 the same safe
+// margin CH1 already has. Only paid on steps that actually change waveform.
+const WAVEFORM_SWITCH_GAP_MS = 200;
+
 // small helpers
 const num = (v: unknown, fallback: number) => {
     if (v === null || v === undefined) return fallback;
@@ -234,10 +244,11 @@ export default class ProgramRunner {
             let appliedWavetype: 'SINE' | 'SQUARE' | undefined;
             const applyItemWaveform = async (wt?: 'SINE' | 'SQUARE'): Promise<boolean> => {
                 if ((wt !== 'SINE' && wt !== 'SQUARE') || wt === appliedWavetype) return false;
-                // Pace the switch against the frequency write just before it —
-                // the same 50ms registration rule as the CH1/CH2 pair — and never
-                // write after a stop's stopAndReset cleanup.
-                await sleep(FREQ_PAIR_GAP_MS);
+                // Let BOTH frequency writes (CH1 and CH2) commit before the switch
+                // re-latches them — CH2 is set last and needs the same margin CH1
+                // has, or it reverts to the previous frequency (25 Jun). Never write
+                // after a stop's stopAndReset cleanup.
+                await sleep(WAVEFORM_SWITCH_GAP_MS);
                 if (!this.running) return false;
                 if (wt === 'SINE') await this.gen.setBothChannelsToSineWave();
                 else await this.gen.setBothChannelsToSquareWave();

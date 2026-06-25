@@ -269,9 +269,44 @@ describe('ProgramRunner', () => {
     expect(ch2At200Idx).toBeGreaterThanOrEqual(0);
     expect(sineIdx).toBeGreaterThan(ch1At200Idx);
     expect(sineIdx).toBeGreaterThan(ch2At200Idx);
-    // …and the switch is paced ≥50ms after the CH2 write (same registration
-    // rule as the frequency pair — the switch must not clobber the WFF).
-    expect(gen.calls[sineIdx].t - gen.calls[ch2At200Idx].t).toBeGreaterThanOrEqual(50);
+    // …and the switch trails the CH2 write by the full commit margin (≥200ms) so
+    // CH2 commits before the switch re-latches it (25 Jun: CH2-revert fix).
+    expect(gen.calls[sineIdx].t - gen.calls[ch2At200Idx].t).toBeGreaterThanOrEqual(200);
+  });
+
+  it('sine→square step gives CH2 the ≥200ms commit margin too (CH2-revert regression)', async () => {
+    // Lynne 25 Jun: with freq-first ordering CH1 was correct, but CH2 kept the
+    // previous frequency on every waveform-CHANGING step (sq→sine AND sine→sq) —
+    // its write (set last, ~55ms before the switch) was re-latched by the switch,
+    // while CH1's (~110ms before) committed. Same-waveform steps were fine. The
+    // fix widens the gap so CH2 commits before the switch, in BOTH directions.
+    const program = {
+      name: 'sineToSq', range: 0,
+      data: [
+        { channel: 1, frequency: 300, runTime: 200, wavetype: 'SINE' },
+        { channel: 1, frequency: 400, runTime: 200, wavetype: 'SQUARE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('sineToSq', () => {});
+    await vi.advanceTimersByTimeAsync(3000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    const squareIdx = gen.calls.findIndex((c: any) => c.m === 'setSquare');
+    expect(squareIdx).toBeGreaterThan(-1);
+    const squareT = gen.calls[squareIdx].t;
+    // CH2 is driven to the step's frequency (mirrored) before the switch…
+    const ch2At400Before = gen.calls.filter((c: any) =>
+      c.m === 'setFrequency' && c.args[0] === 2 && c.args[1] === 400 && c.t <= squareT);
+    expect(ch2At400Before.length).toBeGreaterThan(0);
+    // …with ≥200ms to commit before the square switch re-latches it.
+    const lastCh2 = Math.max(...ch2At400Before.map((c: any) => c.t));
+    expect(squareT - lastCh2).toBeGreaterThanOrEqual(200);
   });
 
   it('sweepTo item with a wavetype switches waveform after the first sweep pair', async () => {
