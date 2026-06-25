@@ -33,13 +33,13 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         loadCustomPrograms();
     }, [appDatabase]);
 
-    useEffect(() => {
-        if (range) {
-            setRows([newRow(), newRow()]);
-        } else {
-            setRows([newRow()]);
-        }
-    }, [range]);
+    // Reset rows ONLY when the user explicitly toggles range — not when a loaded
+    // program sets range (a `[range]` effect would clobber the freshly loaded rows,
+    // wiping a saved ranged program on load).
+    const handleRangeToggle = (checked: boolean) => {
+        setRange(checked);
+        setRows(checked ? [newRow(), newRow()] : [newRow()]);
+    };
 
     const handleAddRow = () => {
         if (!range) {
@@ -180,7 +180,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                     <input
                         type="checkbox"
                         checked={range}
-                        onChange={(e) => setRange(e.target.checked)}
+                        onChange={(e) => handleRangeToggle(e.target.checked)}
                     />
                     <span className="pe-switch__track"><span className="pe-switch__thumb" /></span>
                     <span className="pe-switch__label">Ranged program</span>
