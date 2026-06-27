@@ -603,6 +603,23 @@
     "sliderPercent": 25,
     "startIntensityV": 5
   },
+  "dualFreq230and430Hz": {
+    "default": true,
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "channel2frequency": 430,
+    "loop": true,
+    "data": [
+      { "f": 230, "s": 3600 }
+    ],
+    "runTimeInMinutes": 720,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
   "ttf": {
     "default": true,
     "category": "ttf",

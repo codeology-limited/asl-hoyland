@@ -143,6 +143,23 @@ describe('AppDatabase (with mocked Dexie)', () => {
     expect(ttf.data.every((d: any) => d.runTime === 180000)).toBe(true);
   });
 
+  it('dualFreq230and430Hz preloads as independent square dual-frequency, looped (27 Jun)', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    const p = await db.loadData('dualFreq230and430Hz');
+    expect(p).toBeTruthy();
+    expect(p.channel1wavetype).toBe('SQUARE');
+    expect(p.channel2wavetype).toBe('SQUARE');
+    // CH1 230 Hz (data); CH2 430 Hz (independent, in Hz — NOT a MHz carrier).
+    expect(p.data.map((d: any) => d.frequency)).toEqual([230]);
+    expect(p.channel2frequency).toBe(430);
+    expect(p.startFrequency).toBe(0);
+    // 60-minute cycle (3600s → 3_600_000 ms), looped.
+    expect(p.data[0].runTime).toBe(3_600_000);
+    expect(p.loop).toBe(1);
+  });
+
   it('only the ttf program carries category "ttf"; the cancer TTFields stay uncategorised', async () => {
     // Lynne 17 Jun scope decision: TTF tab holds only the new program; the
     // existing mcf7/mdaMB231/b16/f98 programs remain in the Rife list.

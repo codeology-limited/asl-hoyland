@@ -32,6 +32,9 @@ export interface ProgramRow {
   // UI grouping: which tab the program appears under ('ttf' → TTF tab).
   // Absent → the default "Rife" tab.
   category?: string;
+  // Dual-frequency programs: CH2's own audio frequency in Hz, independent of CH1
+  // (e.g. 230 Hz CH1 + 430 Hz CH2). Distinct from startFrequency (MHz carrier).
+  channel2frequency?: number;
 }
 
 export interface OldFormatProgram {
@@ -54,6 +57,7 @@ export interface OldFormatProgram {
   mirror?: boolean;
   loop?: boolean;
   category?: string;
+  channel2frequency?: number;
 }
 
 export interface NewFormatProgram {
@@ -76,6 +80,7 @@ export interface NewFormatProgram {
   mirror?: boolean;
   loop?: boolean;
   category?: string;
+  channel2frequency?: number;
 }
 
 const b2n = (b: boolean): DBBool => (b ? 1 : 0);
@@ -219,6 +224,7 @@ export default class AppDatabase extends Dexie {
                 ...(program.mirror !== undefined ? { mirror: b2n(!!program.mirror) } : {}),
                 ...(program.loop !== undefined ? { loop: b2n(!!program.loop) } : {}),
                 ...(program.category !== undefined ? { category: program.category } : {}),
+                ...(program.channel2frequency !== undefined ? { channel2frequency: num(program.channel2frequency, 0) } : {}),
               };
 
               // Upsert by UNIQUE name
@@ -260,6 +266,7 @@ export default class AppDatabase extends Dexie {
                 ...(program.mirror !== undefined ? { mirror: b2n(!!program.mirror) } : {}),
                 ...(program.loop !== undefined ? { loop: b2n(!!program.loop) } : {}),
                 ...(program.category !== undefined ? { category: program.category } : {}),
+                ...(program.channel2frequency !== undefined ? { channel2frequency: num(program.channel2frequency, 0) } : {}),
               };
 
               // Upsert by UNIQUE name

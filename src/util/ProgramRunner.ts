@@ -262,11 +262,19 @@ export default class ProgramRunner {
             // Per-frequency-waveform programs mirror too, so both channels output each
             // step's frequency. Otherwise scoped to SINE/SINE + no-carrier so the square
             // PEMF programs and carrier programs (insomnia) are untouched. (Lynne 4/9 Jun)
+            // Dual-frequency program: CH2 holds its OWN audio frequency
+            // (channel2frequency, in Hz) independent of CH1 — e.g. 230 Hz on CH1 +
+            // 430 Hz on CH2, both square (27 Jun). It must NOT mirror CH1, and (for
+            // SQUARE) must NOT frequency-sync, or the two frequencies collapse to one.
+            const ch2IndependentHz = num(program.channel2frequency, 0);
+            const hasIndependentCh2 = ch2IndependentHz > 0;
+
             const mirrorCh2ToCh1 =
-                hasItemWaveform ||
-                (program.channel1wavetype === 'SINE' &&
-                    program.channel2wavetype === 'SINE' &&
-                    program.startFrequency === 0);
+                !hasIndependentCh2 &&
+                (hasItemWaveform ||
+                    (program.channel1wavetype === 'SINE' &&
+                        program.channel2wavetype === 'SINE' &&
+                        program.startFrequency === 0));
 
             // Apply amplitude and BOTH channel frequencies BEFORE enabling outputs,
             // so the device doesn't briefly output the previous program's frequencies.
@@ -275,9 +283,14 @@ export default class ProgramRunner {
                 await this.setFrequencyPair(initialHz, mirrorCh2ToCh1 ? initialHz : null);
                 setRunningFrequency(`${initialHz} Hz`);
             }
-            if (program.startFrequency > 0) {
+            // CH2's own frequency: channel2frequency is in Hz (dual-frequency
+            // programs); startFrequency is the legacy MHz carrier.
+            const ch2CarrierHz = hasIndependentCh2
+                ? ch2IndependentHz
+                : (program.startFrequency > 0 ? program.startFrequency * 1_000_000 : 0);
+            if (ch2CarrierHz > 0) {
                 await sleep(FREQ_PAIR_GAP_MS);
-                await this.gen.setFrequency(2, program.startFrequency * 1_000_000);
+                await this.gen.setFrequency(2, ch2CarrierHz);
             }
 
             // Set waveform.
@@ -300,6 +313,13 @@ export default class ProgramRunner {
                 await applyItemWaveform(program.data[0]?.wavetype);
             } else if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
                 await this.gen.setBothChannelsToSineWave();
+            } else if (hasIndependentCh2 && ch1Square && ch2Square) {
+                // Dual-frequency square: CH1 and CH2 run at DIFFERENT frequencies,
+                // both square. Assert both waveforms but do NOT sync() — USA1
+                // frequency-sync would slave CH2 to CH1, collapsing the two
+                // frequencies into one. (Same hands-off approach the SINE carrier
+                // programs already rely on; freq-sync is off at program start.)
+                await this.gen.setBothChannelsToSquareWave();
             } else if (nameLc.includes('ultra') || program.startFrequency === 0 ||
                 (ch1Square && ch2Square)) {
                 await this.gen.setBothChannelsToSquareWave();

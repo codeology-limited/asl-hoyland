@@ -438,6 +438,41 @@ describe('ProgramRunner', () => {
     expect(ch2.every((f: number) => f === 27_120_000)).toBe(true);
   });
 
+  it('dual-frequency square: CH1 230Hz / CH2 430Hz independent, both square, NO freq-sync', async () => {
+    // Mirrors the production dualFreq230and430Hz config (27 Jun): CH1 and CH2 hold
+    // DIFFERENT audio frequencies, both square, looped. Crucially sync() must NOT
+    // be called — USA1 frequency-sync would slave CH2 to CH1 (collapsing 230/430).
+    const program = {
+      name: 'dualFreq230and430Hz', range: 0,
+      data: [{ channel: 1, frequency: 230, runTime: 100 }],
+      maxTimeInMinutes: 0.02, default: 1, startFrequency: 0, loop: 1,
+      channel1wavetype: 'SQUARE', channel2wavetype: 'SQUARE',
+      channel2frequency: 430,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('dualFreq230and430Hz', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // Both square, but the channels are NOT frequency-synced.
+    expect(gen.setBothChannelsToSquareWave).toHaveBeenCalled();
+    expect(gen.setBothChannelsToSineWave).not.toHaveBeenCalled();
+    expect(gen.sync).not.toHaveBeenCalled();
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1).map((c: any) => c.args[1]);
+    const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
+    // CH1 holds 230 (and re-asserts it across loop cycles).
+    expect(ch1).toContain(230);
+    expect(ch1.filter((f: number) => f === 230).length).toBeGreaterThan(1);
+    // CH2 holds ONLY 430 — never mirrored to CH1's 230.
+    expect(ch2).toContain(430);
+    expect(ch2.every((f: number) => f === 430)).toBe(true);
+  });
+
   it('loop self-terminates at maxTimeInMinutes without an external stop (bounded writes)', async () => {
     // Pins the loop's own duration cutoff: with no stopProgram(), the do…while
     // must end at totalMs and stopAndReset, not run forever. Also exercises the
