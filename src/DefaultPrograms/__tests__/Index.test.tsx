@@ -203,7 +203,7 @@ describe('DefaultPrograms category/ultrasound filtering', () => {
     expect(optionValues()).toEqual(['ttf']);
   });
 
-  it('Rife tab (ultrasound off) lists Rife + cancer programs, excludes ttf and ultra', async () => {
+  it('Rife tab (ultrasound off) lists Rife + cancer programs, excludes ttf/fsm and ultra', async () => {
     renderWithContext(
       <DefaultPrograms {...commonProps} isUltrasoundOnly={false} category="rife" />
     );
@@ -212,7 +212,18 @@ describe('DefaultPrograms category/ultrasound filtering', () => {
     expect(vals).toContain('anthrax');
     expect(vals).toContain('mcf7Breast150kHz'); // cancer TTFields stay in Rife
     expect(vals).not.toContain('ttf');
+    expect(vals).not.toContain('liver35Hz');       // fsm-category → not in Rife
+    expect(vals).not.toContain('dualFreq230and430Hz');
     expect(vals).not.toContain('ultra500');
+  });
+
+  it('FSM tab shows only the fsm programs (Liver, Inflammation, 230/430)', async () => {
+    renderWithContext(
+      <DefaultPrograms {...commonProps} isUltrasoundOnly={false} category="fsm" />
+    );
+    await waitFor(() => expect(optionValues()).toContain('liver35Hz'));
+    const vals = optionValues().sort();
+    expect(vals).toEqual(['dualFreq230and430Hz', 'inflammation284Hz', 'liver35Hz']);
   });
 
   it('Rife tab (ultrasound on) lists only ultrasound programs, never ttf', async () => {

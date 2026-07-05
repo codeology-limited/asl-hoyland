@@ -164,12 +164,14 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 return s.startsWith('ultra') || s === 'ultrasound';
             };
             const progCat = (p: ProgramRow) => (p.category || '').trim().toLowerCase();
-            if (category === 'ttf') {
-                // TTF tab: only TTF-category programs (ultrasound filter doesn't apply).
-                programs = programs.filter(p => progCat(p) === 'ttf');
+            if (category === 'ttf' || category === 'fsm') {
+                // Category tabs (TTF, FSM): only that category's programs; the
+                // ultrasound filter doesn't apply.
+                programs = programs.filter(p => progCat(p) === category);
             } else {
-                // Rife tab: everything that isn't TTF, honouring the ultrasound filter.
-                programs = programs.filter(p => progCat(p) !== 'ttf'
+                // Rife tab: uncategorised programs only (excludes TTF, FSM, …),
+                // honouring the ultrasound filter.
+                programs = programs.filter(p => progCat(p) === ''
                     && (isUltrasoundOnly ? isUltra(p.name) : !isUltra(p.name)));
             }
 

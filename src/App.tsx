@@ -269,6 +269,15 @@ const App: React.FC = () => {
                             </li>
                             <li>
                                 <NavLink
+                                    to="/fsm"
+                                    className={isRunning ? "disabled" : ""}
+                                    tabIndex={isRunning ? -1 : 0}
+                                >
+                                    FSM
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
                                     to="/custom"
                                     className={isRunning ? "disabled" : ""}
                                     tabIndex={isRunning ? -1 : 0}
@@ -312,6 +321,21 @@ const App: React.FC = () => {
                                 element={
                                     <DefaultPrograms
                                         category="ttf"
+                                        setIsRunning={setIsRunning}
+                                        isRunning={isRunning}
+                                        isDeviceReady={isDeviceReady}
+                                        testMode={testMode}
+                                        isUltrasoundOnly={isUltrasoundConnected}
+                                        setChannel1Active={setChannel1Active}
+                                        setChannel2Active={setChannel2Active}
+                                    />
+                                }
+                            />
+                            <Route
+                                path="/fsm"
+                                element={
+                                    <DefaultPrograms
+                                        category="fsm"
                                         setIsRunning={setIsRunning}
                                         isRunning={isRunning}
                                         isDeviceReady={isDeviceReady}

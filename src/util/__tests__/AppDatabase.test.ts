@@ -160,6 +160,35 @@ describe('AppDatabase (with mocked Dexie)', () => {
     expect(p.loop).toBe(1);
   });
 
+  it('FSM programs preload under category "fsm" (Barry: Liver, Inflammation, 230/430)', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    // The two new single-frequency square FSM programs.
+    const liver = await db.loadData('liver35Hz');
+    expect(liver.category).toBe('fsm');
+    expect(liver.channel1wavetype).toBe('SQUARE');
+    expect(liver.channel2wavetype).toBe('SQUARE');
+    expect(liver.data.map((d: any) => d.frequency)).toEqual([35]);
+    expect(liver.maxTimeInMinutes).toBe(30);
+
+    const infl = await db.loadData('inflammation284Hz');
+    expect(infl.category).toBe('fsm');
+    expect(infl.data.map((d: any) => d.frequency)).toEqual([284]);
+    expect(infl.maxTimeInMinutes).toBe(30);
+
+    // The 230/430 dual-frequency program moved into the FSM tab.
+    const dual = await db.loadData('dualFreq230and430Hz');
+    expect(dual.category).toBe('fsm');
+
+    // All three FSM programs, and nothing else, carry category 'fsm'.
+    const fsm = (await db.getDefaultPrograms())
+      .filter((x: any) => (x.category || '') === 'fsm')
+      .map((x: any) => x.name)
+      .sort();
+    expect(fsm).toEqual(['dualFreq230and430Hz', 'inflammation284Hz', 'liver35Hz']);
+  });
+
   it('only the ttf program carries category "ttf"; the cancer TTFields stay uncategorised', async () => {
     // Lynne 17 Jun scope decision: TTF tab holds only the new program; the
     // existing mcf7/mdaMB231/b16/f98 programs remain in the Rife list.

@@ -605,6 +605,7 @@
   },
   "dualFreq230and430Hz": {
     "default": true,
+    "category": "fsm",
     "channel1wavetype": "SQUARE",
     "channel2wavetype": "SQUARE",
     "channel2frequency": 430,
@@ -613,6 +614,34 @@
       { "f": 230, "s": 3600 }
     ],
     "runTimeInMinutes": 720,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "liver35Hz": {
+    "default": true,
+    "category": "fsm",
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "data": [35],
+    "runTimeInMinutes": 30,
+    "startFrequency": 0,
+    "sliderMinV": 1,
+    "sliderMaxV": 20,
+    "sliderStepV": 1,
+    "sliderPercent": 25,
+    "startIntensityV": 5
+  },
+  "inflammation284Hz": {
+    "default": true,
+    "category": "fsm",
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
+    "data": [284],
+    "runTimeInMinutes": 30,
     "startFrequency": 0,
     "sliderMinV": 1,
     "sliderMaxV": 20,
