@@ -55,7 +55,7 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByText(/Copyright.*2024.*Altered States Limited/i)).toBeInTheDocument();
       const versionSpan = screen.getByText((content, element) =>
-        element?.classList?.contains('footer__version') && content.includes('v1.7.6')
+        element?.classList?.contains('footer__version') && content.includes('v1.7.7')
       );
       expect(versionSpan).toBeInTheDocument();
     });
