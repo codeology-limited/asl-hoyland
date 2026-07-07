@@ -468,9 +468,45 @@ describe('ProgramRunner', () => {
     // CH1 holds 230 (and re-asserts it across loop cycles).
     expect(ch1).toContain(230);
     expect(ch1.filter((f: number) => f === 230).length).toBeGreaterThan(1);
-    // CH2 holds ONLY 430 — never mirrored to CH1's 230.
+    // CH2 holds ONLY 430 — never mirrored to CH1's 230 — and is RE-ASSERTED in the
+    // loop (>1 write), not set once at the prime. Rob 7 Jul: a prime-only CH2 write
+    // reverted to the 3.1MHz init carrier once outputs enabled.
     expect(ch2).toContain(430);
     expect(ch2.every((f: number) => f === 430)).toBe(true);
+    expect(ch2.filter((f: number) => f === 430).length).toBeGreaterThan(1);
+  });
+
+  it('SINE range re-asserts the waveform in the loop (CH1-runs-square regression)', async () => {
+    // Rob 7 Jul: a custom SINE range ran CH1 as SQUARE (CH2 sine) — the waveform,
+    // set only at the pre-output prime, didn't stick on CH1. It must be re-asserted
+    // after the first frequency write, outputs on (as the non-range paths do).
+    const program = {
+      name: 'sineRange', range: 1,
+      data: [
+        { channel: 1, frequency: 100, runTime: 0, wavetype: 'SINE' },
+        { channel: 1, frequency: 120, runTime: 0, wavetype: 'SINE' },
+      ],
+      maxTimeInMinutes: 0.05, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('sineRange', () => {});
+    await vi.advanceTimersByTimeAsync(4000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // Sine asserted at the prime AND re-asserted inside the loop (≥2 times); never
+    // square. The loop re-assert (outputs on) is what makes CH1 sine stick.
+    expect(gen.setBothChannelsToSineWave.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+    // The loop re-assert lands AFTER a CH1 frequency write (i.e. after enableOutputs).
+    const firstCh1FreqIdx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    const sineIdxs = gen.calls
+      .map((c: any, i: number) => (c.m === 'setSine' ? i : -1))
+      .filter((i: number) => i >= 0);
+    expect(sineIdxs[sineIdxs.length - 1]).toBeGreaterThan(firstCh1FreqIdx);
   });
 
   it('loop self-terminates at maxTimeInMinutes without an external stop (bounded writes)', async () => {
@@ -590,9 +626,11 @@ describe('ProgramRunner', () => {
     await p;
 
     const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
-    // 1 prime + 21 sweep steps at ~60ms cadence all fit in 1.5s. With the
-    // deadline computed after the pair (interval + 50ms per step) only ~13 fit.
-    expect(ch1.length).toBeGreaterThanOrEqual(20);
+    // ~18 steps fit in 1.5s: the 50ms pair gap is absorbed into the 60ms dwell
+    // (nominal cadence), minus one 200ms WAVEFORM_SWITCH_GAP for the one-time
+    // in-loop waveform re-assert (the CH1-square range fix). With the 50ms gap
+    // ADDED per step (interval → 110ms) only ~13 would fit.
+    expect(ch1.length).toBeGreaterThanOrEqual(16);
     // Pacing still holds within each step's pair.
     const freqCalls = gen.calls.filter((c: any) => c.m === 'setFrequency');
     for (let i = 1; i < freqCalls.length; i++) {

@@ -195,12 +195,12 @@ describe('DefaultPrograms category/ultrasound filtering', () => {
 
   beforeEach(() => vi.clearAllMocks());
 
-  it('TTF tab shows only the ttf program (not Rife/cancer/ultrasound)', async () => {
+  it('TTF tab shows only the ttf-category programs (not Rife/cancer/ultrasound)', async () => {
     renderWithContext(
       <DefaultPrograms {...commonProps} isUltrasoundOnly={false} category="ttf" />
     );
     await waitFor(() => expect(optionValues()).toContain('ttf'));
-    expect(optionValues()).toEqual(['ttf']);
+    expect(optionValues().sort()).toEqual(['ttFields100to500kHz', 'ttf']);
   });
 
   it('Rife tab (ultrasound off) lists Rife + cancer programs, excludes ttf/fsm and ultra', async () => {

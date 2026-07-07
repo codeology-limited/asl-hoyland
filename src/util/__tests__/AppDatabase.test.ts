@@ -189,19 +189,40 @@ describe('AppDatabase (with mocked Dexie)', () => {
     expect(fsm).toEqual(['dualFreq230and430Hz', 'inflammation284Hz', 'liver35Hz']);
   });
 
-  it('only the ttf program carries category "ttf"; the cancer TTFields stay uncategorised', async () => {
-    // Lynne 17 Jun scope decision: TTF tab holds only the new program; the
-    // existing mcf7/mdaMB231/b16/f98 programs remain in the Rife list.
+  it('TTF tab holds the ttf programs; the cancer TTFields stay uncategorised', async () => {
+    // TTF category = the Lynne 17 Jun `ttf` program + the 100-500kHz sweep
+    // (Lynne 7 Jul). The mcf7/mdaMB231/b16/f98 programs stay in the Rife list.
     const db = new AppDatabase();
     await db.preloadDefaults();
 
-    const ttfTab = (await db.getDefaultPrograms()).filter((p: any) => (p.category || '') === 'ttf');
-    expect(ttfTab.map((p: any) => p.name)).toEqual(['ttf']);
+    const ttfTab = (await db.getDefaultPrograms())
+      .filter((p: any) => (p.category || '') === 'ttf')
+      .map((p: any) => p.name).sort();
+    expect(ttfTab).toEqual(['ttFields100to500kHz', 'ttf']);
 
     for (const name of ['mcf7Breast150kHz', 'mdaMB231Breast150kHz', 'b16Melanoma120kHz', 'f98Glioma200kHz']) {
       const p = await db.loadData(name);
       expect(p.category ?? '').not.toBe('ttf');
     }
+  });
+
+  it('ttFields100to500kHz preloads: 100-500kHz sine, 200kHz for 20min, looped 8h (Lynne 7 Jul)', async () => {
+    const db = new AppDatabase();
+    await db.preloadDefaults();
+
+    const p = await db.loadData('ttFields100to500kHz');
+    expect(p.category).toBe('ttf');
+    expect(p.channel1wavetype).toBe('SINE');
+    expect(p.channel2wavetype).toBe('SINE');
+    expect(p.startFrequency).toBe(0); // SINE/SINE + startFrequency 0 → CH2 mirrors CH1
+    expect(p.loop).toBe(1);
+    expect(p.maxTimeInMinutes).toBe(480); // 8 hours
+    expect(p.data.map((d: any) => d.frequency))
+      .toEqual([100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]);
+    const runTimeByFreq = Object.fromEntries(p.data.map((d: any) => [d.frequency, d.runTime]));
+    expect(runTimeByFreq[200000]).toBe(1_200_000); // 20 min
+    expect(runTimeByFreq[100000]).toBe(300_000);   // 5 min
+    expect(runTimeByFreq[500000]).toBe(300_000);   // 5 min
   });
 
   it('saves and retrieves custom programs with correct coercions', async () => {

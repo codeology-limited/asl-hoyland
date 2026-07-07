@@ -344,6 +344,7 @@ export default class ProgramRunner {
                     ? (f: number) => f <= endF
                     : (f: number) => f >= endF;
 
+                let rangeWaveformDone = false;
                 for (let f = startF; this.running && condition(f); f += stepSize) {
                     while (this.paused && this.running) await sleep(100);
                     if (!this.running) break;
@@ -351,9 +352,22 @@ export default class ProgramRunner {
                     // Deadline starts BEFORE the paced pair so FREQ_PAIR_GAP_MS is
                     // absorbed into the dwell — mirrored sweeps keep their nominal
                     // step cadence instead of gaining 50ms per step.
-                    const rangeEnd = Date.now() + interval;
+                    let rangeEnd = Date.now() + interval;
                     await this.setFrequencyPair(Math.round(f), mirrorCh2ToCh1 ? Math.round(f) : null);
                     setRunningFrequency(`${Math.round(f)} Hz`);
+                    // A range's waveform, set only at the pre-output prime, doesn't stick
+                    // on CH1 once outputs enable (Rob 7 Jul: a SINE range ran CH1 as square
+                    // while CH2 was sine). Re-assert it once here — after the first
+                    // frequency, outputs on — matching the non-range paths CH1 handles
+                    // correctly. Only for per-item-waveform (editor) ranges; built-in
+                    // ranges (hoyland) are untouched.
+                    if (!rangeWaveformDone && hasItemWaveform) {
+                        rangeWaveformDone = true;
+                        appliedWavetype = undefined;
+                        if (await applyItemWaveform(program.data[0]?.wavetype)) {
+                            rangeEnd = Date.now() + interval;
+                        }
+                    }
                     while (this.running && Date.now() < rangeEnd) {
                         while (this.paused && this.running) await sleep(100);
                         if (!this.running) break;
@@ -469,6 +483,16 @@ export default class ProgramRunner {
                             await this.setFrequencyPair(freq, mirrorCh2ToCh1 ? freq : null);
                             setRunningFrequency(`${freq} Hz`);
                             if (item.wavetype) await applyItemWaveform(item.wavetype);
+                            if (hasIndependentCh2 && ch2CarrierHz > 0) {
+                                // CH2's own frequency, set once at the pre-output prime,
+                                // reverts to the 3.1MHz init carrier once outputs enable
+                                // (Rob 7 Jul: dualFreq CH2 came out at 3.1MHz square instead
+                                // of 430Hz). Re-assert it here — outputs on — so CH2 holds.
+                                // Placed AFTER any waveform switch so the switch can't
+                                // re-latch CH2 off this frequency.
+                                await sleep(FREQ_PAIR_GAP_MS);
+                                if (this.running) await this.gen.setFrequency(2, ch2CarrierHz);
+                            }
 
                             const until = Date.now() + item.runTime;
                             while (this.running && Date.now() < until) {
