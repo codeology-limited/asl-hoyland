@@ -524,10 +524,22 @@ export default class ProgramRunner {
 
         await progressLoop;
 
-        if (this.running) await this.gen.stopAndReset();
-        this.running = false;
-        this.paused = false;
-        this.onStop?.();
+        // Always release the UI, even if the stop sequence errors partway. stopAndReset
+        // sends 9 serial commands over several seconds and any one can throw transiently;
+        // without this guard the throw skipped the reset below, so the machine stopped
+        // but the UI stayed stuck "running" (report: custom program finished, UI frozen).
+        // stopProgram() already guards onStop the same way — the completion path didn't.
+        try {
+            if (this.running) await this.gen.stopAndReset();
+        } catch (err) {
+            // The program is finished; a failed stop sequence must not reject the
+            // whole run (doStart doesn't catch it) or skip the UI reset below.
+            console.error('stopAndReset at completion failed:', err);
+        } finally {
+            this.running = false;
+            this.paused = false;
+            this.onStop?.();
+        }
     }
 
     pauseProgram() {

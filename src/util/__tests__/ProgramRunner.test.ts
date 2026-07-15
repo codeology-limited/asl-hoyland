@@ -694,6 +694,33 @@ describe('ProgramRunner', () => {
     expect(elapsed).toBeLessThan(2800);
   });
 
+  it('fires onStop even when stopAndReset throws at completion (UI must not stick)', async () => {
+    // Device report: a custom program finished (machine stopped) but the UI stayed
+    // "running". stopAndReset sends 9 serial commands and can throw partway; the
+    // completion path used to skip the running=false / onStop reset when it did.
+    const program = {
+      name: 'shortList', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 30 },
+        { channel: 1, frequency: 200, runTime: 30 },
+      ],
+      maxTimeInMinutes: 0.001, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    gen.stopAndReset = vi.fn(async () => { throw new Error('serial write failed'); });
+    const db = mkFakeDb(program);
+    const onStop = vi.fn();
+    const pr = new ProgramRunner(db, gen, null);
+    pr.setOnStopCallback(onStop);
+    const p = pr.startProgram('shortList', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await vi.runAllTimersAsync();
+    await p; // must resolve, not reject, despite stopAndReset throwing
+
+    expect(gen.stopAndReset).toHaveBeenCalled();
+    expect(onStop).toHaveBeenCalledTimes(1); // UI reset still ran
+  });
+
   it('setChannel2StartFrequency multiplies MHz to Hz (or legacy method exists)', async () => {
     const program = { name: 'x', range: 0, data: [], maxTimeInMinutes: 0, default: 0, startFrequency: 0.5 };
     const gen = mkFakeGen();
