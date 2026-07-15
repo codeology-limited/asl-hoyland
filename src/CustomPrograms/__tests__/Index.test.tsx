@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CustomPrograms from '../Index';
 import { AppProvider } from '../../AppContext';
+import AppDatabase from '../../util/AppDatabase';
 import React from 'react';
 
 // Mock the Tauri API
@@ -172,6 +173,55 @@ describe('CustomPrograms', () => {
       const dropdown = screen.getByRole('combobox');
       expect(dropdown).toBeInTheDocument();
     });
+  });
+
+  it('resets the UI when a range program finishes on its own (onStop wired at start)', async () => {
+    // Regression: the runner is created at Start, but onStop used to be wired only
+    // by the [intensity] effect — which had already run (with no runner) and didn't
+    // re-run because the slider was untouched. So a range that finished naturally
+    // reset the device but left the UI stuck "running". Wiring onStop at creation
+    // fixes it: natural completion must drive resetUI → setIsRunning(false).
+    const seed = new AppDatabase();
+    await seed.saveData({
+      name: 'zzTinyRange',
+      range: true,
+      data: [
+        { channel: 1, frequency: 100, runTime: 0, wavetype: 'SINE' },
+        { channel: 1, frequency: 102, runTime: 0, wavetype: 'SINE' },
+      ],
+      maxTimeInMinutes: 0.001, // ~60ms — completes well within the waitFor window
+      default: false,
+      startFrequency: 0,
+    });
+
+    const setIsRunning = vi.fn();
+    const user = userEvent.setup();
+    renderWithContext(
+      <CustomPrograms
+        setIsRunning={setIsRunning}
+        isRunning={false}
+        isDeviceReady={true}
+        testMode={true}
+        isUltrasoundOnly={false}
+        setChannel1Active={vi.fn()}
+        setChannel2Active={vi.fn()}
+      />
+    );
+
+    // Wait for the seeded custom program to appear, then select and start it.
+    const dropdown = screen.getByRole('combobox') as HTMLSelectElement;
+    await waitFor(() => {
+      expect(Array.from(dropdown.options).some(o => o.value === 'zzTinyRange')).toBe(true);
+    });
+    await user.selectOptions(dropdown, 'zzTinyRange');
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
+    // Non-ultrasound start asks to confirm the ultrasound device is disconnected.
+    await user.click(await screen.findByRole('button', { name: /^yes$/i }));
+
+    // doStart flips it on…
+    await waitFor(() => expect(setIsRunning).toHaveBeenCalledWith(true));
+    // …and natural completion must flip it back off via onStop → resetUI.
+    await waitFor(() => expect(setIsRunning).toHaveBeenCalledWith(false), { timeout: 3000 });
   });
 
   it('displays frequency indicator when running', () => {

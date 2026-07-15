@@ -171,6 +171,13 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         const program = await appDatabase.loadData(programName);
         if (program) {
             runnerRef.current = new ProgramRunner(appDatabase, hoylandController, handleProgressUpdate);
+            // Wire callbacks at creation. The [state.intensity] effect also sets these,
+            // but only fires when intensity changes AND a runner already exists — at
+            // Start the runner is brand new and the slider is untouched, so that effect
+            // never ran and onStop stayed null. Natural completion then reset the device
+            // (stopAndReset) but left the UI stuck "running" because onStop was a no-op.
+            runnerRef.current.setProgressCallback(handleProgressUpdate);
+            runnerRef.current.setOnStopCallback(() => resetUI());
 
             const totalSteps = program.range && program.data.length === 2
                 ? Number(program.data[1]?.frequency) - Number(program.data[0]?.frequency) + 1
