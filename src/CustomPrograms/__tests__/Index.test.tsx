@@ -233,8 +233,9 @@ describe('CustomPrograms', () => {
       />
     );
 
-    // The frequency display element should be visible
-    const freqDisplay = screen.getByText(/Hz/i);
-    expect(freqDisplay).toBeInTheDocument();
+    // The two-channel readout shows CH1 and CH2, each with a frequency in Hz.
+    expect(screen.getByText('CH1')).toBeInTheDocument();
+    expect(screen.getByText('CH2')).toBeInTheDocument();
+    expect(screen.getAllByText(/Hz/i).length).toBeGreaterThanOrEqual(2);
   });
 });

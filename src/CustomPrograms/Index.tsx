@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
+import type { RunStatus } from '../util/ProgramRunner';
+import ChannelReadout from '../components/ChannelReadout';
 import ProgramSelect, { ProgramOption } from "./ProgramSelect.tsx";
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -90,7 +92,7 @@ const reducer = (state: State, action: Action): State => {
 
 const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
+    const [runStatus, setRunStatus] = useState<RunStatus | null>(null);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -209,7 +211,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             // too sent a redundant amplitude command on every start (startup noise).
             await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
             // Start program — enables outputs after all settings configured
-            await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
+            await runnerRef.current.startProgram(state.selectedProgram, setRunStatus);
         }
     };
 
@@ -250,6 +252,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
         setChannel1Active(false);
         setChannel2Active(false);
         dispatch({ type: 'RESET' });
+        setRunStatus(null);
         runnerRef.current = null;
     };
 
@@ -290,8 +293,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 ></progress>
                 <label>{state.totalSteps > 0 ? `${Math.floor((state.progress / state.totalSteps) * 100)}% complete` : '0% complete'}</label>
                 <span>{state.currentFrequency > 0 ? `${convertToMinutesAndSeconds(state.currentFrequency)} remain` : null}</span>
-                <div id="intensity-display">{runningFrequency}
-                </div>
+                <ChannelReadout status={runStatus} />
             </div>
 
             <div>

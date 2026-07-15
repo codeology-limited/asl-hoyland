@@ -341,6 +341,32 @@ input[type="range"]::-moz-focus-outer {
     width: 100%;
 
 }
+/* Two-channel live readout (CH1 / CH2 with waveform glyph + frequency) */
+.channel-readout {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+}
+.channel-readout__ch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+.channel-readout__label {
+    font-weight: bold;
+    opacity: 0.75;
+}
+.channel-readout__freq {
+    font-variant-numeric: tabular-nums;
+}
+.wf-icon {
+    width: 22px;
+    height: 12px;
+    flex: 0 0 auto;
+    vertical-align: middle;
+    color: var(--success-color, #00a000);
+}
 /* For WebKit (Chrome, Safari, etc.) */
 progress::-webkit-progress-bar {
     background-color: var(--progress-bg-color);
@@ -1003,6 +1029,21 @@ input:disabled {
     display: flex;
     gap: 14px;
     align-items: stretch;
+}
+.program-editor .pe-loadrow {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-top: 10px;
+}
+.program-editor .pe-loadrow .pe-label {
+    flex: 0 0 auto;
+    margin: 0;
+}
+.program-editor .pe-loadselect {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
 }
 .program-editor .pe-namerow .pe-input {
     flex: 1 1 auto;

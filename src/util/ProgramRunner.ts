@@ -1,6 +1,11 @@
-import type { Dispatch, SetStateAction } from 'react';
 import AppDatabase, { ProgramRow } from './AppDatabase';
 import HoylandController from './HoylandController';
+
+export type ChannelWave = 'SINE' | 'SQUARE';
+export interface ChannelStatus { hz: number; wave: ChannelWave | null }
+export interface RunStatus { ch1: ChannelStatus; ch2: ChannelStatus }
+/** Live per-channel readout (frequency + waveform) for the UI display. */
+export type RunStatusCallback = (status: RunStatus) => void;
 
 
 type ProgressCallback = (currentStep: number, totalSteps: number, minutesRemaining: number) => void;
@@ -127,7 +132,7 @@ export default class ProgramRunner {
     }
 
     /** Ultrasound special: toggle 0.5 / 0.67 MHz; keep waveform SQUARE (no sine call). */
-    async runSpecialCase(setRunningFrequency: Dispatch<SetStateAction<string>>) {
+    async runSpecialCase(setRunningFrequency: RunStatusCallback) {
         this.running = true;
         this.paused = false;
 
@@ -150,11 +155,11 @@ export default class ProgramRunner {
             if (!this.running) break;
 
             await this.gen.setFrequency(1, 0.5 * 1_000_000);
-            setRunningFrequency(`${0.5 * 1_000_000} Hz`);
+            setRunningFrequency({ ch1: { hz: 0.5e6, wave: 'SQUARE' }, ch2: { hz: 0.5e6, wave: 'SQUARE' } });
             await sleep(tickMs);
 
             await this.gen.setFrequency(1, 0.67 * 1_000_000);
-            setRunningFrequency(`${0.67 * 1_000_000} Hz`);
+            setRunningFrequency({ ch1: { hz: 0.67e6, wave: 'SQUARE' }, ch2: { hz: 0.67e6, wave: 'SQUARE' } });
             await sleep(tickMs);
 
             update();
@@ -175,7 +180,7 @@ export default class ProgramRunner {
         }
     }
 
-    async startProgram(programName: string, setRunningFrequency: Dispatch<SetStateAction<string>>) {
+    async startProgram(programName: string, setRunningFrequency: RunStatusCallback) {
         const program = await this.loadProgram(programName);
         if (!program) { console.error(`Program ${programName} not found`); return; }
 
@@ -207,10 +212,11 @@ export default class ProgramRunner {
             await this.applyCurrentIntensity(program);
             const initialHz = Math.round(0.5 * 1_000_000);
             await this.gen.setFrequency(1, initialHz);
-            setRunningFrequency(`${initialHz} Hz`);
+            setRunningFrequency({ ch1: { hz: initialHz, wave: 'SQUARE' }, ch2: { hz: initialHz, wave: 'SQUARE' } });
             await this.gen.setBothChannelsToSquareWave();
             await this.gen.sync();
             await this.gen.enableOutputs();
+            setRunningFrequency({ ch1: { hz: initialHz, wave: 'SQUARE' }, ch2: { hz: initialHz, wave: 'SQUARE' } });
             await this.runSpecialCase(setRunningFrequency);
         } else {
             const nameLc = program.name.toLowerCase();
@@ -281,7 +287,6 @@ export default class ProgramRunner {
             await this.applyCurrentIntensity(program);
             if (initialHz != null && Number.isFinite(initialHz)) {
                 await this.setFrequencyPair(initialHz, mirrorCh2ToCh1 ? initialHz : null);
-                setRunningFrequency(`${initialHz} Hz`);
             }
             // CH2's own frequency: channel2frequency is in Hz (dual-frequency
             // programs); startFrequency is the legacy MHz carrier.
@@ -305,6 +310,25 @@ export default class ProgramRunner {
             const ch2Sine = program.channel2wavetype === 'SINE';
             const ch1Square = program.channel1wavetype === 'SQUARE';
             const ch2Square = program.channel2wavetype === 'SQUARE';
+
+            // The program-level waveform both channels run (per-step programs override
+            // this with the current step's wavetype). Mirrors the if/else chain below.
+            const baseWave: ChannelWave =
+                (!nameLc.includes('ultra') && ch1Sine && ch2Sine) ? 'SINE'
+                : (hasIndependentCh2 && ch1Square && ch2Square) ? 'SQUARE'
+                : (nameLc.includes('ultra') || program.startFrequency === 0 || (ch1Square && ch2Square)) ? 'SQUARE'
+                : ch1Sine ? 'SINE'
+                : 'SQUARE';
+
+            // Emit the per-channel readout for the UI. CH2's frequency mirrors/follows
+            // CH1 unless the program gives CH2 its own carrier/audio frequency
+            // (ch2CarrierHz); waveform is shared across both channels.
+            const reportStatus = (ch1Hz: number, wave?: ChannelWave | null) => {
+                const w = wave ?? (hasItemWaveform ? (appliedWavetype ?? null) : baseWave);
+                const ch2Hz = ch2CarrierHz > 0 ? ch2CarrierHz : ch1Hz;
+                setRunningFrequency({ ch1: { hz: ch1Hz, wave: w }, ch2: { hz: ch2Hz, wave: w } });
+            };
+
             if (hasItemWaveform) {
                 // Per-frequency waveform: assert the first step's waveform before outputs
                 // enable; the run loop switches waveform only when a step changes it.
@@ -327,6 +351,9 @@ export default class ProgramRunner {
             } else if (ch1Sine) {
                 await this.gen.sinewave();
             }
+
+            // Prime the readout with the initial frequency + resolved waveform.
+            if (initialHz != null && Number.isFinite(initialHz)) reportStatus(initialHz);
 
             // Enable outputs LAST — after all settings are configured
             await this.gen.enableOutputs();
@@ -369,7 +396,7 @@ export default class ProgramRunner {
                     // step cadence instead of gaining 50ms per step.
                     let rangeEnd = Date.now() + interval;
                     await this.setFrequencyPair(Math.round(f), mirrorCh2ToCh1 ? Math.round(f) : null);
-                    setRunningFrequency(`${Math.round(f)} Hz`);
+                    reportStatus(Math.round(f));
                     // A range's waveform, set only at the pre-output prime, doesn't stick
                     // on CH1 once outputs enable (Rob 7 Jul: a SINE range ran CH1 as square
                     // while CH2 was sine). Re-assert it once here — after the first
@@ -432,7 +459,7 @@ export default class ProgramRunner {
                                 // Deadline before the pair — see the range loop note.
                                 let sweepEnd = Date.now() + interval;
                                 await this.setFrequencyPair(Math.round(f), mirrorCh2ToCh1 ? Math.round(f) : null);
-                                setRunningFrequency(`${Math.round(f)} Hz`);
+                                reportStatus(Math.round(f), item.wavetype);
                                 // Waveform AFTER frequency (and only when it changes —
                                 // a no-op past the first iteration): frequency writes
                                 // landing in a sine switch's settle window don't take
@@ -476,13 +503,13 @@ export default class ProgramRunner {
                                 if (!this.running || Date.now() >= until) break;
 
                                 await this.setFrequencyPair(freq, ch2Hz > 0 ? ch2Hz : null);
-                                setRunningFrequency(`${freq} Hz`);
+                                reportStatus(freq);
                                 const onEnd = Math.min(Date.now() + onMs, until);
                                 while (this.running && !this.paused && Date.now() < onEnd) await sleep(5);
                                 if (!this.running || Date.now() >= until) break;
 
                                 await this.setFrequencyPair(0, ch2Hz > 0 ? 0 : null);
-                                setRunningFrequency(`${freq} Hz (off)`);
+                                reportStatus(0);
                                 const offEnd = Math.min(Date.now() + offMs, until);
                                 while (this.running && !this.paused && Date.now() < offEnd) await sleep(5);
                             }
@@ -499,7 +526,7 @@ export default class ProgramRunner {
                             // frequencies land; a waveform switch then settles during
                             // this step's own dwell.
                             await this.setFrequencyPair(freq, mirrorCh2ToCh1 ? freq : null);
-                            setRunningFrequency(`${freq} Hz`);
+                            reportStatus(freq, item.wavetype);
                             if (item.wavetype) await applyItemWaveform(item.wavetype);
                             if (hasIndependentCh2 && ch2CarrierHz > 0) {
                                 // CH2's own frequency, set once at the pre-output prime,

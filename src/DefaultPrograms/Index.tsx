@@ -3,6 +3,8 @@ import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 import ProgramSelect, { ProgramOption } from './ProgramSelect.tsx';
 import type { ProgramRow } from '../util/AppDatabase';
+import type { RunStatus } from '../util/ProgramRunner';
+import ChannelReadout from '../components/ChannelReadout';
 
 interface DefaultProgramsProps {
     setIsRunning: (isRunning: boolean) => void;
@@ -148,7 +150,7 @@ import ConfirmModal from '../components/ConfirmModal';
 
 const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunning, isDeviceReady, testMode, isUltrasoundOnly, setChannel1Active, setChannel2Active, category }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const [runningFrequency, setRunningFrequency] = useState<string>('0  Hz');
+    const [runStatus, setRunStatus] = useState<RunStatus | null>(null);
 
     const { appDatabase, hoylandController } = useAppContext();
     const runnerRef = useRef<ProgramRunner | null>(null);
@@ -192,9 +194,6 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     }, [loadDefaultPrograms]);
 
 
-    useEffect(() => {
-        console.log('runningFrequency updated:', runningFrequency);
-    }, [runningFrequency]);
 
     const handleProgressUpdate = useCallback(
         (currentStep: number, totalSteps: number, timeRemaining: number) => {
@@ -295,7 +294,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         // (via applyCurrentIntensity) right before enabling outputs. Writing here too
         // sent a redundant amplitude command on every start (Robbie: startup noise).
         await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
-        await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
+        await runnerRef.current.startProgram(state.selectedProgram, setRunStatus);
     };
 
     const handleStartStop = async () => {
@@ -341,6 +340,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
 
     const resetUI = () => {
         dispatch({ type: 'RESET_UI' });
+        setRunStatus(null);
         setIsRunning(false);
         setChannel1Active(false);
         setChannel2Active(false);
@@ -404,7 +404,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <span>
           {state.timeRemaining > 0 ? `${convertToMinutesAndSeconds(state.timeRemaining)} remain` : null}
         </span>
-                <div id="intensity-display">{runningFrequency}</div>
+                <ChannelReadout status={runStatus} />
             </div>
 
             <div>

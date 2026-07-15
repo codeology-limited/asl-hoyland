@@ -1052,10 +1052,10 @@ describe('ProgramRunner', () => {
     };
     const gen = mkFakeGen();
     const db = mkFakeDb(program);
-    const updates: string[] = [];
+    const updates: any[] = [];
     const pr = new ProgramRunner(db, gen, (a,b,c) => {});
 
-    const run = pr.startProgram('ultrasound', (t) => updates.push(t));
+    const run = pr.startProgram('ultrasound', (s) => updates.push(s));
     await vi.advanceTimersByTimeAsync(5000);
     await pr.stopProgram();
     await vi.runAllTimersAsync();
@@ -1065,8 +1065,8 @@ describe('ProgramRunner', () => {
     expect(gen.sync).toHaveBeenCalled();
     const ampCalls = gen.calls.filter((c: any) => c.m === 'setAmplitude');
     expect(ampCalls.length).toBeGreaterThan(0);
-    // Frequency toggles happened and label updated
-    expect(updates.some((t) => t.includes('500000'))).toBe(true);
+    // Frequency toggles happened and the readout reported the 0.5MHz step on CH1.
+    expect(updates.some((s) => s.ch1?.hz === 500000)).toBe(true);
   });
 
   it('invokes onStop after stop', async () => {

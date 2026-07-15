@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Program , ProgramItem} from '../types';
 import { useAppContext } from '../AppContext';
 import { buildProgramsTsv, safeFileName, saveTextFile, ExportableProgram } from '../util/exportPrograms';
@@ -25,16 +25,17 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
 
     const { appDatabase } = useAppContext();
 
-    useEffect(() => {
-        const loadCustomPrograms = async () => {
-            const programs = await appDatabase.getCustomPrograms();
-            const programNames = programs
-                .map(program => program.name)
-                .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
-            setCustomPrograms(programNames);
-        };
-        loadCustomPrograms();
+    const refreshCustomPrograms = useCallback(async () => {
+        const programs = await appDatabase.getCustomPrograms();
+        const programNames = programs
+            .map(program => program.name)
+            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
+        setCustomPrograms(programNames);
     }, [appDatabase]);
+
+    useEffect(() => {
+        void refreshCustomPrograms();
+    }, [refreshCustomPrograms]);
 
     // Reset rows ONLY when the user explicitly toggles range — not when a loaded
     // program sets range (a `[range]` effect would clobber the freshly loaded rows,
@@ -114,6 +115,8 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             await appDatabase.saveData(program);
             console.log('Program saved successfully');
 
+            // Refresh the "edit a saved program" list so a newly saved name appears.
+            await refreshCustomPrograms();
             onSave(programName, validatedRows, maxTimeInMinutes, range);
         } catch (error) {
             console.error('Error saving program:', error);
@@ -192,9 +195,8 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                         <input
                             className="pe-input"
                             type="text"
-                            list="pe-programs"
                             autoComplete="off"
-                            placeholder="Enter or choose a program name"
+                            placeholder="Enter a program name"
                             value={programName}
                             onChange={(e) => handleProgramNameChange(e.target.value)}
                         />
@@ -208,13 +210,30 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                             Export all
                         </button>
                     </div>
-                    <datalist id="pe-programs">
-                        {customPrograms.map(name => (
-                            <option key={name} value={name} />
-                        ))}
-                    </datalist>
+                    <div className="pe-loadrow">
+                        <span className="pe-label">Edit a saved program</span>
+                        <select
+                            className="pe-loadselect"
+                            value={customPrograms.includes(programName) ? programName : ''}
+                            onChange={(e) => { const v = e.target.value; if (v) void handleLoadProgram(v); }}
+                        >
+                            <option value="">Choose a saved program…</option>
+                            {customPrograms.map(name => (
+                                <option key={name} value={name}>{name}</option>
+                            ))}
+                        </select>
+                        <button
+                            type="button"
+                            className="pe-export"
+                            onClick={() => { setProgramName(''); setRange(false); setRows([newRow()]); }}
+                            title="Clear the form to start a new program"
+                        >
+                            New
+                        </button>
+                    </div>
                     <span className="pe-fieldhint">
-                        Type a name to create a new program, or choose a saved program to edit it.
+                        Type a name to create a new program, or pick a saved program to edit it. Choosing another
+                        program from the list switches to it.
                     </span>
                 </div>
             </div>
