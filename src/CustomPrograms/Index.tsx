@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
-import type { RunStatus } from '../util/ProgramRunner';
+import { previewRunStatus, type RunStatus } from '../util/ProgramRunner';
 import ChannelReadout from '../components/ChannelReadout';
 import ProgramSelect, { ProgramOption } from "./ProgramSelect.tsx";
 import ConfirmModal from '../components/ConfirmModal';
@@ -147,6 +147,21 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             } catch { /* ignore */ }
         })();
     }, [state.selectedProgram, appDatabase]);
+
+    // Preview the selected program's CH1/CH2 frequencies + waveform on the readout
+    // before Start. While running, the runner drives the readout instead.
+    useEffect(() => {
+        if (isRunning) return;
+        let cancelled = false;
+        (async () => {
+            if (!state.selectedProgram) { setRunStatus(null); return; }
+            try {
+                const program = await appDatabase.loadData(state.selectedProgram);
+                if (!cancelled && program) setRunStatus(previewRunStatus(program));
+            } catch { /* ignore */ }
+        })();
+        return () => { cancelled = true; };
+    }, [state.selectedProgram, appDatabase, isRunning]);
 
     // Memoize the handleProgressUpdate to avoid unnecessary re-renders
     const handleProgressUpdate = useCallback((currentStep: number, totalSteps: number, currentF: number) => {
@@ -296,7 +311,7 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
                 <ChannelReadout status={runStatus} />
             </div>
 
-            <div>
+            <div className="intensity-row">
                 <label>Intensity: {Math.floor(((state.intensity || 0) / 20) * 100)}%</label>
                 <input
                     type="range"

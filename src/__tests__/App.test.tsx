@@ -19,13 +19,17 @@ describe('App', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders the app with header', async () => {
+  it('renders the app with the brand logo (bottom-right, not a navigating link)', async () => {
     render(<App />);
 
     await waitFor(() => {
-      const link = screen.getByRole('link', { name: /Altered States/i });
-      expect(link).toBeInTheDocument();
+      // The logo is a plain image in the bottom-right; the old header <a> was
+      // removed because clicking it navigated the whole webview to the store.
+      const logo = screen.getByAltText(/Altered States/i);
+      expect(logo).toBeInTheDocument();
+      expect(logo.tagName.toLowerCase()).toBe('img');
     });
+    expect(screen.queryByRole('link', { name: /Altered States/i })).not.toBeInTheDocument();
   });
 
   it('renders navigation tabs', async () => {
@@ -260,12 +264,13 @@ describe('App', () => {
     });
   });
 
-  it('renders link to altered-states.net', async () => {
+  it('does not render a header link that would navigate the webview away', async () => {
     render(<App />);
-
+    // Regression: an <a href="http://altered-states.net"> in the header hijacked
+    // the whole Tauri webview to the external store with no way back.
     await waitFor(() => {
-      const link = screen.getByRole('link', { name: /Altered States/i });
-      expect(link).toHaveAttribute('href', 'http://altered-states.net');
+      expect(screen.getByAltText(/Altered States/i)).toBeInTheDocument();
     });
+    expect(screen.queryByRole('link', { name: /Altered States/i })).not.toBeInTheDocument();
   });
 });

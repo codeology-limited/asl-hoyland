@@ -3,7 +3,7 @@ import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
 import ProgramSelect, { ProgramOption } from './ProgramSelect.tsx';
 import type { ProgramRow } from '../util/AppDatabase';
-import type { RunStatus } from '../util/ProgramRunner';
+import { previewRunStatus, type RunStatus } from '../util/ProgramRunner';
 import ChannelReadout from '../components/ChannelReadout';
 
 interface DefaultProgramsProps {
@@ -192,6 +192,21 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     useEffect(() => {
         loadDefaultPrograms();
     }, [loadDefaultPrograms]);
+
+    // Preview the selected program's starting CH1/CH2 frequencies + waveform on the
+    // readout before Start. While running, the runner drives the readout instead.
+    useEffect(() => {
+        if (isRunning) return;
+        let cancelled = false;
+        (async () => {
+            if (!state.selectedProgram) { setRunStatus(null); return; }
+            try {
+                const program = await appDatabase.loadData(state.selectedProgram);
+                if (!cancelled && program) setRunStatus(previewRunStatus(program));
+            } catch { /* ignore */ }
+        })();
+        return () => { cancelled = true; };
+    }, [state.selectedProgram, appDatabase, isRunning]);
 
 
 
@@ -408,7 +423,7 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
                 <ChannelReadout status={runStatus} />
             </div>
 
-            <div>
+            <div className="intensity-row">
                 <label>Intensity: {Number.isFinite(relativePct) ? relativePct : 0}%</label>
                 <input
                     type="range"

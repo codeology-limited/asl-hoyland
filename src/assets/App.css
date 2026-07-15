@@ -157,38 +157,28 @@ html {
 
 }
 
-/* Big brand watermark behind all the controls. background-size: contain fits it
-   to the container while preserving aspect ratio; z-index -1 keeps it behind the
-   content (which paints above the container's own background), and
-   pointer-events:none means it never intercepts clicks. */
-.container::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url(/altsta.webp);
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 20px;
-}
+/* Logo moved to the bottom-right (.brand-logo); the top-left header mark is gone.
+   Keep h1 collapsed so it doesn't leave an empty gap next to the tabs. */
 h1 {
     margin: 0;
     padding: 0;
-    text-align: left;
-    background-image: url(/altsta.webp);
-    background-position: 0 50%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    height: 100px;
+    height: 0;
+    width: 0;
+    overflow: hidden;
     text-indent: -10000px;
-    color: var(--secondary-font-color);
-    width: 220px;
-    a {
-        display:block;
-    }
+}
+
+/* Real logo (not a watermark) in the bottom-right space of the app. */
+.brand-logo {
+    position: absolute;
+    right: 34px;
+    bottom: 24px;
+    width: 280px;
+    max-width: 32%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
 }
 
 ul, li {
@@ -341,6 +331,16 @@ input[type="range"]::-moz-focus-outer {
     font-size: 16px;
     bottom: 30px; right: 30px;
 }
+/* "% complete" and "Intensity: %" labels sit BELOW their bars (the readout
+   overlays the progress bar). Higher specificity than `.tab-body label`, which
+   otherwise pins them above. */
+.tab-body .progress-bar-wrapper label,
+.tab-body .intensity-row label {
+    top: auto;
+    bottom: 10px;
+    padding: 0;
+    transform: translateX(-50%);
+}
 .progress-bar {
     position: relative;
     width: 100%;
@@ -351,31 +351,55 @@ input[type="range"]::-moz-focus-outer {
     appearance: none; /* Remove default styling */
 }
 #intensity-display {
-
- position: absolute;
-    left: 30px;
-    color: black;
-
-    width: 100%;
-
+    /* Overlay the two-channel readout onto the progress bar. Explicit box +
+       padding:0 to override the aggressive `.tab-body div` rule (which forces
+       padding:40px and height:200px on every div in the panel). The progress bar
+       sits at the wrapper's 40px padding-top and is 40px tall, so top:40px /
+       height:40px lands the readout exactly on it. */
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    right: 20px;
+    bottom: auto;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+    z-index: 3;
+    pointer-events: none;
 }
 /* Two-channel live readout (CH1 / CH2 with waveform glyph + frequency) */
 .channel-readout {
     display: flex;
-    gap: 28px;
+    gap: 40px;
     align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
 }
-.channel-readout__ch {
+/* id-scoped so these beat `.progress-bar-wrapper span` (0-1-1), which otherwise
+   absolutely-positions every span in the readout into the bottom-right corner. */
+#intensity-display .channel-readout__ch {
+    position: static;
+    inset: auto;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     white-space: nowrap;
 }
-.channel-readout__label {
+#intensity-display .channel-readout__label {
+    position: static;
+    inset: auto;
+    display: inline;
     font-weight: bold;
     opacity: 0.75;
 }
-.channel-readout__freq {
+#intensity-display .channel-readout__freq {
+    position: static;
+    inset: auto;
+    display: inline;
     font-variant-numeric: tabular-nums;
 }
 .wf-icon {
@@ -418,6 +442,7 @@ progress::-ms-fill {
     height: 400px;
     margin: 0 auto;
 }
+
 
 .tab-body div {
     position: relative;

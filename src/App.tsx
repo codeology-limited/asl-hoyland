@@ -244,7 +244,10 @@ const App: React.FC = () => {
             >
                 <header>
                     <h1>
-                        <a href="http://altered-states.net">Altered States</a>
+                        {/* Not a link: an href here navigated the whole Tauri webview
+                            away to the external store with no way back. Keep the <a>
+                            for the existing `h1 a { display:block }` logo styling. */}
+                        <a>Altered States</a>
                     </h1>
                     <nav className="tabs">
                         <ul className="nav-links">
@@ -432,6 +435,7 @@ const App: React.FC = () => {
                     <span>Copyright &copy; 2024 Altered States Limited</span>
                     <span className="footer__version">v1.8.3</span>
                 </footer>
+                <img className="brand-logo" src="/altsta.webp" alt="Altered States" />
             </div>
         </Router>
     );

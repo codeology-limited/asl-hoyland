@@ -7,6 +7,36 @@ export interface RunStatus { ch1: ChannelStatus; ch2: ChannelStatus }
 /** Live per-channel readout (frequency + waveform) for the UI display. */
 export type RunStatusCallback = (status: RunStatus) => void;
 
+/**
+ * The readout a program STARTS with, for previewing on selection (before Start).
+ * Mirrors startProgram's CH2-carrier and waveform resolution so the preview
+ * matches what the run will actually drive.
+ */
+export function previewRunStatus(program: ProgramRow): RunStatus {
+    const n = (v: unknown, f = 0) => {
+        const x = typeof v === 'string' ? parseFloat(v) : Number(v);
+        return Number.isFinite(x) ? x : f;
+    };
+    const firstFreq = n(program.data?.[0]?.frequency, 0);
+    const ch2Independent = n(program.channel2frequency, 0);
+    const ch2Hz = ch2Independent > 0
+        ? ch2Independent
+        : n(program.startFrequency, 0) > 0 ? n(program.startFrequency, 0) * 1_000_000 : firstFreq;
+    const hasItemWave = (program.data ?? []).some(d => d.wavetype === 'SINE' || d.wavetype === 'SQUARE');
+    const ch1Sine = program.channel1wavetype === 'SINE';
+    const ch2Sine = program.channel2wavetype === 'SINE';
+    const ch1Square = program.channel1wavetype === 'SQUARE';
+    const ch2Square = program.channel2wavetype === 'SQUARE';
+    const nameLc = (program.name || '').toLowerCase();
+    const wave: ChannelWave =
+        hasItemWave ? ((program.data[0]?.wavetype as ChannelWave) ?? 'SINE')
+        : (!nameLc.includes('ultra') && ch1Sine && ch2Sine) ? 'SINE'
+        : (nameLc.includes('ultra') || n(program.startFrequency, 0) === 0 || (ch1Square && ch2Square)) ? 'SQUARE'
+        : ch1Sine ? 'SINE'
+        : 'SQUARE';
+    return { ch1: { hz: firstFreq, wave }, ch2: { hz: ch2Hz, wave } };
+}
+
 
 type ProgressCallback = (currentStep: number, totalSteps: number, minutesRemaining: number) => void;
 
