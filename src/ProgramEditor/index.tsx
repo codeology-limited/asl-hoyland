@@ -224,7 +224,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                         </select>
                         <button
                             type="button"
-                            className="pe-export"
+                            className="pe-new"
                             onClick={() => { setProgramName(''); setRange(false); setRows([newRow()]); }}
                             title="Clear the form to start a new program"
                         >

@@ -144,6 +144,15 @@ pub fn sine_wave(state: State<AppState>, window: Window) -> Result<bool, String>
     write_to_port(state, WriteToPortArgs { data: cmd }, window)
 }
 
+/// CH1 waveform → square (WMW01). Pair to sine_wave; with waveform-sync (USA0) on,
+/// CH2 follows CH1, so per-step programs drive CH1 only and the channels can't split.
+#[tauri::command]
+pub fn square_wave(state: State<AppState>, window: Window) -> Result<bool, String> {
+    println!("square_wave called");
+    let cmd = "WMW01\n".to_string();
+    write_to_port(state, WriteToPortArgs { data: cmd }, window)
+}
+
 #[tauri::command]
 pub fn set_both_channels_to_sine_wave(
     state: State<AppState>,

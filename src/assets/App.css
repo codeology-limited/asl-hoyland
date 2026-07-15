@@ -1088,6 +1088,21 @@ input:disabled {
     width: auto;
     min-width: 0;
 }
+.program-editor .pe-new {
+    flex: 0 0 auto;
+    align-self: stretch;        /* match the dropdown's height */
+    margin: 0;
+    padding: 0 26px;
+    white-space: nowrap;
+    background: #fff;
+    color: var(--success-color);
+    border: 2px solid var(--success-color);
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: var(--font-size-medium);
+    cursor: pointer;
+}
+.program-editor .pe-new:hover { background: var(--success-color); color: #fff; }
 .program-editor .pe-namerow .pe-input {
     flex: 1 1 auto;
     width: auto;

@@ -101,6 +101,12 @@ export default class HoylandController {
         console.log(ok ? 'sinewave sent successfully' : 'Failed to send sinewave');
     }
 
+    /** CH1 waveform → square (WMW01). CH2 follows when waveform-sync (USA0) is on. */
+    async squarewave() {
+        const ok = await this.invokeCmd<boolean>('square_wave');
+        console.log(ok ? 'squarewave sent successfully' : 'Failed to send squarewave');
+    }
+
     async setBothChannelsToSquareWave() {
         const ok = await this.invokeCmd<boolean>('set_both_channels_to_square_wave');
         console.log(ok ? 'square wave set' : 'Failed to set square wave');

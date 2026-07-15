@@ -278,7 +278,13 @@ export default class ProgramRunner {
             // frequency writes that land in a sine switch's settle window).
             // Returns true when a switch was actually sent.
             let appliedWavetype: 'SINE' | 'SQUARE' | undefined;
-            const applyItemWaveform = async (wt?: 'SINE' | 'SQUARE'): Promise<boolean> => {
+            // primeBothChannels: before outputs (and USA0 waveform-sync) are on, set BOTH
+            // channels so CH2 starts on the right waveform. In the run loop, outputs and
+            // USA0 are on, so drive CH1 ONLY — CH2 follows CH1 in hardware. Writing both
+            // per step let one command drop and the channels split, so a step's waveform
+            // reached only one channel (Rob 15 Jul). CH1-only makes each step's waveform
+            // land on both channels together, every step.
+            const applyItemWaveform = async (wt?: 'SINE' | 'SQUARE', primeBothChannels = false): Promise<boolean> => {
                 if ((wt !== 'SINE' && wt !== 'SQUARE') || wt === appliedWavetype) return false;
                 // Let BOTH frequency writes (CH1 and CH2) commit before the switch
                 // re-latches them — CH2 is set last and needs the same margin CH1
@@ -286,8 +292,13 @@ export default class ProgramRunner {
                 // after a stop's stopAndReset cleanup.
                 await sleep(WAVEFORM_SWITCH_GAP_MS);
                 if (!this.running) return false;
-                if (wt === 'SINE') await this.gen.setBothChannelsToSineWave();
-                else await this.gen.setBothChannelsToSquareWave();
+                if (primeBothChannels) {
+                    if (wt === 'SINE') await this.gen.setBothChannelsToSineWave();
+                    else await this.gen.setBothChannelsToSquareWave();
+                } else {
+                    if (wt === 'SINE') await this.gen.sinewave();     // WMW00 (CH1); CH2 follows USA0
+                    else await this.gen.squarewave();                 // WMW01 (CH1); CH2 follows USA0
+                }
                 appliedWavetype = wt;
                 return true;
             };
@@ -359,14 +370,22 @@ export default class ProgramRunner {
                 setRunningFrequency({ ch1: { hz: ch1Hz, wave: w }, ch2: { hz: ch2Hz, wave: w } });
             };
 
+            // A SINE waveform set before outputs enable doesn't stick on CH1 — the
+            // device reverts it to the SECONDARY_COMMANDS square init once outputs turn
+            // on, so a SINE program came out SQUARE on CH1 while the readout showed sine
+            // (Rob 15 Jul: ttFields 100kHz). Capture the sine assertion here and re-run
+            // it AFTER outputs (below). Square programs need nothing — square IS the
+            // SECONDARY default, so it survives.
+            let reassertWaveform: (() => Promise<void>) | null = null;
+
             if (hasItemWaveform) {
-                // Per-frequency waveform: assert the first step's waveform before outputs
-                // enable; the run loop switches waveform only when a step changes it.
-                // No sync() here — like the SINE/SINE path, both channels are driven
-                // explicitly. (enableOutputs' USA2 is amplitude sync only, per protocol.)
-                await applyItemWaveform(program.data[0]?.wavetype);
+                // Per-frequency waveform: assert the first step's waveform on BOTH channels
+                // before outputs enable (USA0 sync isn't on yet). The run loop then switches
+                // CH1 only per step, with CH2 following via USA0.
+                await applyItemWaveform(program.data[0]?.wavetype, true);
             } else if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
                 await this.gen.setBothChannelsToSineWave();
+                reassertWaveform = () => this.gen.setBothChannelsToSineWave();
             } else if (hasIndependentCh2 && ch1Square && ch2Square) {
                 // Dual-frequency square: CH1 and CH2 run at DIFFERENT frequencies,
                 // both square. Assert both waveforms but do NOT sync() — USA1
@@ -380,6 +399,7 @@ export default class ProgramRunner {
                 await this.gen.sync();
             } else if (ch1Sine) {
                 await this.gen.sinewave();
+                reassertWaveform = () => this.gen.sinewave();
             }
 
             // Prime the readout with the initial frequency + resolved waveform.
@@ -396,6 +416,14 @@ export default class ProgramRunner {
             // frequency stays independent (USA1 left off). Scoped to these programs so no
             // other program's tuned output path changes; stopAndReset's USD0 clears it.
             if (hasItemWaveform) await this.gen.enableWaveformSync();
+
+            // Re-assert the SINE waveform now that outputs are on, so CH1 doesn't revert
+            // to the square init (see the reassertWaveform note above). The pre-output
+            // frequencies are already set, so the switch just re-latches them unchanged.
+            if (reassertWaveform) {
+                await sleep(WAVEFORM_SWITCH_GAP_MS);
+                if (this.running) await reassertWaveform();
+            }
 
             if (isRange) {
                 const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];

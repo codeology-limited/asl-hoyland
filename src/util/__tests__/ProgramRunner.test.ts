@@ -26,7 +26,8 @@ const mkFakeGen = () => {
     }),
     sync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sync', args: [] }); }),
     enableWaveformSync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'enableWaveformSync', args: [] }); }),
-    sinewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sinewave', args: [] }); }),
+    sinewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sinewave', args: [], t: Date.now() }); }),
+    squarewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'squarewave', args: [], t: Date.now() }); }),
     enableOutputs: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'enableOutputs', args: [] }); }),
     sendInitialCommands: vi.fn(async () => {}),
     sendSecondaryCommands: vi.fn(async () => {}),
@@ -176,9 +177,11 @@ describe('ProgramRunner', () => {
     expect(ch2Freqs).not.toContain(3_100_000);
   });
 
-  it('per-frequency wavetype: applies each item waveform on both channels and mirrors CH2', async () => {
-    // Lynne 9 Jun: editor sine/square-per-frequency. Each item plays with its own
-    // waveform on BOTH channels at that frequency (CH2 mirrors CH1).
+  it('per-frequency wavetype: primes both channels then drives CH1 per step (CH2 follows sync)', async () => {
+    // Lynne 9 Jun: editor sine/square-per-frequency, both channels. The first step's
+    // waveform primes BOTH channels before outputs; each subsequent waveform change
+    // drives CH1 only, with USA0 waveform-sync keeping CH2 on the same waveform — so a
+    // dropped command can't leave the channels split (Rob 15 Jul).
     const program = {
       name: 'mixedWave', range: 0,
       data: [
@@ -195,9 +198,11 @@ describe('ProgramRunner', () => {
     await pr.stopProgram();
     await vi.runAllTimersAsync();
     await p;
-    // Both waveforms were asserted (one per item).
+    // SINE primed on both channels; the SQUARE step drives CH1 only (squarewave).
     expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
-    expect(gen.setBothChannelsToSquareWave).toHaveBeenCalled();
+    expect(gen.squarewave).toHaveBeenCalled();
+    // USA0 waveform-sync is on so CH2 tracks CH1's per-step waveform.
+    expect(gen.enableWaveformSync).toHaveBeenCalled();
     // CH2 mirrored both step frequencies (both channels output each frequency).
     const ch2 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
     expect(ch2).toContain(100);
@@ -259,11 +264,11 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    // Square asserted once at prime, sine once at the second step.
+    // Square primed on both channels; the sine step drives CH1 only (sinewave).
     expect(gen.setBothChannelsToSquareWave).toHaveBeenCalledTimes(1);
-    expect(gen.setBothChannelsToSineWave).toHaveBeenCalledTimes(1);
+    expect(gen.sinewave).toHaveBeenCalledTimes(1);
     // The 200 Hz pair was written before the sine switch.
-    const sineIdx = gen.calls.findIndex((c: any) => c.m === 'setSine');
+    const sineIdx = gen.calls.findIndex((c: any) => c.m === 'sinewave');
     const ch1At200Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 200);
     const ch2At200Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 2 && c.args[1] === 200);
     expect(ch1At200Idx).toBeGreaterThanOrEqual(0);
@@ -298,7 +303,8 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    const squareIdx = gen.calls.findIndex((c: any) => c.m === 'setSquare');
+    // Sine primed on both channels; the square step drives CH1 only (squarewave).
+    const squareIdx = gen.calls.findIndex((c: any) => c.m === 'squarewave');
     expect(squareIdx).toBeGreaterThan(-1);
     const squareT = gen.calls[squareIdx].t;
     // CH2 is driven to the step's frequency (mirrored) before the switch…
@@ -330,8 +336,9 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    expect(gen.setBothChannelsToSineWave).toHaveBeenCalledTimes(1);
-    const sineIdx = gen.calls.findIndex((c: any) => c.m === 'setSine');
+    // Sweep step's sine drives CH1 only (CH2 follows USA0); square was primed on both.
+    expect(gen.sinewave).toHaveBeenCalledTimes(1);
+    const sineIdx = gen.calls.findIndex((c: any) => c.m === 'sinewave');
     const ch1At10Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 10);
     const ch2At10Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 2 && c.args[1] === 10);
     const ch1At11Idx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1 && c.args[1] === 11);
@@ -439,6 +446,38 @@ describe('ProgramRunner', () => {
     expect(ch2.every((f: number) => f === 27_120_000)).toBe(true);
   });
 
+  it('SINE/SINE program re-asserts sine AFTER outputs enable (CH1-runs-square regression)', async () => {
+    // Rob 15 Jul: ttFields 100kHz came out SQUARE on CH1 though the readout showed
+    // sine. The sine set before outputs didn't stick — CH1 reverted to the SECONDARY
+    // square init once outputs enabled. Sine must be re-asserted after enableOutputs.
+    const program = {
+      name: 'ttFields100to500kHz', range: 0,
+      data: [
+        { channel: 1, frequency: 100000, runTime: 100 },
+        { channel: 1, frequency: 150000, runTime: 100 },
+      ],
+      maxTimeInMinutes: 0.01, default: 1, startFrequency: 27.12, loop: 1,
+      channel1wavetype: 'SINE', channel2wavetype: 'SINE',
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('ttFields100to500kHz', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    // Never square, and sine asserted at least twice (before + re-assert after outputs).
+    expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
+    expect(gen.setBothChannelsToSineWave.mock.calls.length).toBeGreaterThanOrEqual(2);
+    // The re-assert lands AFTER enableOutputs — that's what makes CH1 sine stick.
+    const enableIdx = gen.calls.findIndex((c: any) => c.m === 'enableOutputs');
+    const sineIdxs = gen.calls.map((c: any, i: number) => (c.m === 'setSine' ? i : -1)).filter((i: number) => i >= 0);
+    expect(enableIdx).toBeGreaterThanOrEqual(0);
+    expect(sineIdxs[sineIdxs.length - 1]).toBeGreaterThan(enableIdx);
+  });
+
   it('dual-frequency square: CH1 230Hz / CH2 430Hz independent, both square, NO freq-sync', async () => {
     // Mirrors the production dualFreq230and430Hz config (27 Jun): CH1 and CH2 hold
     // DIFFERENT audio frequencies, both square, looped. Crucially sync() must NOT
@@ -498,14 +537,16 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    // Sine asserted at the prime AND re-asserted inside the loop (≥2 times); never
-    // square. The loop re-assert (outputs on) is what makes CH1 sine stick.
-    expect(gen.setBothChannelsToSineWave.mock.calls.length).toBeGreaterThanOrEqual(2);
+    // Sine primed on both channels, then re-asserted CH1-only in the loop (outputs on) —
+    // the re-assert is what makes CH1 sine stick. Never square.
+    expect(gen.setBothChannelsToSineWave.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(gen.sinewave.mock.calls.length).toBeGreaterThanOrEqual(1);
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
-    // The loop re-assert lands AFTER a CH1 frequency write (i.e. after enableOutputs).
+    expect(gen.squarewave).not.toHaveBeenCalled();
+    // The loop re-assert (CH1 sinewave) lands AFTER a CH1 frequency write (outputs on).
     const firstCh1FreqIdx = gen.calls.findIndex((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
     const sineIdxs = gen.calls
-      .map((c: any, i: number) => (c.m === 'setSine' ? i : -1))
+      .map((c: any, i: number) => (c.m === 'sinewave' ? i : -1))
       .filter((i: number) => i >= 0);
     expect(sineIdxs[sineIdxs.length - 1]).toBeGreaterThan(firstCh1FreqIdx);
   });
