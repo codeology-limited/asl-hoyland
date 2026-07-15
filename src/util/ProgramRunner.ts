@@ -331,6 +331,15 @@ export default class ProgramRunner {
             // Enable outputs LAST — after all settings are configured
             await this.gen.enableOutputs();
 
+            // Per-step-waveform programs switch waveform mid-run on both channels. The
+            // device occasionally drops one of the two per-step waveform commands, so a
+            // step could leave the channels on DIFFERENT waveforms (Rob: only one channel
+            // changed). Couple CH2's waveform to CH1 in hardware (USA0) so they can never
+            // split — CH1 stays the master the per-step switches already drive first, and
+            // frequency stays independent (USA1 left off). Scoped to these programs so no
+            // other program's tuned output path changes; stopAndReset's USD0 clears it.
+            if (hasItemWaveform) await this.gen.enableWaveformSync();
+
             if (isRange) {
                 const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
                 const startF = Number(startItem?.frequency);

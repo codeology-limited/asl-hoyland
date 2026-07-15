@@ -121,6 +121,12 @@ export default class HoylandController {
         console.log(ok ? 'sync sent successfully' : 'Failed to sync');
     }
 
+    /** Enable CH2→CH1 waveform sync (USA0) so CH2's waveform tracks CH1 in hardware. */
+    async enableWaveformSync() {
+        const ok = await this.invokeCmd<boolean>('enable_waveform_sync');
+        console.log(ok ? 'waveform sync enabled (USA0)' : 'Failed to enable waveform sync');
+    }
+
     async sendInitialCommands() {
         await this.invokeCmd<void>('send_initial_commands');
     }

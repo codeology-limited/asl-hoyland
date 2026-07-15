@@ -25,6 +25,7 @@ const mkFakeGen = () => {
       (this.calls as any).push({ m: 'setChannelsOutput', args: [on] });
     }),
     sync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sync', args: [] }); }),
+    enableWaveformSync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'enableWaveformSync', args: [] }); }),
     sinewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sinewave', args: [] }); }),
     enableOutputs: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'enableOutputs', args: [] }); }),
     sendInitialCommands: vi.fn(async () => {}),
@@ -692,6 +693,55 @@ describe('ProgramRunner', () => {
     // ~3000ms (interval 750). t is an absolute epoch, so measure the delta.
     const elapsed = ch1[ch1.length - 1].t - ch1[0].t;
     expect(elapsed).toBeLessThan(2800);
+  });
+
+  it('enables CH2→CH1 waveform sync (USA0) for per-step-waveform programs, after outputs', async () => {
+    // Couples CH2's waveform to CH1 so a dropped per-step waveform command can't leave
+    // the channels on different waveforms. Only for programs that switch waveform mid-run.
+    const program = {
+      name: 'mixedWave', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 50, wavetype: 'SINE' },
+        { channel: 1, frequency: 200, runTime: 50, wavetype: 'SQUARE' },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('mixedWave', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    expect(gen.enableWaveformSync).toHaveBeenCalledTimes(1);
+    // …and it lands after outputs are enabled (so CH2 is coupled once they're live).
+    const enableIdx = gen.calls.findIndex((c: any) => c.m === 'enableOutputs');
+    const syncIdx = gen.calls.findIndex((c: any) => c.m === 'enableWaveformSync');
+    expect(enableIdx).toBeGreaterThanOrEqual(0);
+    expect(syncIdx).toBeGreaterThan(enableIdx);
+  });
+
+  it('does NOT enable waveform sync for a plain program with no per-step waveform', async () => {
+    const program = {
+      name: 'plain', range: 0,
+      data: [
+        { channel: 1, frequency: 100, runTime: 50 },
+        { channel: 1, frequency: 200, runTime: 50 },
+      ],
+      maxTimeInMinutes: 0.02, default: 0, startFrequency: 0,
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('plain', () => {});
+    await vi.advanceTimersByTimeAsync(2000);
+    await pr.stopProgram();
+    await vi.runAllTimersAsync();
+    await p;
+
+    expect(gen.enableWaveformSync).not.toHaveBeenCalled();
   });
 
   it('fires onStop even when stopAndReset throws at completion (UI must not stick)', async () => {

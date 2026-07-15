@@ -34,6 +34,7 @@ fn main() {
             commands::program::enable_outputs,
             commands::program::stop_and_reset,
             commands::program::sync,
+            commands::program::enable_waveform_sync,
             commands::program::sine_wave,
             commands::connection::reconnect_device,
             commands::connection::use_test_port

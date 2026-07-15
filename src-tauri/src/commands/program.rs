@@ -230,6 +230,16 @@ pub fn send_initial_commands(state: State<AppState>, window: Window) -> Result<b
     send_batched_commands(state, window, INITIAL_COMMANDS)
 }
 
+/// Enable CH2→CH1 waveform sync (USA0) so CH2 tracks CH1's waveform in hardware.
+/// Used for per-step-waveform programs: the device intermittently drops one of the
+/// two per-step waveform commands, leaving the channels on different waveforms;
+/// with waveform-sync on, CH2 can't diverge from CH1. Frequency stays independent
+/// (USA1 is left off), and stop_and_reset's USD0 clears this sync. (Rob report)
+#[tauri::command]
+pub fn enable_waveform_sync(state: State<AppState>, window: Window) -> Result<bool, String> {
+    send_batched_commands(state, window, &["USA0\n"])
+}
+
 #[tauri::command]
 pub fn sync(state: State<AppState>, window: Window) -> Result<bool, String> {
     println!(
@@ -346,6 +356,14 @@ mod tests {
         // CH1 amplitude removed — applied from UI intensity at run time instead.
         assert!(!SECONDARY_COMMANDS.iter().any(|c| c.starts_with("WMA")));
         assert_eq!(SECONDARY_COMMANDS.len(), 5);
+    }
+
+    #[test]
+    fn waveform_sync_uses_usa0_opcode() {
+        // enable_waveform_sync sends USA0 — the waveform-sync opcode (index 0 of the
+        // USA family), distinct from USA1 (frequency) which must stay off.
+        assert_eq!(SYNC_COMMANDS.first().copied(), Some("USA0\n"));
+        assert_ne!(SYNC_COMMANDS.first().copied(), Some("USA1\n"));
     }
 
     #[test]
