@@ -283,12 +283,13 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         if (!runnerRef.current) return;
 
         setIsRunning(true);
-        // Setup CH2 and turn it on (WFN1 in INITIAL_COMMANDS)
-        await runnerRef.current.initializeChannel1();
+        // Configure CH1 FULLY, then CH2 — grouping each channel's config keeps the
+        // FY6600's own screen from thrashing between channels at startup (Robbie).
+        // Still no outputs/sync here; those stay after all config (outputs last).
+        await runnerRef.current.initializeChannel0();   // CH1 config (no output yet)
+        await runnerRef.current.initializeChannel1();   // CH2 config (no output yet)
+        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram); // CH2 carrier
         setChannel1Active(true);
-        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram);
-        // Setup CH1, turn it on (WMN1), and sync (USA2) in SECONDARY_COMMANDS
-        await runnerRef.current.initializeChannel0();
         setChannel2Active(true);
         // Stash the intensity without writing it yet — startProgram applies it once
         // (via applyCurrentIntensity) right before enabling outputs. Writing here too

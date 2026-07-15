@@ -156,6 +156,24 @@ html {
     flex-direction: column;
 
 }
+
+/* Big brand watermark behind all the controls. background-size: contain fits it
+   to the container while preserving aspect ratio; z-index -1 keeps it behind the
+   content (which paints above the container's own background), and
+   pointer-events:none means it never intercepts clicks. */
+.container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url(/altsta.webp);
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: -1;
+    border-radius: 20px;
+}
 h1 {
     margin: 0;
     padding: 0;

@@ -689,7 +689,7 @@
       { "f": 500000, "s": 300 }
     ],
     "runTimeInMinutes": 480,
-    "startFrequency": 0,
+    "startFrequency": 27.12,
     "sliderMinV": 1,
     "sliderMaxV": 20,
     "sliderStepV": 1,

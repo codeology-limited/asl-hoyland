@@ -214,7 +214,9 @@ describe('AppDatabase (with mocked Dexie)', () => {
     expect(p.category).toBe('ttf');
     expect(p.channel1wavetype).toBe('SINE');
     expect(p.channel2wavetype).toBe('SINE');
-    expect(p.startFrequency).toBe(0); // SINE/SINE + startFrequency 0 → CH2 mirrors CH1
+    // CH2 holds a fixed 27.12 MHz sine carrier for the whole run (startFrequency != 0
+    // keeps mirrorCh2ToCh1 OFF), while CH1 loops the 100–500 kHz audio frequencies.
+    expect(p.startFrequency).toBe(27.12);
     expect(p.loop).toBe(1);
     expect(p.maxTimeInMinutes).toBe(480); // 8 hours
     expect(p.data.map((d: any) => d.frequency))
