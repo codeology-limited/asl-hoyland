@@ -1024,6 +1024,21 @@ input:disabled {
 }
 .program-editor .pe-save:hover { background: #006a00; }
 .program-editor .pe-save:disabled { opacity: 0.6; }
+.program-editor .pe-export {
+    flex: 0 0 auto;
+    margin: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+    font-size: var(--font-size-medium);
+    font-weight: bold;
+    padding: 0 22px;
+}
+.program-editor .pe-export:hover { background: var(--success-color); color: #fff; }
 
 .disconnected{
 

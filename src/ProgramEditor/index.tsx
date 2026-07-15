@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Program , ProgramItem} from '../types';
 import { useAppContext } from '../AppContext';
+import { buildProgramsTsv, safeFileName, saveTextFile, ExportableProgram } from '../util/exportPrograms';
 
 
 interface ProgramEditorProps {
@@ -27,7 +28,9 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     useEffect(() => {
         const loadCustomPrograms = async () => {
             const programs = await appDatabase.getCustomPrograms();
-            const programNames = programs.map(program => program.name);
+            const programNames = programs
+                .map(program => program.name)
+                .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
             setCustomPrograms(programNames);
         };
         loadCustomPrograms();
@@ -119,6 +122,41 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         }
     };
 
+    // Build an exportable program from the current on-screen rows, so Export
+    // reflects exactly what's in the editor (including unsaved edits).
+    const currentEditorProgram = (): ExportableProgram => ({
+        name: programName.trim(),
+        range,
+        data: rows.map(row => ({
+            frequency: parseFloat(row.frequency) || 0,
+            runTime: (parseFloat(row.runTime) || 0) * 60_000,
+            wavetype: row.wavetype,
+            ...(row.sweepTo ? { sweepTo: parseFloat(row.sweepTo) } : {}),
+        })),
+    });
+
+    const handleExportCurrent = async () => {
+        const name = programName.trim();
+        if (!name) { alert('Enter or choose a program name to export.'); return; }
+        try {
+            const tsv = buildProgramsTsv([currentEditorProgram()]);
+            await saveTextFile(`${safeFileName(name)}.tsv`, tsv);
+        } catch (error) {
+            console.error('Failed to export program:', error);
+        }
+    };
+
+    const handleExportAll = async () => {
+        try {
+            const programs = await appDatabase.getCustomPrograms();
+            if (!programs.length) { alert('No custom programs to export.'); return; }
+            const tsv = buildProgramsTsv(programs);
+            await saveTextFile('custom-programs.tsv', tsv);
+        } catch (error) {
+            console.error('Failed to export programs:', error);
+        }
+    };
+
     const handleLoadProgram = async (programName: string) => {
         const program = await appDatabase.loadData(programName);
         if (program) {
@@ -162,6 +200,12 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                         />
                         <button type="button" className="pe-save" onClick={handleSave} disabled={isSaving}>
                             {isSaving ? 'Saving…' : 'Save program'}
+                        </button>
+                        <button type="button" className="pe-export" onClick={handleExportCurrent} title="Export this program as a TSV text file">
+                            Export
+                        </button>
+                        <button type="button" className="pe-export" onClick={handleExportAll} title="Export all custom programs as one TSV text file">
+                            Export all
                         </button>
                     </div>
                     <datalist id="pe-programs">

@@ -197,8 +197,10 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             // Configure CH1 (no output yet)
             await runnerRef.current.initializeChannel0();
             setChannel2Active(true);
-            // Apply intensity from UI slider
-            await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
+            // Stash intensity without writing it yet — startProgram applies it once
+            // (via applyCurrentIntensity) right before enabling outputs. Writing here
+            // too sent a redundant amplitude command on every start (startup noise).
+            await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
             // Start program — enables outputs after all settings configured
             await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
         }

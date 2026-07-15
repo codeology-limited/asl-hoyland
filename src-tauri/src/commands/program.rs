@@ -20,7 +20,9 @@ const SECONDARY_COMMANDS: &[&str] = &[
     "WMD50.0\n",            // CH1 duty
     "WMP000\n",             // CH1 phase
     "WMT0\n",               // CH1 trigger
-    "WMA005.000\n",         // CH1 amplitude
+    // CH1 amplitude (WMA) removed — the run loop applies the UI intensity via
+    // applyCurrentIntensity just before enabling outputs, so a hardcoded 5.00
+    // here was always overwritten and only added startup noise (Robbie report).
     // WMN1 and USA2 moved to ENABLE_OUTPUT_COMMANDS — outputs enabled last
 ];
 const ENABLE_OUTPUT_COMMANDS: &[&str] = &[
@@ -341,7 +343,9 @@ mod tests {
         assert!(SECONDARY_COMMANDS.contains(&"WMO00.00\n"));
         assert!(!SECONDARY_COMMANDS.contains(&"WMN1\n")); // CH1 on moved to enable_outputs
         assert!(!SECONDARY_COMMANDS.contains(&"USA2\n")); // Sync moved to enable_outputs
-        assert_eq!(SECONDARY_COMMANDS.len(), 6);
+        // CH1 amplitude removed — applied from UI intensity at run time instead.
+        assert!(!SECONDARY_COMMANDS.iter().any(|c| c.starts_with("WMA")));
+        assert_eq!(SECONDARY_COMMANDS.len(), 5);
     }
 
     #[test]

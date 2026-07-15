@@ -20,10 +20,14 @@ const ProgramSelect: React.FC<ProgramSelectProps> = ({ programOptions, chooseLab
         return null;
     }
 
+    const sortedOptions = [...programOptions].sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base', numeric: true })
+    );
+
     return (
         <>
             <option value="" disabled>{chooseLabel}&nbsp;&nbsp;&nbsp;&nbsp;</option>
-            {programOptions.map(({ name, durationMinutes }) => (
+            {sortedOptions.map(({ name, durationMinutes }) => (
                 <option key={name} value={name}>
                     {name} ({formatDuration(durationMinutes)})
                 </option>

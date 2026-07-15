@@ -291,7 +291,10 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
         // Setup CH1, turn it on (WMN1), and sync (USA2) in SECONDARY_COMMANDS
         await runnerRef.current.initializeChannel0();
         setChannel2Active(true);
-        await runnerRef.current.setIntensity(state.intensity, { applyNow: true });
+        // Stash the intensity without writing it yet — startProgram applies it once
+        // (via applyCurrentIntensity) right before enabling outputs. Writing here too
+        // sent a redundant amplitude command on every start (Robbie: startup noise).
+        await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
         await runnerRef.current.startProgram(state.selectedProgram, setRunningFrequency);
     };
 

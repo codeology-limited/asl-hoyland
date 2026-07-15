@@ -661,6 +661,39 @@ describe('ProgramRunner', () => {
     expect(freqCalls.length).toBeGreaterThan(1);
   });
 
+  it('range sweep spends the run time across all frequencies, not one step over (off-by-one)', async () => {
+    // Report (15 Jul): a 5-step / 1-min-per-step program ran 6 min, not 5. The
+    // sweep is inclusive (0…4 = 5 frequencies) but the dwell divided the run time
+    // by the span (4), sizing each step for one fewer than actually runs. Over
+    // 3000ms the fix gives 3000/(4+1)=600ms per step (last write at 4×600=2400ms);
+    // the bug gave 3000/4=750ms (last write at 4×750=3000ms — a whole step long).
+    const program = {
+      name: 'offByOne', range: 1,
+      data: [
+        { channel: 1, frequency: 0, runTime: 0 },
+        { channel: 1, frequency: 4, runTime: 0 },
+      ] as FakeFreqItem[],
+      maxTimeInMinutes: 0.05, default: 0, startFrequency: 0, // 3000ms total
+    };
+    const gen = mkFakeGen();
+    const db = mkFakeDb(program);
+    const pr = new ProgramRunner(db, gen, null);
+    const p = pr.startProgram('offByOne', () => {});
+    await vi.advanceTimersByTimeAsync(4000);
+    await vi.runAllTimersAsync();
+    await p; // self-terminates at totalMs
+
+    const ch1 = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1);
+    const freqs = ch1.map((c: any) => c.args[1]);
+    // The sweep visits every frequency inclusive: 0,1,2,3,4 (a leading 0 is the
+    // pre-output prime write, before the loop's own first step).
+    expect(freqs.slice(-5)).toEqual([0, 1, 2, 3, 4]);
+    // Last frequency write lands ~2400ms after the first (interval 600), not
+    // ~3000ms (interval 750). t is an absolute epoch, so measure the delta.
+    const elapsed = ch1[ch1.length - 1].t - ch1[0].t;
+    expect(elapsed).toBeLessThan(2800);
+  });
+
   it('setChannel2StartFrequency multiplies MHz to Hz (or legacy method exists)', async () => {
     const program = { name: 'x', range: 0, data: [], maxTimeInMinutes: 0, default: 0, startFrequency: 0.5 };
     const gen = mkFakeGen();

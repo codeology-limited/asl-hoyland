@@ -338,7 +338,13 @@ export default class ProgramRunner {
                 const direction = startF <= endF ? 1 : -1;
                 const totalSteps = Math.abs(endF - startF);
                 const stepSize = direction;
-                const interval = Math.max(1, Math.floor(totalMs / totalSteps));
+                // The sweep is INCLUSIVE of both endpoints, so it visits
+                // (totalSteps + 1) frequencies (start … end). Divide the run time by
+                // that count, not totalSteps — dividing by totalSteps sized each dwell
+                // for one fewer step than actually runs, so every range/sweep ran one
+                // step long: a 5-step, 1-min-per-step program took 6 min, not 5.
+                // (off-by-one, 15 Jul)
+                const interval = Math.max(1, Math.floor(totalMs / (totalSteps + 1)));
 
                 const condition = direction > 0
                     ? (f: number) => f <= endF
@@ -404,7 +410,10 @@ export default class ProgramRunner {
                         const direction = freq <= endF ? 1 : -1;
                         const totalSteps = Math.abs(endF - freq);
                         if (totalSteps > 0) {
-                            const interval = Math.max(1, Math.floor(item.runTime / totalSteps));
+                            // Inclusive sweep visits (totalSteps + 1) frequencies, so
+                            // divide the row's run time by that count — dividing by
+                            // totalSteps ran the sweep one step long. (off-by-one, 15 Jul)
+                            const interval = Math.max(1, Math.floor(item.runTime / (totalSteps + 1)));
                             const condition = direction > 0
                                 ? (f: number) => f <= endF
                                 : (f: number) => f >= endF;

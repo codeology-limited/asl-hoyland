@@ -53,6 +53,25 @@ describe('DefaultPrograms/ProgramSelect', () => {
     });
   });
 
+  it('renders options in alphabetical order regardless of input order', () => {
+    const programs: ProgramOption[] = [
+      { name: 'Zebra', durationMinutes: 10 },
+      { name: 'apple', durationMinutes: 20 },
+      { name: 'Mango', durationMinutes: 30 },
+    ];
+    const { container } = render(
+      <select>
+        <ProgramSelect programOptions={programs} />
+      </select>
+    );
+
+    // Skip the leading disabled "Choose" option
+    const values = Array.from(container.querySelectorAll('option'))
+      .slice(1)
+      .map(o => o.getAttribute('value'));
+    expect(values).toEqual(['apple', 'Mango', 'Zebra']);
+  });
+
   it('sets value attribute correctly for each option', () => {
     const programs: ProgramOption[] = [
       { name: 'test1', durationMinutes: 10 },
