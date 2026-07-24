@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Program , ProgramItem} from '../types';
 import { useAppContext } from '../AppContext';
-import { buildProgramsTsv, safeFileName, saveTextFile, ExportableProgram } from '../util/exportPrograms';
+import { buildProgramsTsv, safeFileName, saveTextFile, openTextFiles, parseProgramsTsv, ExportableProgram } from '../util/exportPrograms';
 
 
 interface ProgramEditorProps {
@@ -20,6 +20,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const [rows, setRows] = useState<EditRow[]>([newRow()]);
     const [customPrograms, setCustomPrograms] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
     const [dragIndex, setDragIndex] = useState<number | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
@@ -160,6 +161,50 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         }
     };
 
+    // Import one or more custom programs from exported TSV file(s). Each program in
+    // the file(s) is saved to the custom-program store (overwriting a same-named
+    // custom program); the last one is loaded into the editor.
+    const handleImport = async () => {
+        if (isImporting) return;
+        setIsImporting(true);
+        try {
+            const files = await openTextFiles();
+            if (!files.length) return; // cancelled
+            const parsed = files.flatMap((f) => parseProgramsTsv(f.content));
+            if (!parsed.length) {
+                alert('No programs found. Expected the exported TSV format (Program, Range, Frequency, Minutes, Waveform, SweepTo).');
+                return;
+            }
+
+            const failures: string[] = [];
+            let saved = 0;
+            for (const prog of parsed) {
+                try {
+                    await appDatabase.saveData(prog);
+                    saved++;
+                } catch (e) {
+                    failures.push(`${prog.name}: ${e instanceof Error ? e.message : String(e)}`);
+                }
+            }
+
+            await refreshCustomPrograms();
+            const last = parsed[parsed.length - 1];
+            if (last) await handleLoadProgram(last.name);
+
+            const names = parsed.map((p) => p.name).join(', ');
+            alert(
+                failures.length
+                    ? `Imported ${saved} program(s): ${names}\n\n${failures.length} failed:\n${failures.join('\n')}`
+                    : `Imported ${saved} program(s): ${names}`
+            );
+        } catch (error) {
+            console.error('Failed to import programs:', error);
+            alert('Import failed. See console for details.');
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
     const handleLoadProgram = async (programName: string) => {
         const program = await appDatabase.loadData(programName);
         if (program) {
@@ -208,6 +253,9 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
                         </button>
                         <button type="button" className="pe-export" onClick={handleExportAll} title="Export all custom programs as one TSV text file">
                             Export all
+                        </button>
+                        <button type="button" className="pe-export" onClick={handleImport} disabled={isImporting} title="Import one or more custom programs from exported TSV file(s)">
+                            {isImporting ? 'Importing…' : 'Import'}
                         </button>
                     </div>
                     <div className="pe-loadrow">

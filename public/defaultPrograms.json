@@ -220,8 +220,8 @@
   },
   "naturalKillerCell": {
     "default": true,
-    "channel1wavetype": "SINE",
-    "channel2wavetype": "SINE",
+    "channel1wavetype": "SQUARE",
+    "channel2wavetype": "SQUARE",
     "data": [200000],
     "runTimeInMinutes": 480,
     "startFrequency": 0,

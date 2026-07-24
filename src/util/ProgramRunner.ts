@@ -316,12 +316,19 @@ export default class ProgramRunner {
             const ch2IndependentHz = num(program.channel2frequency, 0);
             const hasIndependentCh2 = ch2IndependentHz > 0;
 
-            const mirrorCh2ToCh1 =
-                !hasIndependentCh2 &&
-                (hasItemWaveform ||
-                    (program.channel1wavetype === 'SINE' &&
-                        program.channel2wavetype === 'SINE' &&
-                        program.startFrequency === 0));
+            // A carrier program holds a fixed CH2 frequency (startFrequency, in MHz) while
+            // CH1 runs the therapy; a mirror program (no carrier) has CH2 equal to CH1.
+            // ultra500/ultra670 use startFrequency as their operating frequency (CH2 == CH1),
+            // so they are mirror, not carrier.
+            const hasStartCarrier =
+                !hasIndependentCh2 && !nameLc.includes('ultra') && program.startFrequency > 0;
+
+            // Drive CH2 explicitly per step ONLY for per-step-waveform programs: they use
+            // waveform-sync (USA0) but not frequency-sync, so CH2's frequency must be written
+            // each step. Mirror programs now full-sync (USA1), so CH2 follows CH1 in hardware
+            // — drive CH1 only, no per-step CH2 writes (no channel bouncing). Carrier and
+            // independent programs hold their own CH2 frequency.
+            const mirrorCh2ToCh1 = hasItemWaveform && !hasIndependentCh2;
 
             // Apply amplitude and BOTH channel frequencies BEFORE enabling outputs,
             // so the device doesn't briefly output the previous program's frequencies.
@@ -370,36 +377,39 @@ export default class ProgramRunner {
                 setRunningFrequency({ ch1: { hz: ch1Hz, wave: w }, ch2: { hz: ch2Hz, wave: w } });
             };
 
-            // A SINE waveform set before outputs enable doesn't stick on CH1 — the
-            // device reverts it to the SECONDARY_COMMANDS square init once outputs turn
-            // on, so a SINE program came out SQUARE on CH1 while the readout showed sine
-            // (Rob 15 Jul: ttFields 100kHz). Capture the sine assertion here and re-run
-            // it AFTER outputs (below). Square programs need nothing — square IS the
-            // SECONDARY default, so it survives.
-            let reassertWaveform: (() => Promise<void>) | null = null;
-
             if (hasItemWaveform) {
                 // Per-frequency waveform: assert the first step's waveform on BOTH channels
                 // before outputs enable (USA0 sync isn't on yet). The run loop then switches
                 // CH1 only per step, with CH2 following via USA0.
                 await applyItemWaveform(program.data[0]?.wavetype, true);
-            } else if (!nameLc.includes('ultra') && ch1Sine && ch2Sine) {
-                await this.gen.setBothChannelsToSineWave();
-                reassertWaveform = () => this.gen.setBothChannelsToSineWave();
             } else if (hasIndependentCh2 && ch1Square && ch2Square) {
                 // Dual-frequency square: CH1 and CH2 run at DIFFERENT frequencies,
                 // both square. Assert both waveforms but do NOT sync() — USA1
                 // frequency-sync would slave CH2 to CH1, collapsing the two
-                // frequencies into one. (Same hands-off approach the SINE carrier
-                // programs already rely on; freq-sync is off at program start.)
+                // frequencies into one.
                 await this.gen.setBothChannelsToSquareWave();
-            } else if (nameLc.includes('ultra') || program.startFrequency === 0 ||
-                (ch1Square && ch2Square)) {
-                await this.gen.setBothChannelsToSquareWave();
-                await this.gen.sync();
-            } else if (ch1Sine) {
-                await this.gen.sinewave();
-                reassertWaveform = () => this.gen.sinewave();
+            } else {
+                // Assert the run waveform, keyed off CH1 (CH2 follows the waveform sync):
+                // SINE/SINE and SINE/unspecified run sine; everything else runs square.
+                if (ch1Sine) {
+                    await this.gen.setBothChannelsToSineWave();
+                } else {
+                    await this.gen.setBothChannelsToSquareWave();
+                }
+                if (hasStartCarrier) {
+                    // Carrier program (hoyland, cancerSarcoma, herpes, …): CH2 holds its fixed
+                    // MHz carrier while CH1 runs the therapy. Couple ONLY waveform (USA0) and
+                    // amplitude (USA2, sent by enableOutputs) — do NOT frequency-sync (USA1),
+                    // which would drag CH2 onto CH1 and collapse the carrier. CH2's carrier
+                    // was set above and is re-asserted after outputs (below).
+                    await this.gen.enableWaveformSync();
+                } else {
+                    // Mirror program (no carrier): CH2 should equal CH1. Full sync() couples
+                    // waveform + frequency + amplitude, so the run drives CH1 ONLY and CH2
+                    // follows in hardware — no per-step CH2 writes, no channel bouncing, and a
+                    // SINE waveform holds via USA0 without a fragile post-output re-assert.
+                    await this.gen.sync();
+                }
             }
 
             // Prime the readout with the initial frequency + resolved waveform.
@@ -417,12 +427,13 @@ export default class ProgramRunner {
             // other program's tuned output path changes; stopAndReset's USD0 clears it.
             if (hasItemWaveform) await this.gen.enableWaveformSync();
 
-            // Re-assert the SINE waveform now that outputs are on, so CH1 doesn't revert
-            // to the square init (see the reassertWaveform note above). The pre-output
-            // frequencies are already set, so the switch just re-latches them unchanged.
-            if (reassertWaveform) {
-                await sleep(WAVEFORM_SWITCH_GAP_MS);
-                if (this.running) await reassertWaveform();
+            // Carrier programs: re-assert CH2's carrier once after outputs enable. With
+            // frequency-sync deliberately OFF (so CH2 can differ from CH1), the device can
+            // otherwise revert CH2 to its 3.1MHz init when outputs turn on (Rob 7 Jul). One
+            // write holds it; the run loop never touches CH2 again.
+            if (hasStartCarrier && ch2CarrierHz > 0) {
+                await sleep(FREQ_PAIR_GAP_MS);
+                if (this.running) await this.gen.setFrequency(2, ch2CarrierHz);
             }
 
             if (isRange) {

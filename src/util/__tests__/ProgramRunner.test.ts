@@ -154,9 +154,10 @@ describe('ProgramRunner', () => {
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
   });
 
-  it('SINE/SINE no-carrier program drives CH2 at CH1 frequency, not the 3.1MHz carrier', async () => {
-    // Lynne 4 Jun: lymphocyte50Hz / tCells30Hz had CH2 stuck at the 3.1 MHz init
-    // carrier; CH2 must mirror CH1 (50/30 Hz). Scoped to SINE/SINE + startFrequency 0.
+  it('SINE/SINE no-carrier program mirrors CH2 to CH1 via full sync (CH1-only writes)', async () => {
+    // lymphocyte50Hz / tCells30Hz: CH2 must output CH1's frequency (50/30 Hz), not the
+    // 3.1MHz init carrier. Now achieved via full sync() (USA1 frequency-sync) so the run
+    // drives CH1 ONLY and CH2 follows in hardware — no explicit per-step CH2 writes.
     const program = {
       name: 'lymphocyte50Hz', range: 0,
       data: [{ channel: 1, frequency: 50, runTime: 50 }],
@@ -171,9 +172,12 @@ describe('ProgramRunner', () => {
     await pr.stopProgram();
     await vi.runAllTimersAsync();
     await p;
+    // Full sync couples CH2 to CH1, so CH2 follows without an explicit write; CH2 is never
+    // driven to the 3.1MHz carrier, and CH1 IS driven to 50 Hz.
+    expect(gen.sync).toHaveBeenCalled();
+    const ch1Freqs = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 1).map((c: any) => c.args[1]);
     const ch2Freqs = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
-    // CH2 was driven to 50 Hz (mirroring CH1) and never to the 3.1MHz carrier.
-    expect(ch2Freqs).toContain(50);
+    expect(ch1Freqs).toContain(50);
     expect(ch2Freqs).not.toContain(3_100_000);
   });
 
@@ -446,10 +450,12 @@ describe('ProgramRunner', () => {
     expect(ch2.every((f: number) => f === 27_120_000)).toBe(true);
   });
 
-  it('SINE/SINE program re-asserts sine AFTER outputs enable (CH1-runs-square regression)', async () => {
-    // Rob 15 Jul: ttFields 100kHz came out SQUARE on CH1 though the readout showed
-    // sine. The sine set before outputs didn't stick — CH1 reverted to the SECONDARY
-    // square init once outputs enabled. Sine must be re-asserted after enableOutputs.
+  it('SINE carrier program: sine + waveform-sync only, CH2 holds carrier, no post-output re-assert', async () => {
+    // ttFields100to500kHz: SINE, with a 27.12MHz CH2 carrier. CH2 must HOLD the carrier
+    // while CH1 runs the therapy, so we waveform-sync (USA0, enableWaveformSync) but must
+    // NOT frequency-sync (full sync() would drag CH2 onto CH1). Sine is asserted BEFORE
+    // outputs; there is NO waveform switch after outputs (the removed regression that
+    // disturbed CH1 on the real device, per the virtualFY6600 capture).
     const program = {
       name: 'ttFields100to500kHz', range: 0,
       data: [
@@ -468,14 +474,20 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    // Never square, and sine asserted at least twice (before + re-assert after outputs).
+    // Sine, never square; waveform-sync (USA0) not full sync (no freq-sync on the carrier).
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
-    expect(gen.setBothChannelsToSineWave.mock.calls.length).toBeGreaterThanOrEqual(2);
-    // The re-assert lands AFTER enableOutputs — that's what makes CH1 sine stick.
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.enableWaveformSync).toHaveBeenCalled();
+    expect(gen.sync).not.toHaveBeenCalled();
+    // CH2 is driven to the 27.12MHz carrier and never mirrors a CH1 audio frequency.
+    const ch2Freqs = gen.calls.filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2).map((c: any) => c.args[1]);
+    expect(ch2Freqs).toContain(27_120_000);
+    expect(ch2Freqs).not.toContain(100000);
+    // Sine assertion and USA0 land BEFORE enableOutputs; no waveform switch after outputs.
     const enableIdx = gen.calls.findIndex((c: any) => c.m === 'enableOutputs');
     const sineIdxs = gen.calls.map((c: any, i: number) => (c.m === 'setSine' ? i : -1)).filter((i: number) => i >= 0);
     expect(enableIdx).toBeGreaterThanOrEqual(0);
-    expect(sineIdxs[sineIdxs.length - 1]).toBeGreaterThan(enableIdx);
+    expect(sineIdxs.every((i: number) => i < enableIdx)).toBe(true);
   });
 
   it('dual-frequency square: CH1 230Hz / CH2 430Hz independent, both square, NO freq-sync', async () => {
@@ -995,7 +1007,10 @@ describe('ProgramRunner', () => {
     expect(freqCalls[1].args[1]).toBe(999);
   });
 
-  it('channel1wavetype SINE calls sinewave()', async () => {
+  it('channel1wavetype SINE (CH2 unspecified) carrier: sine on both, waveform-sync only', async () => {
+    // CH1 declared sine, CH2 unspecified, with a 27.12MHz carrier. Waveform keys off CH1
+    // (sine on both); CH2 holds the carrier so we waveform-sync (USA0) but NOT frequency-
+    // sync. Must NOT fall back to square.
     const program = {
       name: 'insomnia', range: 0,
       data: [{ channel: 1, frequency: 42.7, runTime: 100 }],
@@ -1012,8 +1027,9 @@ describe('ProgramRunner', () => {
     await vi.runAllTimersAsync();
     await p;
 
-    expect(gen.sinewave).toHaveBeenCalled();
-    // Should NOT call square wave (startFrequency > 0, not ultra)
+    expect(gen.setBothChannelsToSineWave).toHaveBeenCalled();
+    expect(gen.enableWaveformSync).toHaveBeenCalled();  // USA0 only — carrier holds
+    expect(gen.sync).not.toHaveBeenCalled();            // no full sync / freq-sync
     expect(gen.setBothChannelsToSquareWave).not.toHaveBeenCalled();
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildProgramsTsv, safeFileName, ExportableProgram } from '../exportPrograms';
+import { buildProgramsTsv, parseProgramsTsv, safeFileName, ExportableProgram } from '../exportPrograms';
 
 describe('buildProgramsTsv', () => {
     it('emits a header and one tab-separated row per data item', () => {
@@ -55,6 +55,59 @@ describe('buildProgramsTsv', () => {
             { name: 'P', range: 0, data: [{ frequency: 1, runTime: 90_000, wavetype: 'SINE' }] },
         ]).replace(/\n$/, '').split('\n');
         expect(lines[1]).toBe('P\tno\t1\t1.5\tSINE\t');
+    });
+});
+
+describe('parseProgramsTsv', () => {
+    it('round-trips a build → parse for multiple programs', () => {
+        const programs: ExportableProgram[] = [
+            { name: 'A', range: 0, data: [
+                { frequency: 528, runTime: 300_000, wavetype: 'SINE' },
+                { frequency: 741, runTime: 60_000, wavetype: 'SQUARE' },
+            ] },
+            { name: 'Sweep', range: 1, data: [
+                { frequency: 100, runTime: 600_000, wavetype: 'SINE', sweepTo: 500 },
+                { frequency: 500, runTime: 0, wavetype: 'SINE' },
+            ] },
+        ];
+        const parsed = parseProgramsTsv(buildProgramsTsv(programs));
+
+        expect(parsed.map((p) => p.name)).toEqual(['A', 'Sweep']);
+        expect(parsed[0].range).toBe(false);
+        expect(parsed[0].maxTimeInMinutes).toBe(6);
+        expect(parsed[0].data).toEqual([
+            { channel: 1, frequency: 528, runTime: 300_000, wavetype: 'SINE' },
+            { channel: 1, frequency: 741, runTime: 60_000, wavetype: 'SQUARE' },
+        ]);
+        expect(parsed[1].range).toBe(true);
+        expect(parsed[1].data[0]).toEqual({ channel: 1, frequency: 100, runTime: 600_000, wavetype: 'SINE', sweepTo: 500 });
+    });
+
+    it('skips the header, blank lines, and malformed rows', () => {
+        const tsv = [
+            'Program\tRange\tFrequency (Hz)\tMinutes\tWaveform\tSweepTo (Hz)',
+            'P\tno\t10\t1\tSINE\t',
+            '',
+            'P\tno\tnot-a-number\t1\tSINE\t',   // malformed frequency → skipped
+            '\tno\t20\t1\tSINE\t',             // no name → skipped
+            'P\tno\t30\t2\tSQUARE\t',
+        ].join('\n');
+        const parsed = parseProgramsTsv(tsv);
+        expect(parsed).toHaveLength(1);
+        expect(parsed[0].data.map((d) => d.frequency)).toEqual([10, 30]);
+        expect(parsed[0].maxTimeInMinutes).toBe(3);
+    });
+
+    it('accepts a headerless comma-separated file', () => {
+        const parsed = parseProgramsTsv('MyProg,no,440,5,SINE,');
+        expect(parsed).toHaveLength(1);
+        expect(parsed[0]).toMatchObject({ name: 'MyProg', range: false, maxTimeInMinutes: 5 });
+        expect(parsed[0].data[0]).toMatchObject({ frequency: 440, runTime: 300_000, wavetype: 'SINE' });
+    });
+
+    it('returns [] for empty input', () => {
+        expect(parseProgramsTsv('')).toEqual([]);
+        expect(parseProgramsTsv('\n\n')).toEqual([]);
     });
 });
 
