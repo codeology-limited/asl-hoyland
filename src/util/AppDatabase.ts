@@ -185,6 +185,10 @@ export default class AppDatabase extends Dexie {
         await this.transaction('rw', this.programs, async () => {
           // v1.6.11: one-shot removal — Lynne reported the machine rejects this program.
           await this.programs.where('name').equals('ttFields100to300kHz').delete();
+          // Rob asked for this one to go (14 Aug 2026). Deleting it from the JSON only
+          // helps fresh installs — preloadDefaults upserts and never removes — so it has
+          // to be deleted by name here to disappear from machines that already have it.
+          await this.programs.where('name').equals('lymphocyte50Hz').delete();
 
           for (const [name, programAny] of Object.entries(defaults)) {
             let dataWithRunTime: ProgramRow['data'] = [];

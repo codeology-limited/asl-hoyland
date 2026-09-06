@@ -80,7 +80,11 @@ describe('reported bug verification (18 Jul field report)', () => {
     it('CANCERSARCOMABX: CH2 turns on (was: not turning on CH2)', async () => {
         const { st } = await run('cancerSarcomaBX');
         expect(st.ch2.outputOn).toBe(true);
-        expect(st.ch2.hz).toBe(27_100_000);          // CH2 holds the 27.1MHz carrier
+        // Rob, 14 Aug 2026: CH2 should be a 27.12MHz SINE carrier under a SQUARE therapy
+        // tone. Split waveforms mean no USA0 — see the split-carrier path in startProgram.
+        expect(st.ch2.hz).toBe(27_120_000);
+        expect(st.ch2.wave).toBe('SINE');
+        expect(st.ch1.wave).toBe('SQUARE');
         expect(st.ch1.hz).toBe(1_607_450);           // CH1 therapy frequency
         record('cancerSarcomaBX', 'CH2 not turning on', st);
     });
@@ -88,7 +92,9 @@ describe('reported bug verification (18 Jul field report)', () => {
     it('CANCERSARCOMABY: CH2 turns on (was: not turning on CH2)', async () => {
         const { st } = await run('cancerSarcomaBY');
         expect(st.ch2.outputOn).toBe(true);
-        expect(st.ch2.hz).toBe(27_100_000);
+        expect(st.ch2.hz).toBe(27_120_000);
+        expect(st.ch2.wave).toBe('SINE');
+        expect(st.ch1.wave).toBe('SQUARE');
         expect(st.ch1.hz).toBe(1_529_520);
         record('cancerSarcomaBY', 'CH2 not turning on', st);
     });
@@ -104,24 +110,21 @@ describe('reported bug verification (18 Jul field report)', () => {
     it('HERPES: valid two-channel output (reporter later confirmed "Herpes is ok")', async () => {
         const { st, firstCh1 } = await run('herpes');
         // The report's "???" was uncertainty; a follow-up email (22 Jul) confirmed herpes
-        // is OK. As a carrier program it now runs CH1 on the therapy list (first freq
-        // 322Hz), CH2 holding the 27.1MHz carrier, both square, both on.
+        // is OK — on v1.8.5, where CH2 followed CH1. v1.8.6 briefly made it hold a
+        // 27.1MHz carrier, which Rob never saw; when he asked for lyme (its twin) to have
+        // "both channels the same as CH1" on 14 Aug, herpes was returned to matching it.
         expect(firstCh1).toBe(formatFrequency(1, 322).trim());
         expect(st.ch1.hz).toBe(322);
-        expect(st.ch2.hz).toBe(27_100_000);
+        expect(st.ch2.hz).toBe(322);
         expect(st.ch1.wave).toBe('SQUARE');
         expect(st.ch2.wave).toBe('SQUARE');
         expect(st.ch1.outputOn && st.ch2.outputOn).toBe(true);
         record('herpes', 'reporter confirmed OK', st);
     });
 
-    it('LYMPHOCYTE50HZ: CH1 = 50Hz (was: CH1 set to 0Hz)', async () => {
-        const { st, firstCh1 } = await run('lymphocyte50Hz');
-        expect(firstCh1).toBe(formatFrequency(1, 50).trim());
-        expect(st.ch1.hz).toBe(50);
-        expect(st.ch2.hz).toBe(50);
-        record('lymphocyte50Hz', 'CH1 0Hz instead of 50Hz', st);
-    });
+    // LYMPHOCYTE50HZ was on this list too, but Rob asked for the program to be deleted
+    // (14 Aug 2026). tCells30Hz below is the same shape — no-carrier SINE/SINE — and still
+    // covers the code path that produced the 0 Hz symptom.
 
     it('MCF7BREAST150kHz: CH1 = 150kHz (was: CH1 set to 0Hz)', async () => {
         const { st, firstCh1 } = await run('mcf7Breast150kHz');
@@ -160,6 +163,6 @@ describe('reported bug verification (18 Jul field report)', () => {
     it('prints the proof table', () => {
         // eslint-disable-next-line no-console
         console.info('\n===== REPORTED BUGS — VERIFIED FIXED =====\n' + proof.join('\n') + '\n');
-        expect(proof.length).toBe(11);
+        expect(proof.length).toBe(10);   // lymphocyte50Hz removed at Rob's request
     });
 });

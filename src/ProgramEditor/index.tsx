@@ -90,10 +90,39 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
         if (isSaving) return;
         if (!programName.trim()) { alert('Please enter a program name.'); return; }
         if (rows.every(r => !r.frequency.trim())) { alert('Please enter at least one frequency.'); return; }
+        // In sequence mode a trailing "+" row left blank is simply ignored; in range mode
+        // both endpoints are required. Frequencies must be real numbers >= 0 Hz and every
+        // kept row needs a dwell, otherwise the runner would emit 0 Hz DC steps or a 1 ms
+        // sweep (maxTimeInMinutes 0).
+        const keptRows = range ? rows : rows.filter(r => r.frequency.trim() !== '');
+        const badFrequency = keptRows.find(r => !(Number.isFinite(parseFloat(r.frequency)) && parseFloat(r.frequency) >= 0));
+        if (badFrequency) { alert(range ? 'A range needs a start and an end frequency (numbers, 0 Hz or more).' : 'Frequencies must be numbers of 0 Hz or more.'); return; }
+        const dwellRows = range ? keptRows.slice(0, 1) : keptRows;
+        if (dwellRows.some(r => !(parseFloat(r.runTime) > 0))) { alert('Each frequency needs a run time greater than 0 minutes.'); return; }
+        // The generator reliably accepts a new frequency about every 50 ms. A sweep asking
+        // for more steps than that leaves the device dropping most of them: it still ends
+        // on the right frequency, but the patient never receives the ones in between.
+        if (range && keptRows.length >= 2) {
+            const from = parseFloat(keptRows[0]?.frequency ?? '0');
+            const to = parseFloat(keptRows[1]?.frequency ?? '0');
+            const minutes = parseFloat(keptRows[0]?.runTime ?? '0');
+            const steps = Math.abs(to - from) + 1;
+            const msPerStep = (minutes * 60_000) / steps;
+            if (msPerStep < 50) {
+                const willRun = Math.floor((minutes * 60_000) / 50);
+                const ok = window.confirm(
+                    `This sweep asks for ${steps.toLocaleString()} steps in ${minutes} minutes, ` +
+                    `about ${msPerStep.toFixed(0)} ms each.\n\n` +
+                    `The generator only accepts a new frequency every 50 ms, so it will emit ` +
+                    `roughly ${willRun.toLocaleString()} of them and skip the rest. It will still ` +
+                    `finish on the right frequency.\n\nSave anyway?`);
+                if (!ok) { return; }
+            }
+        }
         setIsSaving(true);
 
         try {
-            const validatedRows: ProgramItem[] = rows.map(row => ({
+            const validatedRows: ProgramItem[] = keptRows.map(row => ({
                 channel: row.channel,
                 frequency: parseFloat(row.frequency) || 0,
                 runTime: (parseFloat(row.runTime) || 0) * 60_000,

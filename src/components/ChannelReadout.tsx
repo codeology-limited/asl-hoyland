@@ -25,12 +25,12 @@ const WaveformIcon: React.FC<{ wave: ChannelWave | null }> = ({ wave }) => {
     );
 };
 
-// Format a raw Hz value into a compact, human-readable label.
-const formatHz = (hz: number): string => {
-    if (!Number.isFinite(hz) || hz <= 0) return '0 Hz';
-    if (hz >= 1_000_000) return `${+(hz / 1_000_000).toFixed(3)} MHz`;
-    if (hz >= 1_000) return `${+(hz / 1_000).toFixed(3)} kHz`;
-    return `${Math.round(hz)} Hz`;
+// Always plain Hz with two decimals (Rob, 14 Aug 2026). Scaling to kHz/MHz used to hide
+// the digits that matter: 1873.477 Hz showed as "1.873 kHz" and anything under half a
+// hertz showed as "0 Hz", indistinguishable from idle.
+export const formatHz = (hz: number): string => {
+    if (!Number.isFinite(hz) || hz <= 0) return '0.00 Hz';
+    return `${hz.toFixed(2)} Hz`;
 };
 
 const Channel: React.FC<{ label: string; ch: ChannelStatus }> = ({ label, ch }) => (
