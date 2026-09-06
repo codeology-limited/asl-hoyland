@@ -11,3 +11,13 @@ export function notifyUser(message: string, err?: unknown): void {
         try { window.alert(text); } catch { /* headless environments */ }
     }
 }
+
+/**
+ * Ask the operator to confirm something. Returns true when there is no dialog available
+ * (headless test runners, some embedded webviews) so a missing dialog can never block a
+ * save the user actually asked for.
+ */
+export function confirmWithUser(message: string): boolean {
+    if (typeof window === 'undefined' || typeof window.confirm !== 'function') return true;
+    try { return window.confirm(message); } catch { return true; }
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { notifyUser, confirmWithUser } from '../util/notifyUser';
 import { Program , ProgramItem} from '../types';
 import { useAppContext } from '../AppContext';
 import { buildProgramsTsv, safeFileName, saveTextFile, openTextFiles, parseProgramsTsv, ExportableProgram } from '../util/exportPrograms';
@@ -88,17 +89,17 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
 
     const handleSave = async () => {
         if (isSaving) return;
-        if (!programName.trim()) { alert('Please enter a program name.'); return; }
-        if (rows.every(r => !r.frequency.trim())) { alert('Please enter at least one frequency.'); return; }
+        if (!programName.trim()) { notifyUser('Please enter a program name.'); return; }
+        if (rows.every(r => !r.frequency.trim())) { notifyUser('Please enter at least one frequency.'); return; }
         // In sequence mode a trailing "+" row left blank is simply ignored; in range mode
         // both endpoints are required. Frequencies must be real numbers >= 0 Hz and every
         // kept row needs a dwell, otherwise the runner would emit 0 Hz DC steps or a 1 ms
         // sweep (maxTimeInMinutes 0).
         const keptRows = range ? rows : rows.filter(r => r.frequency.trim() !== '');
         const badFrequency = keptRows.find(r => !(Number.isFinite(parseFloat(r.frequency)) && parseFloat(r.frequency) >= 0));
-        if (badFrequency) { alert(range ? 'A range needs a start and an end frequency (numbers, 0 Hz or more).' : 'Frequencies must be numbers of 0 Hz or more.'); return; }
+        if (badFrequency) { notifyUser(range ? 'A range needs a start and an end frequency (numbers, 0 Hz or more).' : 'Frequencies must be numbers of 0 Hz or more.'); return; }
         const dwellRows = range ? keptRows.slice(0, 1) : keptRows;
-        if (dwellRows.some(r => !(parseFloat(r.runTime) > 0))) { alert('Each frequency needs a run time greater than 0 minutes.'); return; }
+        if (dwellRows.some(r => !(parseFloat(r.runTime) > 0))) { notifyUser('Each frequency needs a run time greater than 0 minutes.'); return; }
         // The generator reliably accepts a new frequency about every 50 ms. A sweep asking
         // for more steps than that leaves the device dropping most of them: it still ends
         // on the right frequency, but the patient never receives the ones in between.
@@ -110,7 +111,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             const msPerStep = (minutes * 60_000) / steps;
             if (msPerStep < 50) {
                 const willRun = Math.floor((minutes * 60_000) / 50);
-                const ok = window.confirm(
+                const ok = confirmWithUser(
                     `This sweep asks for ${steps.toLocaleString()} steps in ${minutes} minutes, ` +
                     `about ${msPerStep.toFixed(0)} ms each.\n\n` +
                     `The generator only accepts a new frequency every 50 ms, so it will emit ` +
@@ -170,7 +171,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
 
     const handleExportCurrent = async () => {
         const name = programName.trim();
-        if (!name) { alert('Enter or choose a program name to export.'); return; }
+        if (!name) { notifyUser('Enter or choose a program name to export.'); return; }
         try {
             const tsv = buildProgramsTsv([currentEditorProgram()]);
             await saveTextFile(`${safeFileName(name)}.tsv`, tsv);
@@ -182,7 +183,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
     const handleExportAll = async () => {
         try {
             const programs = await appDatabase.getCustomPrograms();
-            if (!programs.length) { alert('No custom programs to export.'); return; }
+            if (!programs.length) { notifyUser('No custom programs to export.'); return; }
             const tsv = buildProgramsTsv(programs);
             await saveTextFile('custom-programs.tsv', tsv);
         } catch (error) {
@@ -201,7 +202,7 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             if (!files.length) return; // cancelled
             const parsed = files.flatMap((f) => parseProgramsTsv(f.content));
             if (!parsed.length) {
-                alert('No programs found. Expected the exported TSV format (Program, Range, Frequency, Minutes, Waveform, SweepTo).');
+                notifyUser('No programs found. Expected the exported TSV format (Program, Range, Frequency, Minutes, Waveform, SweepTo).');
                 return;
             }
 
@@ -221,14 +222,14 @@ const ProgramEditor: React.FC<ProgramEditorProps> = ({ onSave }) => {
             if (last) await handleLoadProgram(last.name);
 
             const names = parsed.map((p) => p.name).join(', ');
-            alert(
+            notifyUser(
                 failures.length
                     ? `Imported ${saved} program(s): ${names}\n\n${failures.length} failed:\n${failures.join('\n')}`
                     : `Imported ${saved} program(s): ${names}`
             );
         } catch (error) {
             console.error('Failed to import programs:', error);
-            alert('Import failed. See console for details.');
+            notifyUser('Import failed. See console for details.');
         } finally {
             setIsImporting(false);
         }
