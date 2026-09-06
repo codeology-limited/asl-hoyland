@@ -10,7 +10,6 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "start": "nodemon",
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
@@ -20,13 +19,10 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.4.0",
-    "@types/react-router-dom": "^5.3.3",
     "dexie": "^4.0.7",
     "react": "^18.2.0",
-    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.25.1",
-    "serialport": "^12.0.0"
+    "react-router-dom": "^6.25.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
@@ -36,15 +32,11 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "20.12.12",
     "@types/react": "^18.2.15",
-    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18.2.7",
-    "@types/serialport": "^8.0.5",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/coverage-v8": "^1.6.0",
     "fake-indexeddb": "^6.0.0",
     "happy-dom": "^20.0.10",
-    "jsdom": "^27.1.0",
-    "nodemon": "^2.0.20",
     "rimraf": "^6.0.1",
     "rollup": "^4.20.0",
     "typescript": "^5.2.2",

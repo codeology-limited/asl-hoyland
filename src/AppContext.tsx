@@ -8,14 +8,12 @@ import React, {
 } from "react";
 import AppDatabase from "./util/AppDatabase";
 import HoylandController from "./util/HoylandController";
-import ProgramRunner from "./util/ProgramRunner";
 
 export type AppEvent = { type: string; payload: string };
 
 interface AppContextValue {
     appDatabase: AppDatabase;
     hoylandController: HoylandController;
-    programRunner: ProgramRunner;
     events: AppEvent[];
     addEvent: (event: AppEvent) => void;
     testMode: boolean;
@@ -42,22 +40,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     // Create long-lived singletons once, in Provider scope
     const appDatabase = useMemo(() => new AppDatabase(), []);
     const hoylandController = useMemo(() => new HoylandController(addEvent), [addEvent]);
-    const programRunner = useMemo(
-        () => new ProgramRunner(appDatabase, hoylandController, null),
-        [appDatabase, hoylandController]
-    );
 
     const value = useMemo<AppContextValue>(
         () => ({
             appDatabase,
             hoylandController,
-            programRunner,
             events,
             addEvent,
             testMode,
             setTestMode,
         }),
-        [appDatabase, hoylandController, programRunner, events, addEvent, testMode]
+        [appDatabase, hoylandController, events, addEvent, testMode]
     );
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

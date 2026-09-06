@@ -19,9 +19,3 @@ env_logger = "0.10.0"
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]
-
-[build]
-incremental = false
-
-[target.x86_64-pc-windows-gnu]
-linker = "x86_64-w64-mingw32-gcc"

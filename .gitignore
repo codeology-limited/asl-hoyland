@@ -32,3 +32,10 @@ blob-report/
 e2e/test-results/
 e2e/playwright-report/
 .last-run.json
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Python bytecode from the bench tools
+__pycache__/
+*.pyc

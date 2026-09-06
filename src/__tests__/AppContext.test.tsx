@@ -27,15 +27,6 @@ describe('AppContext', () => {
     expect(result.current.hoylandController.constructor.name).toBe('HoylandController');
   });
 
-  it('provides programRunner instance', () => {
-    const { result } = renderHook(() => useAppContext(), {
-      wrapper: AppProvider,
-    });
-
-    expect(result.current.programRunner).toBeDefined();
-    expect(result.current.programRunner.constructor.name).toBe('ProgramRunner');
-  });
-
   it('initializes with empty events array', () => {
     const { result } = renderHook(() => useAppContext(), {
       wrapper: AppProvider,
@@ -113,13 +104,11 @@ describe('AppContext', () => {
 
     const initialDb = result.current.appDatabase;
     const initialController = result.current.hoylandController;
-    const initialRunner = result.current.programRunner;
 
     rerender();
 
     expect(result.current.appDatabase).toBe(initialDb);
     expect(result.current.hoylandController).toBe(initialController);
-    expect(result.current.programRunner).toBe(initialRunner);
   });
 
   it('renders children correctly', () => {
