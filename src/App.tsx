@@ -20,6 +20,11 @@ const App: React.FC = () => {
     const [autoConnectReady, setAutoConnectReady] = useState(false);
     // Default to ultrasound mode on first load
     const [isUltrasoundConnected, setIsUltrasoundConnected] = useState(true);
+    // The generator beeps on every action. Some operators want silence, some use it as
+    // confirmation, so it is a per-machine preference remembered across restarts.
+    const [buzzerOn, setBuzzerOn] = useState<boolean>(() => {
+        try { return localStorage.getItem('buzzerOn') !== 'false'; } catch { return true; }
+    });
     const [channel1Active, setChannel1Active] = useState(false);
     const [channel2Active, setChannel2Active] = useState(false);
     const cancelScanRef = useRef<(() => void) | null>(null);
@@ -159,6 +164,16 @@ const App: React.FC = () => {
             cancelScanRef.current = null;
         };
     }, [hoylandController, updateConnectionState, autoConnectReady]);
+
+    // Send the buzzer preference to the generator: on every change, and again whenever a
+    // device connects, since the setting lives in the unit and not in the app.
+    useEffect(() => {
+        try { localStorage.setItem('buzzerOn', String(buzzerOn)); } catch { /* private mode */ }
+        if (!hoylandController || !isPortConnected) return;
+        hoylandController.setBuzzer(buzzerOn).catch((err) => {
+            console.error('Could not change the buzzer setting:', err);
+        });
+    }, [buzzerOn, hoylandController, isPortConnected]);
 
     // Handle manual connect button click
     const handleConnectClick = useCallback(() => {
@@ -412,6 +427,14 @@ const App: React.FC = () => {
                             <span className={isUltrasoundConnected ? "connected" : ""}>
                             Ultrasound device connected
                         </span>
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={buzzerOn}
+                                onChange={(e) => setBuzzerOn(e.target.checked)}
+                            />
+                            <span>Generator beep</span>
                         </label>
                     </div>
 

@@ -183,15 +183,23 @@ describe('App', () => {
     const invokeMock = invoke as ReturnType<typeof vi.fn>;
     invokeMock.mockClear();
 
-    // First auto-connect finds a real device
-    invokeMock.mockReturnValueOnce(Promise.resolve('/dev/ttyUSB0'));
-
     // Manual reconnect stays pending until we resolve it
     let resolveReconnect: ((value: string) => void) | null = null;
     const pendingReconnect = new Promise<string>((resolve) => {
       resolveReconnect = resolve;
     });
-    invokeMock.mockReturnValueOnce(pendingReconnect);
+
+    // Dispatch on the command name rather than call order: the app also invokes
+    // set_buzzer when a device connects, and an order-based mock would hand that call
+    // the pending reconnect promise.
+    let reconnects = 0;
+    invokeMock.mockImplementation((cmd: string) => {
+      if (cmd === 'reconnect_device') {
+        reconnects += 1;
+        return reconnects === 1 ? Promise.resolve('/dev/ttyUSB0') : pendingReconnect;
+      }
+      return Promise.resolve(true);
+    });
 
     render(<App />);
 

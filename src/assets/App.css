@@ -138,7 +138,7 @@ html {
     z-index: 2;
  }
 
-/* App container with transparent border to reveal rain */
+/* Main app container */
 .container {
 
     position: relative;
@@ -638,6 +638,10 @@ progress::-ms-fill {
 }
 
 .ultrasound-connection-toggle {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
     display: flex;
     justify-content:  flex-start;
     align-items: center;
