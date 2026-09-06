@@ -456,7 +456,7 @@ const App: React.FC = () => {
 
                 <footer>
                     <span>Copyright &copy; 2024 Altered States Limited</span>
-                    <span className="footer__version">v1.8.6</span>
+                    <span className="footer__version">v1.8.7</span>
                 </footer>
                 <img className="brand-logo" src="/altsta.webp" alt="Altered States" />
             </div>
