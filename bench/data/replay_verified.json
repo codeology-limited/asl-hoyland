@@ -1,0 +1,2620 @@
+[
+ {
+  "name": "anthrax",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 139200,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 139200.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 139200,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 139200.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0139200.000000",
+   "WMF0139200.000000"
+  ],
+  "lines": 24,
+  "secs": 27.8,
+  "pass": true
+ },
+ {
+  "name": "anxietyDisorders",
+  "corrections": [
+   "ch1 00000000.014464->0.08",
+   "ch1 00000000.014464->0.08"
+  ],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.08,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.014464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.08,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.014464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WFA01.00",
+   "WMF0000000.080000",
+   "WMF0000000.080000"
+  ],
+  "lines": 25,
+  "secs": 31.6,
+  "pass": true
+ },
+ {
+  "name": "b16Melanoma120kHz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 120000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 120000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 120000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 120000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0120000.000000",
+   "WFN1",
+   "WMF0120000.000000"
+  ],
+  "lines": 24,
+  "secs": 27.9,
+  "pass": true
+ },
+ {
+  "name": "bipolarDisorder",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.16,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.16,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.16,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.16,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WFA01.00",
+   "WMF0000000.160000",
+   "WMF0000000.160000"
+  ],
+  "lines": 25,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "cancerSarcomaBX",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1607450,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1607450.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 27100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27100000.000000",
+   "WMF1607450.000000",
+   "WFF27100000.000000",
+   "WMN1",
+   "WFF27100000.000000",
+   "WMF1607450.000000"
+  ],
+  "lines": 23,
+  "secs": 25.5,
+  "pass": true
+ },
+ {
+  "name": "cancerSarcomaBY",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1529520,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1529520.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 27100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27100000.000000",
+   "WMF1529520.000000",
+   "WFF27100000.000000",
+   "WMN1",
+   "WFF27100000.000000",
+   "WMF1529520.000000"
+  ],
+  "lines": 23,
+  "secs": 25.5,
+  "pass": true
+ },
+ {
+  "name": "candida",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 50,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 50.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 50,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 50.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000050.000000",
+   "WMF0000050.000000"
+  ],
+  "lines": 24,
+  "secs": 27.8,
+  "pass": true
+ },
+ {
+  "name": "coliFilterable",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 769035,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 769035.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 769035,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 769035.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0769035.000000",
+   "WMF0769035.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "coliRod",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 416510,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 416510.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 416510,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 416510.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0416510.000000",
+   "WMF0416510.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "dualFreq230and430Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 230,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 230.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 430,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 430.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": false,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000230.000000",
+   "WFF0000430.000000",
+   "WMF0000230.000000",
+   "WFF0000430.000000"
+  ],
+  "lines": 21,
+  "secs": 25.1,
+  "pass": true
+ },
+ {
+  "name": "f98Glioma200kHz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 200000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 200000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 200000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 200000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0200000.000000",
+   "WFN1",
+   "WMF0200000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "gammaInflammation40Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 40,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 40.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 40,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 40.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000040.000000",
+   "WMF0000040.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "gonorrhea",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 233000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 233000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 233000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 233000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0233000.000000",
+   "WMF0233000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "herpes",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 322,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 322.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 27100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27100000.000000",
+   "WMF0000322.000000",
+   "WFF27100000.000000",
+   "WMN1",
+   "WFF27100000.000000",
+   "WMF0000322.000000"
+  ],
+  "lines": 23,
+  "secs": 25.7,
+  "pass": true
+ },
+ {
+  "name": "hoyland",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 14,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 14.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 3100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 3100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF3100000.000000",
+   "WMF0000001.000000",
+   "WFF3100000.000000",
+   "WMN1",
+   "WFF3100000.000000",
+   "WMF0000001.000000"
+  ],
+  "lines": 36,
+  "secs": 28.2,
+  "pass": true
+ },
+ {
+  "name": "inflammation284Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 284,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 284.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 284,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 284.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000284.000000",
+   "WMF0000284.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "insomnia",
+  "corrections": [
+   "wave SQUARE->SINE",
+   "ch1 00000000.000000->42.7"
+  ],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 42.7,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 42.7,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 27120000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27120000.000000",
+   "WMF0000042.700000",
+   "WFF27120000.000000",
+   "WFW00",
+   "WFN1",
+   "WFF27120000.000000",
+   "WMF0000042.700000",
+   "WFF27120000.000000"
+  ],
+  "lines": 24,
+  "secs": 29.9,
+  "pass": true
+ },
+ {
+  "name": "liver35Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 35,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 35.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 35,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 35.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000035.000000",
+   "WMF0000035.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "lymeDisease",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 432,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 432.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 27100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27100000.000000",
+   "WMF0000432.000000",
+   "WFF27100000.000000",
+   "WMN1",
+   "WFF27100000.000000",
+   "WMF0000432.000000"
+  ],
+  "lines": 23,
+  "secs": 25.7,
+  "pass": true
+ },
+ {
+  "name": "lymphocyte50Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 50,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 50.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 50,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 50.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000050.000000",
+   "WFN1",
+   "WMF0000050.000000"
+  ],
+  "lines": 24,
+  "secs": 28.1,
+  "pass": true
+ },
+ {
+  "name": "mcf7Breast150kHz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 150000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 150000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 150000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 150000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0150000.000000",
+   "WFN1",
+   "WMF0150000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "mdaMB231Breast150kHz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 150000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 150000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 150000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 150000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0150000.000000",
+   "WFN1",
+   "WMF0150000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.1,
+  "pass": true
+ },
+ {
+  "name": "mitochondrial16Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 16,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 16.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 16,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 16.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000016.000000",
+   "WMF0000016.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "naturalKillerCell",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 200000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 200000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 200000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 200000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0200000.000000",
+   "WMF0200000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "oxidativeStress72to75Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 72,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 72.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 72,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 72.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000072.000000",
+   "WMF0000072.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "parasitesAndFungus",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1150,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1150.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1150,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1150.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0001150.000000",
+   "WMF0001150.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "pemfImmune8Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 8,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 8.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 8,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 8.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000008.000000",
+   "WMF0000008.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "prolapse",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 30,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 30.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 30,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 30.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000030.000000",
+   "WMF0000030.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "psychoticDisorders",
+  "corrections": [
+   "ch1 00000000.504464->0.57",
+   "ch1 00000000.504464->0.57"
+  ],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.57,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.504464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.57,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.504464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WFA01.00",
+   "WMF0000000.570000",
+   "WMF0000000.570000"
+  ],
+  "lines": 25,
+  "secs": 31.7,
+  "pass": true
+ },
+ {
+  "name": "rifeCrane",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 6.8,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 6.8,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 27100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27100000.000000",
+   "WMF0000006.800000",
+   "WFF27100000.000000",
+   "WMN1",
+   "WFF27100000.000000",
+   "WMF0000006.800000"
+  ],
+  "lines": 23,
+  "secs": 25.7,
+  "pass": true
+ },
+ {
+  "name": "schizophrenia",
+  "corrections": [
+   "ch1 00000000.004464->0.07",
+   "ch1 00000000.004464->0.07"
+  ],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.07,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.004464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.07,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.004464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WFA01.00",
+   "WMF0000000.070000",
+   "WMF0000000.070000"
+  ],
+  "lines": 25,
+  "secs": 31.8,
+  "pass": true
+ },
+ {
+  "name": "spinalMeningitis",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 426860,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 426860.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 426860,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 426860.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0426860.000000",
+   "WMF0426860.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "staphylococcusAlbus",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 549070,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 549070.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 549070,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 549070.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0549070.000000",
+   "WMF0549070.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "staphylococcusAureus",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 477660,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 477660.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 477660,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 477660.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0477660.000000",
+   "WMF0477660.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "streptococcusPyrogen",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 719150,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 719150.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 719150,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 719150.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0719150.000000",
+   "WMF0719150.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "streptothrix",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 191800,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 191800.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 191800,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 191800.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0191800.000000",
+   "WMF0191800.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "syphilis",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 788700,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 788700.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 788700,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 788700.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0788700.000000",
+   "WMF0788700.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "tCells30Hz",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 30,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 30.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 30,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 30.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0000030.000000",
+   "WFN1",
+   "WMF0000030.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "tetanus",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 234000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 234000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 234000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 234000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0234000.000000",
+   "WMF0234000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "ttFields100to500kHz",
+  "corrections": [
+   "wave SQUARE->SINE"
+  ],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 100000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 100000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 27120000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27120000.000000",
+   "WMF0100000.000000",
+   "WFF27120000.000000",
+   "WFW00",
+   "WFN1",
+   "WFF27120000.000000",
+   "WMF0100000.000000"
+  ],
+  "lines": 23,
+  "secs": 29.9,
+  "pass": true
+ },
+ {
+  "name": "ttf",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1873.5,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 1873.5,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "on": true
+   },
+   "got": {
+    "hz": 27120000.0,
+    "wave": "SINE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27120000.000000",
+   "WMA01.00",
+   "WFF27120000.000000",
+   "WFW00",
+   "WFF27120000.000000",
+   "WMF0001873.500000"
+  ],
+  "lines": 23,
+  "secs": 25.7,
+  "pass": true
+ },
+ {
+  "name": "tuberculosisFilterable",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 769000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 769000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 769000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 769000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0769000.000000",
+   "WMF0769000.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "tuberculosisRod",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 369430,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 369430.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 369430,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 369430.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0369430.000000",
+   "WMF0369430.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "tumors",
+  "corrections": [
+   "ch1 00001873.411464->1873.477",
+   "ch1 00001873.411464->1873.477"
+  ],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1873.477,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1873.411464,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 3100000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 3100000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF3100000.000000",
+   "WMF0001873.477000",
+   "WFF3100000.000000",
+   "WMN1",
+   "WFF3100000.000000",
+   "WMF0001873.477000"
+  ],
+  "lines": 23,
+  "secs": 29.3,
+  "pass": true
+ },
+ {
+  "name": "tumors2",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 0.5,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 0.5,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 27120000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 27120000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": false,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF27120000.000000",
+   "WMF0000000.500000",
+   "WFF27120000.000000",
+   "WMN1",
+   "WFF27120000.000000",
+   "WMF0000000.500000"
+  ],
+  "lines": 23,
+  "secs": 25.7,
+  "pass": true
+ },
+ {
+  "name": "typhoidFeverFilterable",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1445200,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1445200.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 1445200,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 1445200.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF1445200.000000",
+   "WMF1445200.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "typhoidFeverRod",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 759450,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 759450.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 759450,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 759450.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMF0759450.000000",
+   "WMF0759450.000000"
+  ],
+  "lines": 24,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "ultra500",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 500000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 500000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF0500000.000000",
+   "WMF0500000.000000",
+   "WFF0500000.000000",
+   "WMF0500000.000000"
+  ],
+  "lines": 26,
+  "secs": 28.1,
+  "pass": true
+ },
+ {
+  "name": "ultra670",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 670000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 670000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 670000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 670000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF0500000.000000",
+   "WMF0670000.000000",
+   "WFF0500000.000000",
+   "WMF0670000.000000"
+  ],
+  "lines": 26,
+  "secs": 28.0,
+  "pass": true
+ },
+ {
+  "name": "ultrasound",
+  "corrections": [],
+  "ch1": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 500000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "ch2": {
+   "hz_ok": true,
+   "wave_ok": true,
+   "on_ok": true,
+   "want": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "on": true
+   },
+   "got": {
+    "hz": 500000.0,
+    "wave": "SQUARE",
+    "on": true,
+    "v": 1.0
+   }
+  },
+  "sync": {
+   "wave": true,
+   "freq": true,
+   "amp": true
+  },
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WFF0500000.000000",
+   "WMF0500000.000000",
+   "WFW01",
+   "WMF0500000.000000"
+  ],
+  "lines": 27,
+  "secs": 30.0,
+  "pass": true
+ }
+]

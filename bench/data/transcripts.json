@@ -1,0 +1,10031 @@
+{
+ "anthrax": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMF0139200.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929388
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929388
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929388
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929388
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929388
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929388
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929388
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929388
+   },
+   {
+    "line": "WMF0139200.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930388
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 139200,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 139200,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "anthrax",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 139200,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 1
+  }
+ },
+ "anxietyDisorders": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMF0000000.065535",
+    "cmd": "set_frequency",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929403
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929403
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929403
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929403
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929403
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929403
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929403
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929403
+   },
+   {
+    "line": "WMF0000000.065535",
+    "cmd": "set_frequency",
+    "t": 1788683930403
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 0.065535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 0.065535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "anxietyDisorders",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 0.065535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.62,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.865535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 5.81,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 225,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 423.065535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 572,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 727.33,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 841.12,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 903.91,
+     "runTime": 180000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "mirror": 1,
+   "id": 2
+  }
+ },
+ "bipolarDisorder": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMF0000000.160000",
+    "cmd": "set_frequency",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929414
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929414
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929414
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929414
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929414
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929414
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929414
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929414
+   },
+   {
+    "line": "WMF0000000.160000",
+    "cmd": "set_frequency",
+    "t": 1788683930414
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 0.16,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 0.16,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "bipolarDisorder",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 0.16,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.8,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 7.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 30,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 67.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 125,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 352.93,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 563.2,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 642.91,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 930.12,
+     "runTime": 180000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "mirror": 1,
+   "id": 3
+  }
+ },
+ "cancerSarcomaBX": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929424
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929424
+   },
+   {
+    "line": "WMF1607450.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929424
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929474
+   },
+   {
+    "line": "WMW01",
+    "cmd": "square_wave",
+    "t": 1788683929474
+   },
+   {
+    "line": "WFW00",
+    "cmd": "aux_sine_wave",
+    "t": 1788683929474
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929474
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929474
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929474
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929524
+   },
+   {
+    "line": "WFW00",
+    "cmd": "aux_sine_wave",
+    "t": 1788683929574
+   },
+   {
+    "line": "WMF1607450.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930574
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 1607450,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": false
+  },
+  "row": {
+   "name": "cancerSarcomaBX",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1607450,
+     "runTime": 1200000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 20,
+   "startFrequency": 27.12,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SINE",
+   "id": 4
+  }
+ },
+ "cancerSarcomaBY": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929432
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929432
+   },
+   {
+    "line": "WMF1529520.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929432
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929482
+   },
+   {
+    "line": "WMW01",
+    "cmd": "square_wave",
+    "t": 1788683929482
+   },
+   {
+    "line": "WFW00",
+    "cmd": "aux_sine_wave",
+    "t": 1788683929482
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929482
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929482
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929482
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929532
+   },
+   {
+    "line": "WFW00",
+    "cmd": "aux_sine_wave",
+    "t": 1788683929582
+   },
+   {
+    "line": "WMF1529520.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930582
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 1529520,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": false
+  },
+  "row": {
+   "name": "cancerSarcomaBY",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1529520,
+     "runTime": 1200000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 20,
+   "startFrequency": 27.12,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SINE",
+   "id": 5
+  }
+ },
+ "candida": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMF0000050.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929442
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929442
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929442
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929442
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929442
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929442
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929442
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929442
+   },
+   {
+    "line": "WMF0000050.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930442
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 50,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 50,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "candida",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 50,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 472,
+     "runTime": 600000
+    },
+    {
+     "channel": 1,
+     "frequency": 6,
+     "runTime": 1800000,
+     "sweepTo": 70
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 45,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 6
+  }
+ },
+ "coliFilterable": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMF0769035.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929450
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929450
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929450
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929450
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929450
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929450
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929450
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929450
+   },
+   {
+    "line": "WMF0769035.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930450
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 769035,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 769035,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "coliFilterable",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 769035,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 7
+  }
+ },
+ "coliRod": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMF0416510.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929458
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929458
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929458
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929458
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929458
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929458
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929458
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929458
+   },
+   {
+    "line": "WMF0416510.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930458
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 416510,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 416510,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "coliRod",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 416510,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 8
+  }
+ },
+ "gammaInflammation40Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMF0000040.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929466
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929466
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929466
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929466
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929466
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929466
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929466
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929466
+   },
+   {
+    "line": "WMF0000040.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930466
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 40,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 40,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "gammaInflammation40Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 40,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 9
+  }
+ },
+ "gonorrhea": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMF0233000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929476
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929476
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929476
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929476
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929476
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929476
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929476
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929476
+   },
+   {
+    "line": "WMF0233000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930476
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 233000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 233000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "gonorrhea",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 233000,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 10
+  }
+ },
+ "herpes": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMF0000322.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929485
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929485
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929485
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929485
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929485
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929485
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929485
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929485
+   },
+   {
+    "line": "WMF0000322.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930485
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 322,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 322,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "herpes",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 322,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 339,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 343,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 476,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 480,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 589,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 591,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 647,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 657,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 664,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 696,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 699,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 700,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 723.8,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 734,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 778,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 782,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 785,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 832,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 895,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 944,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1043,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1614,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1614,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1062,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1489,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 2590,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1437.82,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 17201.43,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 856.41,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 2499,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1800,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 465,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1550,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1550,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 880,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 787,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 727,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1850,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 428,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 470,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 648,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 650,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 652,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 654,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 656,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 658,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 660,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 847,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 8650,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 5641,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 556,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 832,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 17923.24,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 17674.41,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 892.35,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 879.96,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 17923.34,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 17674.41,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 468,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 589,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 664,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 822,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 936,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 944,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1043,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1614,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1871,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 2062,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1489,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 3742,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 748,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 3747,
+     "runTime": 60000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 73,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 11
+  }
+ },
+ "hoyland": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929493
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929493
+   },
+   {
+    "line": "WMF0000001.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929493
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929543
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929543
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929543
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929543
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929543
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929543
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929543
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929593
+   },
+   {
+    "line": "WMF0000001.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930593
+   },
+   {
+    "line": "WMF0000002.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930773
+   },
+   {
+    "line": "WMF0000003.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930953
+   },
+   {
+    "line": "WMF0000004.000000",
+    "cmd": "set_frequency",
+    "t": 1788683931133
+   },
+   {
+    "line": "WMF0000005.000000",
+    "cmd": "set_frequency",
+    "t": 1788683931313
+   },
+   {
+    "line": "WMF0000006.000000",
+    "cmd": "set_frequency",
+    "t": 1788683931493
+   },
+   {
+    "line": "WMF0000007.000000",
+    "cmd": "set_frequency",
+    "t": 1788683931673
+   },
+   {
+    "line": "WMF0000008.000000",
+    "cmd": "set_frequency",
+    "t": 1788683931853
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 8,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 3100000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "hoyland",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1,
+     "runTime": 3600000
+    },
+    {
+     "channel": 1,
+     "frequency": 40000,
+     "runTime": 3600000
+    }
+   ],
+   "range": 1,
+   "default": 1,
+   "maxTimeInMinutes": 120,
+   "startFrequency": 3.1,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "id": 12
+  }
+ },
+ "insomnia": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929500
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929500
+   },
+   {
+    "line": "WMF0000042.700000",
+    "cmd": "set_frequency",
+    "t": 1788683929500
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929550
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929550
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929550
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929550
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929550
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929550
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929550
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929600
+   },
+   {
+    "line": "WMF0000042.700000",
+    "cmd": "set_frequency",
+    "t": 1788683930600
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930650
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 42.7,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "insomnia",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 42.7,
+     "runTime": 900000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 15,
+   "startFrequency": 27.12,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "onkeysec": 3,
+   "offkeysec": 1,
+   "id": 13
+  }
+ },
+ "lymeDisease": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMF0000432.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929505
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929505
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929505
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929505
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929505
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929505
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929505
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929505
+   },
+   {
+    "line": "WMF0000432.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930505
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 432,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 432,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "lymeDisease",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 432,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 800,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 4200,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 338,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 344,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 345,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 605,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 673,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 758,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 797,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 884,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1455,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 6863,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 6870,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 533,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 534,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 732,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 640,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 8554,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 203,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 412,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 414,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 589,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 667,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 840,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1000,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1072,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1087,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1105,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 254,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 525,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 597,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 644,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 885,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 699,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 306,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 432,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 484,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 610,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 625,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 690,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 864,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 2016,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 790,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 864,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 620,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 495,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 485,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 505,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 620,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 610,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 630,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 690,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 790,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 785,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 790,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 795,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 2050,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 1520,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 615,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 2016,
+     "runTime": 60000
+    },
+    {
+     "channel": 1,
+     "frequency": 625,
+     "runTime": 60000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 62,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 14
+  }
+ },
+ "mitochondrial16Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMF0000016.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929513
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929513
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929513
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929513
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929513
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929513
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929513
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929513
+   },
+   {
+    "line": "WMF0000016.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930513
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 16,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 16,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "mitochondrial16Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 16,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 15
+  }
+ },
+ "naturalKillerCell": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMF0200000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929520
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929520
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929520
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929520
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929520
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929520
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929520
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929520
+   },
+   {
+    "line": "WMF0200000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930520
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 200000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 200000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "naturalKillerCell",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 200000,
+     "runTime": 28800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 480,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 16
+  }
+ },
+ "oxidativeStress72to75Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMF0000072.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929528
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929528
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929528
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929528
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929528
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929528
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929528
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929528
+   },
+   {
+    "line": "WMF0000072.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930528
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 72,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 72,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "oxidativeStress72to75Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 72,
+     "runTime": 450000
+    },
+    {
+     "channel": 1,
+     "frequency": 73,
+     "runTime": 450000
+    },
+    {
+     "channel": 1,
+     "frequency": 74,
+     "runTime": 450000
+    },
+    {
+     "channel": 1,
+     "frequency": 75,
+     "runTime": 450000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 17
+  }
+ },
+ "parasitesAndFungus": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMF0001150.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929535
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929535
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929535
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929535
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929535
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929535
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929535
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929535
+   },
+   {
+    "line": "WMF0001150.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930535
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 1150,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 1150,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "parasitesAndFungus",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1150,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 4,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 993.965535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 722,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 2112,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 4412,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 840,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 250,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 5000,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 42000,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 850000,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 741,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 350,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 75,
+     "runTime": 180000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 42,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 18
+  }
+ },
+ "pemfImmune8Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMF0000008.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929542
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929542
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929542
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929542
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929542
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929542
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929542
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929542
+   },
+   {
+    "line": "WMF0000008.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930542
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 8,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 8,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "pemfImmune8Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 8,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 19
+  }
+ },
+ "prolapse": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMF0000030.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929549
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929549
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929549
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929549
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929549
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929549
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929549
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929549
+   },
+   {
+    "line": "WMF0000030.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930549
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 30,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 30,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "prolapse",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 30,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 20
+  }
+ },
+ "psychoticDisorders": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMF0000000.565535",
+    "cmd": "set_frequency",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929560
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929560
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929560
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929560
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929560
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929560
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929560
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929560
+   },
+   {
+    "line": "WMF0000000.565535",
+    "cmd": "set_frequency",
+    "t": 1788683930560
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 0.565535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 0.565535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "psychoticDisorders",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 0.565535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.665535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.865535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 2.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 5.71,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 32.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 92.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 322.53,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 519.34,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 653.7,
+     "runTime": 180000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "mirror": 1,
+   "id": 21
+  }
+ },
+ "rifeCrane": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFF27100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929574
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929574
+   },
+   {
+    "line": "WMF0000006.800000",
+    "cmd": "set_frequency",
+    "t": 1788683929574
+   },
+   {
+    "line": "WFF27100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929624
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929624
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929624
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929624
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929624
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929624
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929624
+   },
+   {
+    "line": "WFF27100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929674
+   },
+   {
+    "line": "WMF0000006.800000",
+    "cmd": "set_frequency",
+    "t": 1788683930674
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 6.8,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27100000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "rifeCrane",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 6.8,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 7.7,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 8.25,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 9.2,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 10,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 12,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 20,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 28,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 33,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 47,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 48,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 55,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 55.56,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 56,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 64,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 72,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 95,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 96,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 120,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 125,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 127,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 128,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 166,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 214,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 222,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 240,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 249,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 250,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 262,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 304,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 317,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 327,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 383,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 393,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 414,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 418,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 421,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 422,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 428,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 432,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 433,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 440,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 444,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 462,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 463,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 464,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 465,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 466,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 475,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 477,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 478,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 479,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 482,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 488,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 520,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 523,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 524,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 543,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 600,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 626,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 641,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 647,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 650,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 656,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 657,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 661,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 663,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 664,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 666,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 667,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 676,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 690,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 720,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 727,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 728,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 731,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 732,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 734,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 760,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 776,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 778,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 781,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 784,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 786,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 787,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 790,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 792,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 800,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 802,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 808,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 822,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 830,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 832,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 833,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 852,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 854,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 855,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 857,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 866,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 880,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 901,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 918,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 920,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 932,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 942,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 943,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 965,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 979,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 982,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1050,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1131,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1133,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1234,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1340,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1489,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1522,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1523,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1550,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1552,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1582,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1744,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1830,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1840,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1862,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1865,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1875,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 1998,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2000,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2004,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2005,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2008,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2012,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2016,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2027,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2032,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2040,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2048,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2049,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2050,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2060,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2063,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2084,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2093,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2100,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2104,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2112,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2116,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2120,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2127,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2128,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2130,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2133,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2134,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2136,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2144,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2145,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2146,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2150,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2152,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2160,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2168,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2170,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2180,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2182,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2184,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2189,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2192,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2200,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2217,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2219,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2270,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2280,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2288,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2333,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2450,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2452,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2454,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2489,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2490,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2586,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2720,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2730,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 2876,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3000,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3040,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3042,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3072,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3130,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3176,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3672,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 3734,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 4412,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 4445,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 5000,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 5122,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 5476,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 6024,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 6064,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 9000,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 9999,
+     "runTime": 8955.223880597016
+    },
+    {
+     "channel": 1,
+     "frequency": 10000,
+     "runTime": 8955.223880597016
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 27.1,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "id": 22
+  }
+ },
+ "schizophrenia": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMF0000000.065535",
+    "cmd": "set_frequency",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929583
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929583
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929583
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929583
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929583
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929583
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929583
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929583
+   },
+   {
+    "line": "WMF0000000.065535",
+    "cmd": "set_frequency",
+    "t": 1788683930583
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 0.065535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 0.065535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "schizophrenia",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 0.065535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 0.965535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 9,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 12.85,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 132.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 337.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 524.365535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 758.565535,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 955.72,
+     "runTime": 180000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "mirror": 1,
+   "id": 23
+  }
+ },
+ "spinalMeningitis": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMF0426860.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929589
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929589
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929589
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929589
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929589
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929589
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929589
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929589
+   },
+   {
+    "line": "WMF0426860.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930589
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 426860,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 426860,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "spinalMeningitis",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 426860,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 24
+  }
+ },
+ "staphylococcusAlbus": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMF0549070.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929596
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929596
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929596
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929596
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929596
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929596
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929596
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929596
+   },
+   {
+    "line": "WMF0549070.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930596
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 549070,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 549070,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "staphylococcusAlbus",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 549070,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 25
+  }
+ },
+ "staphylococcusAureus": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMF0477660.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929602
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929602
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929602
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929602
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929602
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929602
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929602
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929602
+   },
+   {
+    "line": "WMF0477660.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930602
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 477660,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 477660,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "staphylococcusAureus",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 477660,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 26
+  }
+ },
+ "streptococcusPyrogen": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMF0719150.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929611
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929611
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929611
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929611
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929611
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929611
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929611
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929611
+   },
+   {
+    "line": "WMF0719150.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930611
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 719150,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 719150,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "streptococcusPyrogen",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 719150,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 27
+  }
+ },
+ "streptothrix": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMF0191800.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929620
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929620
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929620
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929620
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929620
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929620
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929620
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929620
+   },
+   {
+    "line": "WMF0191800.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930620
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 191800,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 191800,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "streptothrix",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 191800,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 28
+  }
+ },
+ "syphilis": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMF0788700.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929628
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929628
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929628
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929628
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929628
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929628
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929628
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929628
+   },
+   {
+    "line": "WMF0788700.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930628
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 788700,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 788700,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "syphilis",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 788700,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 29
+  }
+ },
+ "tCells30Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMF0000030.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929634
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929634
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929634
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929634
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929634
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929634
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929634
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929634
+   },
+   {
+    "line": "WMF0000030.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930634
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 30,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 30,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "tCells30Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 30,
+     "runTime": 3600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 60,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "id": 30
+  }
+ },
+ "tetanus": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMF0234000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929641
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929641
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929641
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929641
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929641
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929641
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929641
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929641
+   },
+   {
+    "line": "WMF0234000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930641
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 234000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 234000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "tetanus",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 234000,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 31
+  }
+ },
+ "tuberculosisFilterable": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMF0769000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929648
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929648
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929648
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929648
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929648
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929648
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929648
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929648
+   },
+   {
+    "line": "WMF0769000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930648
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 769000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 769000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "tuberculosisFilterable",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 769000,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 32
+  }
+ },
+ "tuberculosisRod": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMF0369430.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929654
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929654
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929654
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929654
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929654
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929654
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929654
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929654
+   },
+   {
+    "line": "WMF0369430.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930654
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 369430,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 369430,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "tuberculosisRod",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 369430,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 33
+  }
+ },
+ "tumors": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929660
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929660
+   },
+   {
+    "line": "WMF0001873.465535",
+    "cmd": "set_frequency",
+    "t": 1788683929660
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929710
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929710
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929710
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929710
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929710
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929710
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929710
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929760
+   },
+   {
+    "line": "WMF0001873.465535",
+    "cmd": "set_frequency",
+    "t": 1788683930760
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 1873.465535,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 3100000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "tumors",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1873.465535,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 2221.323,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 6350.333,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 10456.4,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 10,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 450,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 712,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 728,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 784,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 2008,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 660,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 880,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 2128,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 1552,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 20,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 1640000,
+     "runTime": 240000
+    },
+    {
+     "channel": 1,
+     "frequency": 11780000,
+     "runTime": 240000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 68,
+   "startFrequency": 3.1,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "id": 34
+  }
+ },
+ "tumors2": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929666
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929666
+   },
+   {
+    "line": "WMF0000000.500000",
+    "cmd": "set_frequency",
+    "t": 1788683929666
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929716
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929716
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929716
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929716
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929716
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929716
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929716
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929766
+   },
+   {
+    "line": "WMF0000000.500000",
+    "cmd": "set_frequency",
+    "t": 1788683930766
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 0.5,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27120000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "tumors2",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 0.5,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 10,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 20,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 2950,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 322,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 476,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 589,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 664,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 785,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 822,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 895,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 935,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 944,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1043,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1614,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1871,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 2062,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1489,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 3742,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 748,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1873.465535,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 2221.323,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 6350.333,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 10456.4,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 10,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 450,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 712,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 728,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 784,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 2008,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 660,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 880,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 2128,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1552,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 20,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 1640000,
+     "runTime": 120000
+    },
+    {
+     "channel": 1,
+     "frequency": 11780000,
+     "runTime": 120000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 74,
+   "startFrequency": 27.12,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "id": 35
+  }
+ },
+ "typhoidFeverFilterable": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMF1445200.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929672
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929672
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929672
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929672
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929672
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929672
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929672
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929672
+   },
+   {
+    "line": "WMF1445200.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930672
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 1445200,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 1445200,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "typhoidFeverFilterable",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1445200,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 36
+  }
+ },
+ "typhoidFeverRod": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMF0759450.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929677
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929677
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929677
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929677
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929677
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929677
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929677
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929677
+   },
+   {
+    "line": "WMF0759450.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930677
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 759450,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 759450,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "typhoidFeverRod",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 759450,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 37
+  }
+ },
+ "ultra500": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929684
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929684
+   },
+   {
+    "line": "WMF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929684
+   },
+   {
+    "line": "WFF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929734
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929734
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929734
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929734
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929734
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929734
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929734
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929734
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929734
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929734
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929734
+   },
+   {
+    "line": "WMF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930734
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "ultra500",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 500000,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0.5,
+   "sliderMinV": 0.8,
+   "sliderMaxV": 1.8,
+   "sliderStepV": 0.01,
+   "startIntensityV": 1.05,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 38
+  }
+ },
+ "ultra670": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929689
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929689
+   },
+   {
+    "line": "WMF0670000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929689
+   },
+   {
+    "line": "WFF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929739
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929739
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929739
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929739
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929739
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929739
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929739
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929739
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929739
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929739
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929739
+   },
+   {
+    "line": "WMF0670000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930739
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 670000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 670000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "ultra670",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 670000,
+     "runTime": 600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0.5,
+   "sliderMinV": 0.3,
+   "sliderMaxV": 1.4,
+   "sliderStepV": 0.011,
+   "startIntensityV": 0.575,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "id": 39
+  }
+ },
+ "ultrasound": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMF0670000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930695
+   },
+   {
+    "line": "WMF0500000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683931695
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 500000,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "ultrasound",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 500000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 670000,
+     "runTime": 300000
+    }
+   ],
+   "range": 1,
+   "default": 1,
+   "maxTimeInMinutes": 10,
+   "startFrequency": 0.5,
+   "sliderMinV": 0.3,
+   "sliderMaxV": 1.8,
+   "sliderStepV": 0.015,
+   "startIntensityV": 0.825,
+   "sliderPercent": 35,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "onkeysec": 1,
+   "offkeysec": 1,
+   "id": 40
+  }
+ },
+ "mcf7Breast150kHz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMF0150000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929695
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929695
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929695
+   },
+   {
+    "line": "WMF0150000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930695
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 150000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 150000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "mcf7Breast150kHz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 150000,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "id": 41
+  }
+ },
+ "mdaMB231Breast150kHz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMF0150000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929701
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929701
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929701
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929701
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929701
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929701
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929701
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929701
+   },
+   {
+    "line": "WMF0150000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930701
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 150000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 150000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "mdaMB231Breast150kHz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 150000,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "id": 42
+  }
+ },
+ "b16Melanoma120kHz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMF0120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929707
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929707
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929707
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929707
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929707
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929707
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929707
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929707
+   },
+   {
+    "line": "WMF0120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930707
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "b16Melanoma120kHz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 120000,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "id": 43
+  }
+ },
+ "f98Glioma200kHz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMF0200000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929713
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929713
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929713
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929713
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929713
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929713
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929713
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929713
+   },
+   {
+    "line": "WMF0200000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930713
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 200000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 200000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "f98Glioma200kHz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 200000,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "id": 44
+  }
+ },
+ "dualFreq230and430Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929718
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929718
+   },
+   {
+    "line": "WMF0000230.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929718
+   },
+   {
+    "line": "WFF0000430.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929768
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929768
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929768
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929768
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929768
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929768
+   },
+   {
+    "line": "WMF0000230.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930768
+   },
+   {
+    "line": "WFF0000430.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930818
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 230,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 430,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": false
+  },
+  "row": {
+   "name": "dualFreq230and430Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 230,
+     "runTime": 3600000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 720,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "loop": 1,
+   "category": "fsm",
+   "channel2frequency": 430,
+   "id": 45
+  }
+ },
+ "liver35Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMF0000035.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929724
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929724
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929724
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929724
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929724
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929724
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929724
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929724
+   },
+   {
+    "line": "WMF0000035.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930724
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 35,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 35,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "liver35Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 35,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "category": "fsm",
+   "id": 46
+  }
+ },
+ "inflammation284Hz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMF0000284.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFW01",
+    "cmd": "set_both_channels_to_square_wave",
+    "t": 1788683929729
+   },
+   {
+    "line": "USA0",
+    "cmd": "sync",
+    "t": 1788683929729
+   },
+   {
+    "line": "USA1",
+    "cmd": "sync",
+    "t": 1788683929729
+   },
+   {
+    "line": "USA2",
+    "cmd": "sync",
+    "t": 1788683929729
+   },
+   {
+    "line": "USA3",
+    "cmd": "sync",
+    "t": 1788683929729
+   },
+   {
+    "line": "USA4",
+    "cmd": "sync",
+    "t": 1788683929729
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929729
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929729
+   },
+   {
+    "line": "WMF0000284.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930729
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 284,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 284,
+    "wave": "SQUARE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": true,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "inflammation284Hz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 284,
+     "runTime": 1800000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 30,
+   "startFrequency": 0,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SQUARE",
+   "channel2wavetype": "SQUARE",
+   "category": "fsm",
+   "id": 47
+  }
+ },
+ "ttf": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929735
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929735
+   },
+   {
+    "line": "WMF0001873.500000",
+    "cmd": "set_frequency",
+    "t": 1788683929735
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929785
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929785
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929785
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929785
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929785
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929785
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929785
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929835
+   },
+   {
+    "line": "WMF0001873.500000",
+    "cmd": "set_frequency",
+    "t": 1788683930835
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 1873.5,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "ttf",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 1873.5,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 2221.3,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 5882.3,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 6350.3,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 8452.1,
+     "runTime": 180000
+    },
+    {
+     "channel": 1,
+     "frequency": 10456.4,
+     "runTime": 180000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 720,
+   "startFrequency": 27.12,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "loop": 1,
+   "category": "ttf",
+   "id": 48
+  }
+ },
+ "ttFields100to500kHz": {
+  "lines": [
+   {
+    "line": "WMW01",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WMO00.00",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WMD50.0",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WMP000",
+    "cmd": "send_secondary_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFW00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFO00.00",
+    "cmd": "send_initial_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFD50.0",
+    "cmd": "send_initial_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFP000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFF3100000.000000",
+    "cmd": "send_initial_commands",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929741
+   },
+   {
+    "line": "WMA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFA01.00",
+    "cmd": "set_amplitude",
+    "t": 1788683929741
+   },
+   {
+    "line": "WMF0100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929741
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929791
+   },
+   {
+    "line": "WMW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929791
+   },
+   {
+    "line": "WFW00",
+    "cmd": "set_both_channels_to_sine_wave",
+    "t": 1788683929791
+   },
+   {
+    "line": "USA0",
+    "cmd": "enable_waveform_sync",
+    "t": 1788683929791
+   },
+   {
+    "line": "WFN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929791
+   },
+   {
+    "line": "WMN1",
+    "cmd": "enable_outputs",
+    "t": 1788683929791
+   },
+   {
+    "line": "USA2",
+    "cmd": "enable_outputs",
+    "t": 1788683929791
+   },
+   {
+    "line": "WFF27120000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683929841
+   },
+   {
+    "line": "WMF0100000.000000",
+    "cmd": "set_frequency",
+    "t": 1788683930841
+   }
+  ],
+  "modelState": {
+   "ch1": {
+    "hz": 100000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ch2": {
+    "hz": 27120000,
+    "wave": "SINE",
+    "amp": 1,
+    "outputOn": true
+   },
+   "ampSync": true,
+   "freqSync": false,
+   "waveformSync": true
+  },
+  "row": {
+   "name": "ttFields100to500kHz",
+   "data": [
+    {
+     "channel": 1,
+     "frequency": 100000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 150000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 200000,
+     "runTime": 1200000
+    },
+    {
+     "channel": 1,
+     "frequency": 250000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 300000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 350000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 400000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 450000,
+     "runTime": 300000
+    },
+    {
+     "channel": 1,
+     "frequency": 500000,
+     "runTime": 300000
+    }
+   ],
+   "range": 0,
+   "default": 1,
+   "maxTimeInMinutes": 480,
+   "startFrequency": 27.12,
+   "sliderMinV": 1,
+   "sliderMaxV": 20,
+   "sliderStepV": 1,
+   "startIntensityV": 5,
+   "sliderPercent": 25,
+   "channel1wavetype": "SINE",
+   "channel2wavetype": "SINE",
+   "loop": 1,
+   "category": "ttf",
+   "id": 49
+  }
+ }
+}

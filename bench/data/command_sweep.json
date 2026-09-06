@@ -1,0 +1,1939 @@
+{
+ "commands": [
+  {
+   "opcode": "WMW",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "00",
+   "purpose": "Set CH1 waveform (00 sine)",
+   "sent": "WMW00",
+   "ack_ms": 209.59186553955078,
+   "reply": "0",
+   "own_read": "RMW",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMF",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "0001234.000000",
+   "purpose": "Set CH1 frequency",
+   "sent": "WMF0001234.000000",
+   "ack_ms": 210.75677871704102,
+   "reply": "00001234.000000",
+   "own_read": "RMF",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMA",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "02.50",
+   "purpose": "Set CH1 amplitude in volts",
+   "sent": "WMA02.50",
+   "ack_ms": 613.2969856262207,
+   "reply": "25000",
+   "own_read": "RMA",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMO",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "01.00",
+   "purpose": "Set CH1 DC offset in volts",
+   "sent": "WMO01.00",
+   "ack_ms": 613.3036613464355,
+   "reply": "1000",
+   "own_read": "RMO",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMD",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "40.0",
+   "purpose": "Set CH1 duty cycle percent",
+   "sent": "WMD40.0",
+   "ack_ms": 209.56683158874512,
+   "reply": "40000",
+   "own_read": "RMD",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMP",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "090",
+   "purpose": "Set CH1 phase in degrees",
+   "sent": "WMP090",
+   "ack_ms": 612.85400390625,
+   "reply": "90000",
+   "own_read": "RMP",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMN",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "1",
+   "purpose": "Set CH1 output on",
+   "sent": "WMN1",
+   "ack_ms": 612.619161605835,
+   "reply": "255",
+   "own_read": "RMN",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMS",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "10000",
+   "purpose": "Set CH1 pulse period in nanoseconds",
+   "sent": "WMS10000",
+   "ack_ms": 209.4120979309082,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMW",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 waveform",
+   "sent": "RMW",
+   "ack_ms": 2.9058456420898438,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMF",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 frequency",
+   "sent": "RMF",
+   "ack_ms": 4.462003707885742,
+   "reply": "00001000.000000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMA",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 amplitude",
+   "sent": "RMA",
+   "ack_ms": 3.298044204711914,
+   "reply": "10000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMO",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 offset",
+   "sent": "RMO",
+   "ack_ms": 3.2219886779785156,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMD",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 duty cycle",
+   "sent": "RMD",
+   "ack_ms": 3.3788681030273438,
+   "reply": "50000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMP",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 phase",
+   "sent": "RMP",
+   "ack_ms": 3.4029483795166016,
+   "reply": "90000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMN",
+   "group": "ch1",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 output state",
+   "sent": "RMN",
+   "ack_ms": 3.016948699951172,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFW",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "00",
+   "purpose": "Set CH2 waveform (00 sine)",
+   "sent": "WFW00",
+   "ack_ms": 220.1700210571289,
+   "reply": "0",
+   "own_read": "RFW",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFF",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "0005678.000000",
+   "purpose": "Set CH2 frequency",
+   "sent": "WFF0005678.000000",
+   "ack_ms": 534.041166305542,
+   "reply": "00005678.000000",
+   "own_read": "RFF",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFA",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "03.50",
+   "purpose": "Set CH2 amplitude in volts",
+   "sent": "WFA03.50",
+   "ack_ms": 183.2578182220459,
+   "reply": "35000",
+   "own_read": "RFA",
+   "took_effect": 1,
+   "side_effects": {
+    "RMW": [
+     "",
+     "1"
+    ],
+    "RMF": [
+     "100001000.000000",
+     "00001000.000000"
+    ]
+   },
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFO",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "01.50",
+   "purpose": "Set CH2 DC offset in volts",
+   "sent": "WFO01.50",
+   "ack_ms": 496.20795249938965,
+   "reply": "1500",
+   "own_read": "RFO",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFD",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "35.0",
+   "purpose": "Set CH2 duty cycle percent",
+   "sent": "WFD35.0",
+   "ack_ms": 496.05393409729004,
+   "reply": "35000",
+   "own_read": "RFD",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFP",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "045",
+   "purpose": "Set CH2 phase in degrees",
+   "sent": "WFP045",
+   "ack_ms": 496.31786346435547,
+   "reply": "45000",
+   "own_read": "RFP",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFN",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "1",
+   "purpose": "Set CH2 output on",
+   "sent": "WFN1",
+   "ack_ms": 495.8162307739258,
+   "reply": "255",
+   "own_read": "RFN",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFW",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 waveform",
+   "sent": "RFW",
+   "ack_ms": 3.095865249633789,
+   "reply": "1",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFF",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 frequency",
+   "sent": "RFF",
+   "ack_ms": 4.260063171386719,
+   "reply": "00002000.000000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFA",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 amplitude",
+   "sent": "RFA",
+   "ack_ms": 3.6039352416992188,
+   "reply": "35000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFO",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 offset",
+   "sent": "RFO",
+   "ack_ms": 2.9859542846679688,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFD",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 duty cycle",
+   "sent": "RFD",
+   "ack_ms": 3.5810470581054688,
+   "reply": "35000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFP",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 phase",
+   "sent": "RFP",
+   "ack_ms": 3.3807754516601562,
+   "reply": "45000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFN",
+   "group": "ch2",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH2 output state",
+   "sent": "RFN",
+   "ack_ms": 3.2262802124023438,
+   "reply": "255",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WPM",
+   "group": "modulation",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set CH1 trigger mode",
+   "sent": "WPM0",
+   "ack_ms": 540.0881767272949,
+   "reply": "0",
+   "own_read": "RPM",
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WPN",
+   "group": "modulation",
+   "direction": "write",
+   "payload": "0001",
+   "purpose": "Set pulse count for triggered burst",
+   "sent": "WPN0001",
+   "ack_ms": 540.1389598846436,
+   "reply": "1",
+   "own_read": "RPN",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WTA",
+   "group": "modulation",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set ASK mode",
+   "sent": "WTA0",
+   "ack_ms": null,
+   "reply": "",
+   "own_read": "RTA",
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WTF",
+   "group": "modulation",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set FSK mode",
+   "sent": "WTF0",
+   "ack_ms": null,
+   "reply": "",
+   "own_read": "RTF",
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFK",
+   "group": "modulation",
+   "direction": "write",
+   "payload": "0003000.000000",
+   "purpose": "Set FSK secondary frequency",
+   "sent": "WFK0003000.000000",
+   "ack_ms": 541.3691997528076,
+   "reply": "00000300.000000",
+   "own_read": "RFK",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WTP",
+   "group": "modulation",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set PSK mode",
+   "sent": "WTP0",
+   "ack_ms": null,
+   "reply": "",
+   "own_read": "RTP",
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RPM",
+   "group": "modulation",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read CH1 trigger mode",
+   "sent": "RPM",
+   "ack_ms": 2.98309326171875,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RPN",
+   "group": "modulation",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read triggered pulse count",
+   "sent": "RPN",
+   "ack_ms": 3.278970718383789,
+   "reply": "1",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RTA",
+   "group": "modulation",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read ASK mode",
+   "sent": "RTA",
+   "ack_ms": null,
+   "reply": "",
+   "own_read": null,
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RTF",
+   "group": "modulation",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read FSK mode",
+   "sent": "RTF",
+   "ack_ms": null,
+   "reply": "",
+   "own_read": null,
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RFK",
+   "group": "modulation",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read FSK secondary frequency",
+   "sent": "RFK",
+   "ack_ms": 4.182100296020508,
+   "reply": "00000300.000000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RTP",
+   "group": "modulation",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read PSK mode",
+   "sent": "RTP",
+   "ack_ms": null,
+   "reply": "",
+   "own_read": null,
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WCC",
+   "group": "measurement",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set measurement coupling mode",
+   "sent": "WCC0",
+   "ack_ms": 363.084077835083,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WCZ",
+   "group": "measurement",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Reset the counter",
+   "sent": "WCZ0",
+   "ack_ms": 3.0159950256347656,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WCP",
+   "group": "measurement",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Pause the measurement",
+   "sent": "WCP0",
+   "ack_ms": 3.1239986419677734,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WCG",
+   "group": "measurement",
+   "direction": "write",
+   "payload": "1",
+   "purpose": "Set measurement gate time",
+   "sent": "WCG1",
+   "ack_ms": 377.7048587799072,
+   "reply": "1",
+   "own_read": "RCG",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RCG",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read measurement gate time",
+   "sent": "RCG",
+   "ack_ms": 2.9921531677246094,
+   "reply": "1",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RCF",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read externally measured frequency",
+   "sent": "RCF",
+   "ack_ms": 364.063024520874,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RCC",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read external counter value",
+   "sent": "RCC",
+   "ack_ms": 364.4297122955322,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RCT",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read external counting period",
+   "sent": "RCT",
+   "ack_ms": 364.72392082214355,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RCD",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read externally measured duty cycle",
+   "sent": "RCD",
+   "ack_ms": 364.2468452453613,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RC+",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read positive pulse width",
+   "sent": "RC+",
+   "ack_ms": 364.1479015350342,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RC-",
+   "group": "measurement",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read negative pulse width",
+   "sent": "RC-",
+   "ack_ms": 364.05396461486816,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "SOB",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set the sweep object",
+   "sent": "SOB0",
+   "ack_ms": 458.9219093322754,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "SST",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0001000.000000",
+   "purpose": "Set sweep start value",
+   "sent": "SST0001000.000000",
+   "ack_ms": 483.73913764953613,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "SEN",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0002000.000000",
+   "purpose": "Set sweep end value",
+   "sent": "SEN0002000.000000",
+   "ack_ms": 472.02301025390625,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "STI",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0005",
+   "purpose": "Set sweep time",
+   "sent": "STI0005",
+   "ack_ms": 459.08260345458984,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "SMO",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set sweep mode",
+   "sent": "SMO0",
+   "ack_ms": 458.8887691497803,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "SXY",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set sweep signal source",
+   "sent": "SXY0",
+   "ack_ms": 458.7416648864746,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "SBE",
+   "group": "sweep",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Stop the sweep",
+   "sent": "SBE0",
+   "ack_ms": 463.05108070373535,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RSS",
+   "group": "sweep",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read sweep status (listed in the command table)",
+   "sent": "RSS",
+   "ack_ms": 3.7467479705810547,
+   "reply": "100000",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "USA",
+   "group": "system",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Couple CH2 waveform to CH1",
+   "sent": "USA0",
+   "ack_ms": 435.7130527496338,
+   "reply": "255",
+   "own_read": "RSA0",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "USD",
+   "group": "system",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Release the CH2 waveform coupling",
+   "sent": "USD0",
+   "ack_ms": 435.3749752044678,
+   "reply": "0",
+   "own_read": "RSA0",
+   "took_effect": 0,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "UBZ",
+   "group": "system",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "Set the buzzer off",
+   "sent": "UBZ0",
+   "ack_ms": 271.3930606842041,
+   "reply": "0",
+   "own_read": "RBZ",
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RSA",
+   "group": "system",
+   "direction": "read",
+   "payload": "0",
+   "purpose": "Read a synchronisation flag",
+   "sent": "RSA0",
+   "ack_ms": 3.1659603118896484,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RBZ",
+   "group": "system",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read buzzer state",
+   "sent": "RBZ",
+   "ack_ms": 2.988100051879883,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RMS",
+   "group": "system",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read uplink mode",
+   "sent": "RMS",
+   "ack_ms": 3.237009048461914,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "RUL",
+   "group": "system",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read local uplink status",
+   "sent": "RUL",
+   "ack_ms": 3.0748844146728516,
+   "reply": "0",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "UID",
+   "group": "system",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read the unit id",
+   "sent": "UID",
+   "ack_ms": 3.916025161743164,
+   "reply": "904683388",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "UMO",
+   "group": "system",
+   "direction": "read",
+   "payload": "",
+   "purpose": "Read the model string",
+   "sent": "UMO",
+   "ack_ms": 4.152059555053711,
+   "reply": "FY6300-30M",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WMT",
+   "group": "ch1",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "CH1 attenuation (an FY2300 opcode the app still sends)",
+   "sent": "WMT0",
+   "ack_ms": null,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 0,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "WFT",
+   "group": "ch2",
+   "direction": "write",
+   "payload": "0",
+   "purpose": "CH2 attenuation (an FY2300 opcode the app still sends)",
+   "sent": "WFT0",
+   "ack_ms": null,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 0,
+   "used_by_app": 1,
+   "risk": "safe",
+   "skipped": false
+  },
+  {
+   "opcode": "USN",
+   "group": "system",
+   "direction": "write",
+   "payload": null,
+   "purpose": "Save both channels to a storage position",
+   "sent": null,
+   "ack_ms": null,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "persistent",
+   "skipped": true,
+   "note": "Writes the unit's non-volatile memory and would overwrite whatever the owner has saved there. Nothing in the app needs it."
+  },
+  {
+   "opcode": "ULN",
+   "group": "system",
+   "direction": "write",
+   "payload": null,
+   "purpose": "Load parameters from a storage position",
+   "sent": null,
+   "ack_ms": null,
+   "reply": null,
+   "own_read": null,
+   "took_effect": null,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "persistent",
+   "skipped": true,
+   "note": "Would replace the live settings with unknown stored ones mid-test."
+  },
+  {
+   "opcode": "UMS",
+   "group": "system",
+   "direction": "write",
+   "payload": "1",
+   "purpose": "Set uplink mode",
+   "sent": "UMS1",
+   "ack_ms": 271,
+   "reply": "255",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false,
+   "note": "Tested 2026-09-06. Accepted, RMS goes to 255, link stays alive and UMS0 restores it. Produces NO unsolicited output \u2014 30 s of front-panel activity yielded nothing."
+  },
+  {
+   "opcode": "UUL",
+   "group": "system",
+   "direction": "write",
+   "payload": "1",
+   "purpose": "Set local uplink status",
+   "sent": "UUL1",
+   "ack_ms": 275,
+   "reply": "255",
+   "own_read": null,
+   "took_effect": 1,
+   "side_effects": {},
+   "documented": 1,
+   "used_by_app": 0,
+   "risk": "safe",
+   "skipped": false,
+   "note": "Tested 2026-09-06. Accepted, link stays alive, UUL0 restores it. Produces NO unsolicited output either; the only bytes seen were a late reply to the preceding RUL query."
+  }
+ ],
+ "waveforms": [
+  {
+   "code": 0,
+   "readback": "0",
+   "accepted": 1
+  },
+  {
+   "code": 1,
+   "readback": "1",
+   "accepted": 1
+  },
+  {
+   "code": 2,
+   "readback": "2",
+   "accepted": 1
+  },
+  {
+   "code": 3,
+   "readback": "3",
+   "accepted": 1
+  },
+  {
+   "code": 4,
+   "readback": "4",
+   "accepted": 1
+  },
+  {
+   "code": 5,
+   "readback": "5",
+   "accepted": 1
+  },
+  {
+   "code": 6,
+   "readback": "6",
+   "accepted": 1
+  },
+  {
+   "code": 7,
+   "readback": "7",
+   "accepted": 1
+  },
+  {
+   "code": 8,
+   "readback": "8",
+   "accepted": 1
+  },
+  {
+   "code": 9,
+   "readback": "9",
+   "accepted": 1
+  },
+  {
+   "code": 10,
+   "readback": "10",
+   "accepted": 1
+  },
+  {
+   "code": 11,
+   "readback": "11",
+   "accepted": 1
+  },
+  {
+   "code": 12,
+   "readback": "12",
+   "accepted": 1
+  },
+  {
+   "code": 13,
+   "readback": "13",
+   "accepted": 1
+  },
+  {
+   "code": 14,
+   "readback": "14",
+   "accepted": 1
+  },
+  {
+   "code": 15,
+   "readback": "15",
+   "accepted": 1
+  },
+  {
+   "code": 16,
+   "readback": "16",
+   "accepted": 1
+  },
+  {
+   "code": 17,
+   "readback": "17",
+   "accepted": 1
+  },
+  {
+   "code": 18,
+   "readback": "18",
+   "accepted": 1
+  },
+  {
+   "code": 19,
+   "readback": "19",
+   "accepted": 1
+  },
+  {
+   "code": 20,
+   "readback": "20",
+   "accepted": 1
+  },
+  {
+   "code": 21,
+   "readback": "21",
+   "accepted": 1
+  },
+  {
+   "code": 22,
+   "readback": "22",
+   "accepted": 1
+  },
+  {
+   "code": 23,
+   "readback": "23",
+   "accepted": 1
+  },
+  {
+   "code": 24,
+   "readback": "24",
+   "accepted": 1
+  },
+  {
+   "code": 25,
+   "readback": "25",
+   "accepted": 1
+  },
+  {
+   "code": 26,
+   "readback": "26",
+   "accepted": 1
+  },
+  {
+   "code": 27,
+   "readback": "27",
+   "accepted": 1
+  },
+  {
+   "code": 28,
+   "readback": "28",
+   "accepted": 1
+  },
+  {
+   "code": 29,
+   "readback": "29",
+   "accepted": 1
+  },
+  {
+   "code": 30,
+   "readback": "30",
+   "accepted": 1
+  },
+  {
+   "code": 31,
+   "readback": "31",
+   "accepted": 1
+  },
+  {
+   "code": 32,
+   "readback": "32",
+   "accepted": 1
+  },
+  {
+   "code": 33,
+   "readback": "33",
+   "accepted": 1
+  },
+  {
+   "code": 34,
+   "readback": "34",
+   "accepted": 1
+  },
+  {
+   "code": 35,
+   "readback": "35",
+   "accepted": 1
+  },
+  {
+   "code": 36,
+   "readback": "36",
+   "accepted": 1
+  },
+  {
+   "code": 37,
+   "readback": "37",
+   "accepted": 1
+  },
+  {
+   "code": 38,
+   "readback": "38",
+   "accepted": 1
+  },
+  {
+   "code": 39,
+   "readback": "39",
+   "accepted": 1
+  },
+  {
+   "code": 40,
+   "readback": "40",
+   "accepted": 1
+  },
+  {
+   "code": 41,
+   "readback": "41",
+   "accepted": 1
+  },
+  {
+   "code": 42,
+   "readback": "42",
+   "accepted": 1
+  },
+  {
+   "code": 43,
+   "readback": "43",
+   "accepted": 1
+  },
+  {
+   "code": 44,
+   "readback": "44",
+   "accepted": 1
+  },
+  {
+   "code": 45,
+   "readback": "45",
+   "accepted": 1
+  },
+  {
+   "code": 46,
+   "readback": "46",
+   "accepted": 1
+  },
+  {
+   "code": 47,
+   "readback": "47",
+   "accepted": 1
+  },
+  {
+   "code": 48,
+   "readback": "48",
+   "accepted": 1
+  },
+  {
+   "code": 49,
+   "readback": "49",
+   "accepted": 1
+  },
+  {
+   "code": 50,
+   "readback": "50",
+   "accepted": 1
+  },
+  {
+   "code": 51,
+   "readback": "51",
+   "accepted": 1
+  },
+  {
+   "code": 52,
+   "readback": "52",
+   "accepted": 1
+  },
+  {
+   "code": 53,
+   "readback": "53",
+   "accepted": 1
+  },
+  {
+   "code": 54,
+   "readback": "54",
+   "accepted": 1
+  },
+  {
+   "code": 55,
+   "readback": "55",
+   "accepted": 1
+  },
+  {
+   "code": 56,
+   "readback": "56",
+   "accepted": 1
+  },
+  {
+   "code": 57,
+   "readback": "57",
+   "accepted": 1
+  },
+  {
+   "code": 58,
+   "readback": "58",
+   "accepted": 1
+  },
+  {
+   "code": 59,
+   "readback": "59",
+   "accepted": 1
+  },
+  {
+   "code": 60,
+   "readback": "60",
+   "accepted": 1
+  },
+  {
+   "code": 61,
+   "readback": "61",
+   "accepted": 1
+  },
+  {
+   "code": 62,
+   "readback": "62",
+   "accepted": 1
+  },
+  {
+   "code": 63,
+   "readback": "63",
+   "accepted": 1
+  },
+  {
+   "code": 64,
+   "readback": "64",
+   "accepted": 1
+  },
+  {
+   "code": 65,
+   "readback": "65",
+   "accepted": 1
+  },
+  {
+   "code": 66,
+   "readback": "66",
+   "accepted": 1
+  },
+  {
+   "code": 67,
+   "readback": "67",
+   "accepted": 1
+  },
+  {
+   "code": 68,
+   "readback": "68",
+   "accepted": 1
+  },
+  {
+   "code": 69,
+   "readback": "69",
+   "accepted": 1
+  },
+  {
+   "code": 70,
+   "readback": "70",
+   "accepted": 1
+  },
+  {
+   "code": 71,
+   "readback": "71",
+   "accepted": 1
+  },
+  {
+   "code": 72,
+   "readback": "72",
+   "accepted": 1
+  },
+  {
+   "code": 73,
+   "readback": "73",
+   "accepted": 1
+  },
+  {
+   "code": 74,
+   "readback": "74",
+   "accepted": 1
+  },
+  {
+   "code": 75,
+   "readback": "75",
+   "accepted": 1
+  },
+  {
+   "code": 76,
+   "readback": "76",
+   "accepted": 1
+  },
+  {
+   "code": 77,
+   "readback": "77",
+   "accepted": 1
+  },
+  {
+   "code": 78,
+   "readback": "78",
+   "accepted": 1
+  },
+  {
+   "code": 79,
+   "readback": "79",
+   "accepted": 1
+  },
+  {
+   "code": 80,
+   "readback": "80",
+   "accepted": 1
+  },
+  {
+   "code": 81,
+   "readback": "81",
+   "accepted": 1
+  },
+  {
+   "code": 82,
+   "readback": "82",
+   "accepted": 1
+  },
+  {
+   "code": 83,
+   "readback": "83",
+   "accepted": 1
+  },
+  {
+   "code": 84,
+   "readback": "84",
+   "accepted": 1
+  },
+  {
+   "code": 85,
+   "readback": "85",
+   "accepted": 1
+  },
+  {
+   "code": 86,
+   "readback": "86",
+   "accepted": 1
+  },
+  {
+   "code": 87,
+   "readback": "87",
+   "accepted": 1
+  },
+  {
+   "code": 88,
+   "readback": "88",
+   "accepted": 1
+  },
+  {
+   "code": 89,
+   "readback": "89",
+   "accepted": 1
+  },
+  {
+   "code": 90,
+   "readback": "90",
+   "accepted": 1
+  },
+  {
+   "code": 91,
+   "readback": "91",
+   "accepted": 1
+  },
+  {
+   "code": 92,
+   "readback": "92",
+   "accepted": 1
+  },
+  {
+   "code": 93,
+   "readback": "93",
+   "accepted": 1
+  },
+  {
+   "code": 94,
+   "readback": "94",
+   "accepted": 1
+  }
+ ],
+ "stress": [
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "0 ms gap",
+   "trials": 8,
+   "successes": 0,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "5 ms gap",
+   "trials": 8,
+   "successes": 0,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "10 ms gap",
+   "trials": 8,
+   "successes": 0,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "25 ms gap",
+   "trials": 8,
+   "successes": 7,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "50 ms gap",
+   "trials": 8,
+   "successes": 8,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "100 ms gap",
+   "trials": 8,
+   "successes": 8,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "paired writes, both land",
+   "parameter": "200 ms gap",
+   "trials": 8,
+   "successes": 8,
+   "detail": "the first command is lost when they are too close"
+  },
+  {
+   "scenario": "sustained burst, last value wins",
+   "parameter": "10 at 50 ms",
+   "trials": 1,
+   "successes": 1,
+   "detail": "final register '00001009.000000', expected 1009"
+  },
+  {
+   "scenario": "sustained burst, last value wins",
+   "parameter": "25 at 50 ms",
+   "trials": 1,
+   "successes": 1,
+   "detail": "final register '00001024.000000', expected 1024"
+  },
+  {
+   "scenario": "sustained burst, last value wins",
+   "parameter": "50 at 20 ms",
+   "trials": 1,
+   "successes": 1,
+   "detail": "final register '00001049.000000', expected 1049"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMF0000000.000",
+   "trials": 1,
+   "successes": 1,
+   "detail": "zero frequency: ack=201ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMF30000000.00",
+   "trials": 1,
+   "successes": 1,
+   "detail": "30 MHz, the model ceiling: ack=201ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMF60000000.00",
+   "trials": 1,
+   "successes": 1,
+   "detail": "60 MHz, above this model: ack=201ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMF99999999.99",
+   "trials": 1,
+   "successes": 1,
+   "detail": "absurdly high: ack=201ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMA00.00",
+   "trials": 1,
+   "successes": 1,
+   "detail": "zero amplitude: ack=200ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMA20.00",
+   "trials": 1,
+   "successes": 1,
+   "detail": "maximum amplitude the app allows: ack=200ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMA99.99",
+   "trials": 1,
+   "successes": 1,
+   "detail": "above the documented range: ack=200ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMD00.0",
+   "trials": 1,
+   "successes": 1,
+   "detail": "zero duty cycle: ack=200ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMD99.9",
+   "trials": 1,
+   "successes": 1,
+   "detail": "maximum duty cycle: ack=200ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMW99",
+   "trials": 1,
+   "successes": 1,
+   "detail": "waveform code beyond the documented 94: ack=222ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "ZZZ0",
+   "trials": 1,
+   "successes": 1,
+   "detail": "unknown opcode: ack=none, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMF",
+   "trials": 1,
+   "successes": 1,
+   "detail": "opcode with no payload: ack=207ms, link alive"
+  },
+  {
+   "scenario": "boundary / malformed input",
+   "parameter": "WMFabc",
+   "trials": 1,
+   "successes": 1,
+   "detail": "non-numeric payload: ack=207ms, link alive"
+  },
+  {
+   "scenario": "flood, 200 writes with no pacing",
+   "parameter": "200 commands",
+   "trials": 1,
+   "successes": 1,
+   "detail": "link recovered afterwards"
+  }
+ ]
+}

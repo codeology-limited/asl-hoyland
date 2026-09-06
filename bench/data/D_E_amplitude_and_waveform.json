@@ -1,0 +1,330 @@
+[
+ {
+  "id": "D1",
+  "question": "as shipped (WMA then USA2): CH2 keeps its OLD amplitude",
+  "sequence": [
+   "WFA05.00",
+   "WMA01.00",
+   "WFN1",
+   "WMN1",
+   "USA2"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0,
+   "ch2.v": 1.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.v: want 1.0 got 5.0"
+  ],
+  "unacked": [],
+  "note": "MISMATCH here means CH2 runs at a different amplitude than the slider shows"
+ },
+ {
+  "id": "D2",
+  "question": "FIX A \u2014 send USA2 before the amplitude write",
+  "sequence": [
+   "WFA05.00",
+   "USA2",
+   "WMA01.00",
+   "WFN1",
+   "WMN1"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0,
+   "ch2.v": 1.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "D3",
+  "question": "FIX B \u2014 re-send the amplitude after USA2",
+  "sequence": [
+   "WFA05.00",
+   "WMA01.00",
+   "WFN1",
+   "WMN1",
+   "USA2",
+   "WMA01.00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0,
+   "ch2.v": 1.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "D4",
+  "question": "FIX C \u2014 write CH2 amplitude explicitly (what mirror:true programs do)",
+  "sequence": [
+   "WFA05.00",
+   "WMA01.00",
+   "WFA01.00",
+   "WFN1",
+   "WMN1",
+   "USA2"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0,
+   "ch2.v": 1.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.v: want 1.0 got 5.0"
+  ],
+  "unacked": [
+   "WMN1"
+  ],
+  "note": ""
+ },
+ {
+  "id": "E1",
+  "question": "waveform switch immediately after a frequency pair (0 ms gap)",
+  "sequence": [
+   "WMF0001000.000000",
+   "WFF0002000.000000",
+   "WMW00"
+  ],
+  "gap_ms": 0,
+  "expected": {
+   "ch1.hz": 1000,
+   "ch2.hz": 2000,
+   "ch1.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch1.hz: want 1000 got 322.0",
+   "ch2.hz: want 2000 got 0.0",
+   "ch1.wave: want 'SINE' got 'SQUARE'"
+  ],
+  "unacked": [
+   "WMF0001000.000000",
+   "WFF0002000.000000",
+   "WMW00"
+  ],
+  "note": "the 200 ms WAVEFORM_SWITCH_GAP_MS exists because CH2 was seen reverting here"
+ },
+ {
+  "id": "E2",
+  "question": "same with the app's 200 ms margin",
+  "sequence": [
+   "WMF0001000.000000",
+   "WFF0002000.000000",
+   "WMW00"
+  ],
+  "gap_ms": 200,
+  "expected": {
+   "ch1.hz": 1000,
+   "ch2.hz": 2000,
+   "ch1.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 2000.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch1.hz: want 1000 got 322.0",
+   "ch1.wave: want 'SINE' got 'SQUARE'"
+  ],
+  "unacked": [
+   "WMF0001000.000000",
+   "WMW00"
+  ],
+  "note": ""
+ },
+ {
+  "id": "E3",
+  "question": "switching TO sine then writing a frequency (the 12 Jun symptom)",
+  "sequence": [
+   "WMW01",
+   "WMW00",
+   "WMF0003000.000000"
+  ],
+  "gap_ms": 50,
+  "expected": {
+   "ch1.hz": 3000,
+   "ch1.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch1.hz: want 3000 got 322.0",
+   "ch1.wave: want 'SINE' got 'SQUARE'"
+  ],
+  "unacked": [
+   "WMW01",
+   "WMW00",
+   "WMF0003000.000000"
+  ],
+  "note": ""
+ },
+ {
+  "id": "E4",
+  "question": "repeated sine re-asserts then a frequency",
+  "sequence": [
+   "WMW00",
+   "WMW00",
+   "WMW00",
+   "WMF0004000.000000"
+  ],
+  "gap_ms": 50,
+  "expected": {
+   "ch1.hz": 4000,
+   "ch1.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch1.hz: want 4000 got 0.0",
+   "ch1.wave: want 'SINE' got 'SQUARE'"
+  ],
+  "unacked": [
+   "WMW00",
+   "WMW00",
+   "WMW00",
+   "WMF0004000.000000"
+  ],
+  "note": ""
+ }
+]

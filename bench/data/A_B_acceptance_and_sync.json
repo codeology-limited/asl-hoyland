@@ -1,0 +1,713 @@
+[
+ {
+  "id": "A1",
+  "question": "WMW00 sets CH1 sine",
+  "sequence": [
+   "WMW00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A2",
+  "question": "WMW01 sets CH1 square",
+  "sequence": [
+   "WMW01"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SQUARE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A3",
+  "question": "WFW00 sets CH2 sine",
+  "sequence": [
+   "WFW00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch2.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A4",
+  "question": "WFW01 sets CH2 square",
+  "sequence": [
+   "WFW01"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch2.wave": "SQUARE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A5",
+  "question": "WMF sets CH1 frequency",
+  "sequence": [
+   "WMF0001000.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 1000
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 1000.0,
+    "v": 0.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A6",
+  "question": "WFF sets CH2 frequency",
+  "sequence": [
+   "WFF27120000.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch2.hz": 27120000
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 27120000.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A7",
+  "question": "WMA sets CH1 amplitude",
+  "sequence": [
+   "WMA01.00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A8",
+  "question": "WFA sets CH2 amplitude",
+  "sequence": [
+   "WFA02.00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch2.v": 2.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 2.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A9",
+  "question": "WMN1/WFN1 enable outputs",
+  "sequence": [
+   "WMN1",
+   "WFN1"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.on": true,
+   "ch2.on": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 2.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "A10",
+  "question": "WMN0/WFN0 disable outputs",
+  "sequence": [
+   "WMN1",
+   "WFN1",
+   "WMN0",
+   "WFN0"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.on": false,
+   "ch2.on": false
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 2.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMN0"
+  ],
+  "note": ""
+ },
+ {
+  "id": "A11",
+  "question": "WMT0/WFT0 (undocumented for FY6600) change nothing",
+  "sequence": [
+   "WMF0000500.000000",
+   "WMW00",
+   "WMT0",
+   "WFT0"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 500,
+   "ch1.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 500.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 2.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMT0",
+   "WFT0"
+  ],
+  "note": "WMT/WFT are FY2300 attenuation opcodes; the app sends them at startup"
+ },
+ {
+  "id": "A12",
+  "question": "config commands WMO/WMD/WMP are harmless",
+  "sequence": [
+   "WMF0000500.000000",
+   "WMO00.00",
+   "WMD50.0",
+   "WMP000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 500
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 500.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "B1",
+  "question": "USA0 snaps CH2 waveform to CH1 immediately",
+  "sequence": [
+   "WMW00",
+   "WFW01",
+   "USA0"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SINE",
+   "ch2.wave": "SINE",
+   "syncWave": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.wave: want 'SINE' got 'SQUARE'"
+  ],
+  "unacked": [],
+  "note": "if CH2 is still SQUARE the coupling only applies on the NEXT CH1 write"
+ },
+ {
+  "id": "B2",
+  "question": "with USA0 on, a later CH1 waveform change propagates to CH2",
+  "sequence": [
+   "USA0",
+   "WMW00",
+   "WMW01"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SQUARE",
+   "ch2.wave": "SQUARE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "B3",
+  "question": "USA1 snaps CH2 frequency to CH1 immediately",
+  "sequence": [
+   "WMF0001000.000000",
+   "WFF0002000.000000",
+   "USA1"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 1000,
+   "ch2.hz": 1000,
+   "syncFreq": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 1000.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 2000.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": true,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.hz: want 1000 got 2000.0"
+  ],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "B4",
+  "question": "with USA1 on, an explicit WFF is overridden by CH1",
+  "sequence": [
+   "USA1",
+   "WMF0001000.000000",
+   "WFF0009000.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 1000,
+   "ch2.hz": 1000
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 1000.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 9000.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": true,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.hz: want 1000 got 9000.0"
+  ],
+  "unacked": [],
+  "note": "mirror programs rely on CH2 following CH1 and never writing CH2"
+ },
+ {
+  "id": "B5",
+  "question": "USA2 snaps CH2 amplitude to CH1",
+  "sequence": [
+   "WMA01.00",
+   "WFA05.00",
+   "USA2"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0,
+   "ch2.v": 1.0,
+   "syncAmp": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.v: want 1.0 got 5.0"
+  ],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "B6",
+  "question": "USD1 releases frequency coupling; CH2 keeps its value",
+  "sequence": [
+   "WMF0001000.000000",
+   "USA1",
+   "USD1",
+   "WMF0003000.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 3000,
+   "ch2.hz": 1000,
+   "syncFreq": false
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 3000.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": false
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.hz: want 1000 got 0.0"
+  ],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "B7",
+  "question": "USA0 alone leaves frequency independent (carrier programs)",
+  "sequence": [
+   "WMF0000322.000000",
+   "WFF27100000.000000",
+   "WMW01",
+   "USA0"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 322,
+   "ch2.hz": 27100000,
+   "syncFreq": false,
+   "ch2.wave": "SQUARE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 27100000.0,
+    "v": 5.0,
+    "on": false
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMW01"
+  ],
+  "note": ""
+ },
+ {
+  "id": "B8",
+  "question": "full sync USA0..USA4 (mirror programs)",
+  "sequence": [
+   "WMF0000030.000000",
+   "WMW00",
+   "USA0",
+   "USA1",
+   "USA2",
+   "USA3",
+   "USA4"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 30,
+   "ch2.hz": 30,
+   "ch1.wave": "SINE",
+   "ch2.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 30.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": false
+   },
+   "syncWave": true,
+   "syncFreq": true,
+   "syncAmp": true
+  },
+  "verdict": "MISMATCH",
+  "mismatches": [
+   "ch2.hz: want 30 got 0.0",
+   "ch2.wave: want 'SINE' got 'SQUARE'"
+  ],
+  "unacked": [],
+  "note": ""
+ }
+]

@@ -1,0 +1,550 @@
+[
+ {
+  "id": "B9",
+  "question": "USA0 then a CH1 waveform write propagates; CH2 written AFTER still wins",
+  "sequence": [
+   "WMW01",
+   "USA0",
+   "WFW00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SQUARE",
+   "ch2.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 30.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WFW00"
+  ],
+  "note": "if this holds, a carrier program CAN have CH1 square + CH2 sine while USA0 is on"
+ },
+ {
+  "id": "B10",
+  "question": "but a later CH1 waveform write then drags CH2 back",
+  "sequence": [
+   "WMW01",
+   "USA0",
+   "WFW00",
+   "WMW01"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SQUARE",
+   "ch2.wave": "SQUARE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 30.0,
+    "v": 1.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": false
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WFW00"
+  ],
+  "note": "re-asserting the same CH1 waveform is enough to clobber CH2"
+ },
+ {
+  "id": "C1",
+  "question": "CH1 sine survives output-enable",
+  "sequence": [
+   "WMF0001873.500000",
+   "WMW00",
+   "WMN1",
+   "WFN1"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SINE",
+   "ch1.hz": 1873.5,
+   "ch1.on": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 1873.5,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 0.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": "THE v1.8.5/v1.8.6 dispute: does CH1 revert to the WMW01 init square when outputs come on?"
+ },
+ {
+  "id": "C2",
+  "question": "CH2 carrier survives output-enable with frequency-sync OFF",
+  "sequence": [
+   "WFF3100000.000000",
+   "WFF27120000.000000",
+   "WMF0001873.500000",
+   "WMW00",
+   "WFW00",
+   "USA0",
+   "WFN1",
+   "WMN1",
+   "USA2"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 1873.5,
+   "ch2.hz": 27120000,
+   "ch1.wave": "SINE",
+   "ch2.wave": "SINE"
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 1873.5,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 27120000.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WFN1"
+  ],
+  "note": "does CH2 fall back to the 3.1 MHz init value when the outputs enable?"
+ },
+ {
+  "id": "C3",
+  "question": "USA2 at output-enable does NOT retro-copy CH1 amplitude to CH2",
+  "sequence": [
+   "WMA01.00",
+   "WFA05.00",
+   "WFN1",
+   "WMN1",
+   "USA2"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 1.0,
+   "ch2.v": 5.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 1873.5,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 5.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMN1"
+  ],
+  "note": "the app assumes USA2 makes CH2 track CH1 amplitude"
+ },
+ {
+  "id": "C4",
+  "question": "after USA2, a NEW CH1 amplitude does reach CH2",
+  "sequence": [
+   "WMA01.00",
+   "WFA05.00",
+   "USA2",
+   "WMA02.00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.v": 2.0,
+   "ch2.v": 2.0
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 1873.5,
+    "v": 2.0,
+    "on": false
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 0.0,
+    "v": 2.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [],
+  "note": ""
+ },
+ {
+  "id": "C5",
+  "question": "ttf (SINE carrier): CH1 1873.5 Hz sine, CH2 27.12 MHz sine, both on",
+  "sequence": [
+   "WMW01",
+   "WMO00.00",
+   "WMD50.0",
+   "WMP000",
+   "WMT0",
+   "WFW00",
+   "WFO00.00",
+   "WFD50.0",
+   "WFP000",
+   "WFT0",
+   "WFF3100000.000000",
+   "WFF27120000.000000",
+   "WMA01.00",
+   "WMF0001873.500000",
+   "WFF27120000.000000",
+   "WMW00",
+   "WFW00",
+   "USA0",
+   "WFN1",
+   "WMN1",
+   "USA2",
+   "WFF27120000.000000",
+   "WMF0001873.500000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 1873.5,
+   "ch1.wave": "SINE",
+   "ch1.on": true,
+   "ch2.hz": 27120000,
+   "ch2.wave": "SINE",
+   "ch2.on": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 1873.5,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 27120000.0,
+    "v": 0.001,
+    "on": true
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": false
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMW00",
+   "WFF27120000.000000"
+  ],
+  "note": "v1.8.6 carrier path \u2014 Rob reported this one as square from the box on 12 Aug"
+ },
+ {
+  "id": "C6",
+  "question": "tCells30Hz (SINE mirror): both channels 30 Hz sine",
+  "sequence": [
+   "WMW01",
+   "WMO00.00",
+   "WMD50.0",
+   "WMP000",
+   "WMT0",
+   "WFW00",
+   "WFO00.00",
+   "WFD50.0",
+   "WFP000",
+   "WFT0",
+   "WFF3100000.000000",
+   "WMA01.00",
+   "WMF0000030.000000",
+   "WMW00",
+   "WFW00",
+   "USA0",
+   "USA1",
+   "USA2",
+   "USA3",
+   "USA4",
+   "WFN1",
+   "WMN1",
+   "USA2",
+   "WMF0000030.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 30,
+   "ch1.wave": "SINE",
+   "ch1.on": true,
+   "ch2.hz": 30,
+   "ch2.wave": "SINE",
+   "ch2.on": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SINE",
+    "hz": 30.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 30.0,
+    "v": 1.0,
+    "on": true
+   },
+   "syncWave": true,
+   "syncFreq": true,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WFN1"
+  ],
+  "note": "mirror path: CH2 must catch up to CH1 via USA1 on the in-loop WMF"
+ },
+ {
+  "id": "C7",
+  "question": "dualFreq230and430Hz (independent): CH1 230 Hz, CH2 430 Hz, both square",
+  "sequence": [
+   "WMW01",
+   "WMO00.00",
+   "WMD50.0",
+   "WMP000",
+   "WMT0",
+   "WFW00",
+   "WFO00.00",
+   "WFD50.0",
+   "WFP000",
+   "WFT0",
+   "WFF3100000.000000",
+   "WMA01.00",
+   "WMF0000230.000000",
+   "WFF0000430.000000",
+   "WMW01",
+   "WFW01",
+   "WFN1",
+   "WMN1",
+   "USA2",
+   "WMF0000230.000000",
+   "WFF0000430.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.hz": 230,
+   "ch2.hz": 430,
+   "ch1.wave": "SQUARE",
+   "ch2.wave": "SQUARE",
+   "ch1.on": true,
+   "ch2.on": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 230.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 430.0,
+    "v": 1.0,
+    "on": true
+   },
+   "syncWave": false,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMW01"
+  ],
+  "note": ""
+ },
+ {
+  "id": "C8",
+  "question": "cancerSarcomaBX as shipped: CH2 ends up SQUARE (Rob wants sine)",
+  "sequence": [
+   "WMW01",
+   "WMO00.00",
+   "WMD50.0",
+   "WMP000",
+   "WMT0",
+   "WFW00",
+   "WFO00.00",
+   "WFD50.0",
+   "WFP000",
+   "WFT0",
+   "WFF3100000.000000",
+   "WFF27100000.000000",
+   "WMA01.00",
+   "WMF0000322.000000",
+   "WFF27100000.000000",
+   "WMW01",
+   "WFW01",
+   "USA0",
+   "WFN1",
+   "WMN1",
+   "USA2",
+   "WFF27100000.000000"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SQUARE",
+   "ch2.wave": "SQUARE",
+   "ch2.hz": 27100000
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SQUARE",
+    "hz": 27100000.0,
+    "v": 1.0,
+    "on": true
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMW01"
+  ],
+  "note": "confirms channel2wavetype SINE is ignored today"
+ },
+ {
+  "id": "C9",
+  "question": "PROPOSED fix for BX/BY: write CH2 sine AFTER USA0 and after outputs",
+  "sequence": [
+   "WMW01",
+   "WMO00.00",
+   "WMD50.0",
+   "WMP000",
+   "WMT0",
+   "WFW00",
+   "WFO00.00",
+   "WFD50.0",
+   "WFP000",
+   "WFT0",
+   "WFF3100000.000000",
+   "WFF27120000.000000",
+   "WMA01.00",
+   "WMF0000322.000000",
+   "WFF27120000.000000",
+   "WMW01",
+   "USA0",
+   "WFW00",
+   "WFN1",
+   "WMN1",
+   "USA2",
+   "WFF27120000.000000",
+   "WFW00"
+  ],
+  "gap_ms": 600,
+  "expected": {
+   "ch1.wave": "SQUARE",
+   "ch2.wave": "SINE",
+   "ch2.hz": 27120000,
+   "ch1.hz": 322,
+   "ch1.on": true,
+   "ch2.on": true
+  },
+  "observed": {
+   "ch1": {
+    "wave": "SQUARE",
+    "hz": 322.0,
+    "v": 1.0,
+    "on": true
+   },
+   "ch2": {
+    "wave": "SINE",
+    "hz": 27120000.0,
+    "v": 1.0,
+    "on": true
+   },
+   "syncWave": true,
+   "syncFreq": false,
+   "syncAmp": true
+  },
+  "verdict": "PASS",
+  "mismatches": [],
+  "unacked": [
+   "WMT0",
+   "WFT0",
+   "WMA01.00",
+   "WMW01"
+  ],
+  "note": "if this passes, Rob's 14 Aug request is a small, safe change"
+ }
+]
