@@ -60,8 +60,20 @@ pub fn reconnect_device(
                     println!("Failed to write to port {}: {}", port.port_name, e);
                     continue;
                 }
-                std::thread::sleep(std::time::Duration::from_millis(500));
-                match serial_port.read(buffer.as_mut_slice()) {
+                // The unit's reply to UMO can take well over a second; a 500 ms wait
+                // sometimes missed it entirely and the app then fell back to the TEST
+                // port, silently driving nothing. Poll until it answers or 2 s elapse.
+                let deadline =
+                    std::time::Instant::now() + std::time::Duration::from_millis(2000);
+                let mut read_result = Ok(0);
+                while std::time::Instant::now() < deadline {
+                    std::thread::sleep(std::time::Duration::from_millis(250));
+                    read_result = serial_port.read(buffer.as_mut_slice());
+                    if matches!(read_result, Ok(n) if n > 0) {
+                        break;
+                    }
+                }
+                match read_result {
                     Ok(bytes_read) => {
                         let response = String::from_utf8_lossy(&buffer[..bytes_read]);
                         println!("Response from device: {}", response);
@@ -78,11 +90,12 @@ pub fn reconnect_device(
                                 "Successfully connected to device on port: {}",
                                 port.port_name
                             );
-                            PORT_NAME.lock().unwrap().clone_from(&port.port_name);
+                            PORT_NAME
+                                .lock()
+                                .unwrap_or_else(|e| e.into_inner())
+                                .clone_from(&port.port_name);
                             reconnected_port.clone_from(&port.port_name);
-                            window
-                                .emit("reconnected", reconnected_port.clone())
-                                .unwrap();
+                            let _ = window.emit("reconnected", reconnected_port.clone());
                             return Ok(reconnected_port);
                         }
                     }
@@ -104,11 +117,9 @@ pub fn reconnect_device(
             .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
         println!("Target device not found. Defaulting to Test Port.");
         ports.insert("TEST".to_string(), PortHandle(Mutex::new(None)));
-        *PORT_NAME.lock().unwrap() = "TEST".to_string();
+        *PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()) = "TEST".to_string();
         reconnected_port = "TEST".to_string();
-        window
-            .emit("reconnected", reconnected_port.clone())
-            .unwrap();
+        let _ = window.emit("reconnected", reconnected_port.clone());
     }
 
     Ok(reconnected_port)
@@ -121,7 +132,7 @@ pub fn use_test_port(state: State<AppState>, window: Window) -> Result<String, S
         .lock()
         .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
     ports.insert("TEST".to_string(), PortHandle(Mutex::new(None)));
-    *PORT_NAME.lock().unwrap() = "TEST".to_string();
+    *PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()) = "TEST".to_string();
     let label = "TEST".to_string();
     let _ = window.emit("reconnected", label.clone());
     Ok(label)

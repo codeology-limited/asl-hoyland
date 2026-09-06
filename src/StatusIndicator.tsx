@@ -22,10 +22,12 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
         const latest = events[events.length - 1];
         if (!latest) return;
 
-        if (latest.type === 'message_success' || latest.type === 'reconnected') {
-            setCurrentStatus('success');
-        } else if (latest.type === 'message_fail') {
+        // HoylandController emits the Tauri command name on success and `<cmd>:error`
+        // on failure; the message_* names are kept for any future Rust window events.
+        if (latest.type.endsWith(':error') || latest.type === 'message_fail') {
             setCurrentStatus('fail');
+        } else {
+            setCurrentStatus('success');
         }
         lastEventTimeRef.current = Date.now();
     }, [events]);

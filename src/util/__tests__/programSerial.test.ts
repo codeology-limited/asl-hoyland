@@ -42,6 +42,8 @@ async function runDoStart(device: VirtualFY6600, name: string, row: ProgramRow, 
 type Category = 'independent' | 'carrier' | 'mirror';
 interface Expected {
     category: Category;
+    /** true when the two channels deliberately run different waveforms */
+    split?: boolean;
     ch1Hz: number;
     ch1Wave: 'SINE' | 'SQUARE';
     ch2Wave: 'SINE' | 'SQUARE';
@@ -62,8 +64,20 @@ function expectedFor(row: ProgramRow): Expected {
         return { category: 'independent', ch1Hz, ch1Wave: wt1, ch2Wave: wt2, ch2Hz: ch2indep };
     }
     if (startF > 0) {
-        // Carrier: CH2 waveform follows CH1 (USA0), CH2 frequency held at the carrier.
-        return { category: 'carrier', ch1Hz, ch1Wave: wt1, ch2Wave: wt1, ch2Hz: startF * 1_000_000 };
+        // Carrier: CH2 holds the MHz carrier while CH1 runs the therapy.
+        // Normally CH2's waveform follows CH1 via USA0 — but when the program declares two
+        // DIFFERENT waveforms (cancerSarcomaBX/BY: square therapy tone, sine carrier) each
+        // channel is driven on its own and USA0 must stay off, or it would copy CH1's
+        // waveform onto CH2 and lose the distinction. (Rob, 14 Aug 2026.)
+        const declared2 = row.channel2wavetype as 'SINE' | 'SQUARE' | undefined;
+        const split = (declared2 === 'SINE' || declared2 === 'SQUARE') &&
+                      (row.channel1wavetype === 'SINE' || row.channel1wavetype === 'SQUARE') &&
+                      declared2 !== row.channel1wavetype;
+        return {
+            category: 'carrier', split, ch1Hz, ch1Wave: wt1,
+            ch2Wave: split ? declared2! : wt1,
+            ch2Hz: startF * 1_000_000,
+        };
     }
     // Mirror: CH2 follows CH1 in both waveform and frequency (full sync).
     return { category: 'mirror', ch1Hz, ch1Wave: wt1, ch2Wave: wt1, ch2Hz: ch1Hz };
@@ -148,15 +162,24 @@ describe('every program emits its spec-derived serial output', () => {
             }
             if (exp.category === 'carrier') {
                 if (usa1) errs.push('carrier must NOT frequency-sync (USA1) — would collapse the carrier');
-                if (!usa0) errs.push('carrier should waveform-sync (USA0) so CH2 waveform follows CH1');
+                if (exp.split && usa0) {
+                    errs.push('split-waveform carrier must NOT waveform-sync (USA0) — it would copy CH1 onto CH2');
+                }
+                if (!exp.split && !usa0) {
+                    errs.push('carrier should waveform-sync (USA0) so CH2 waveform follows CH1');
+                }
             }
             if (exp.category === 'independent' && usa1) {
                 errs.push('independent-CH2 must NOT frequency-sync (USA1) — would collapse the two frequencies');
             }
 
-            // 6. No waveform switch AFTER outputs (default programs have no per-step waveform).
+            // 6. No waveform switch AFTER outputs. The exception is a split-waveform
+            // carrier, which has no USA0 holding CH2 and must re-assert it once the
+            // outputs are on (bench-validated ordering).
             const postWave = after.filter((l) => l.startsWith('WMW') || l.startsWith('WFW'));
-            if (postWave.length > 0) errs.push(`waveform switched after outputs on: ${postWave.join(',')}`);
+            const allowed = exp.split ? (exp.ch2Wave === 'SINE' ? 'WFW00' : 'WFW01') : null;
+            const unexpected = postWave.filter((l) => l !== allowed);
+            if (unexpected.length > 0) errs.push(`waveform switched after outputs on: ${unexpected.join(',')}`);
 
             if (errs.length) failures.push(`\n[${name}] ${exp.category} (${exp.ch1Wave}, CH2 ${exp.ch2Hz}Hz)\n   - ` + errs.join('\n   - '));
         }

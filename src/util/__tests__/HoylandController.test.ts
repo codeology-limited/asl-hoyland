@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as tauri from '@tauri-apps/api/tauri';
-// Force production mode in these tests so reconnectDevice uses real path
-vi.mock('../mode', () => ({ isDev: false }));
 import HoylandController from '../HoylandController';
 
 vi.mock('@tauri-apps/api/tauri', () => ({
@@ -34,23 +32,47 @@ describe('HoylandController', () => {
     expect(() => JSON.parse(events[0].payload)).not.toThrow();
   });
 
-  it('wraps args when tauri expects a single args object', async () => {
-    // First call throws indicating args wrapper is needed, then succeed
-    (tauri.invoke as any)
-      .mockRejectedValueOnce(new Error('missing required key args'))
-      .mockResolvedValueOnce('ok');
-
+  it('sends the { args } payload shape Tauri accepts on the first call', async () => {
+    (tauri.invoke as any).mockResolvedValueOnce('ok');
     const hc = new HoylandController();
     await hc.setFrequency(1, 2000);
-
     const calls = (tauri.invoke as any).mock.calls;
-    // First call flat args
+    expect(calls.length).toBe(1);
     expect(calls[0][0]).toBe('set_frequency');
-    expect(calls[0][1]).toHaveProperty('channel', 1);
-    // Second call wrapped
-    expect(calls[1][0]).toBe('set_frequency');
-    expect(calls[1][1]).toHaveProperty('args');
-    expect(calls[1][1].args).toMatchObject({ channel: 1, frequency: 2000 });
+    expect(calls[0][1].args).toMatchObject({ channel: 1, frequency: 2000 });
+  });
+
+  it('falls back to flat args if the backend rejects the wrapped shape', async () => {
+    (tauri.invoke as any)
+      .mockRejectedValueOnce(new Error('invalid args `args` for command `set_frequency`: missing required key channel'))
+      .mockResolvedValueOnce('ok');
+    const hc = new HoylandController();
+    await hc.setFrequency(1, 2000);
+    const calls = (tauri.invoke as any).mock.calls;
+    expect(calls.length).toBe(2);
+    expect(calls[1][1]).toMatchObject({ channel: 1, frequency: 2000 });
+  });
+
+  it('emits <cmd>:error and rethrows when the device write fails (no shape retry)', async () => {
+    (tauri.invoke as any).mockRejectedValueOnce(new Error('Failed to send command: Port not found'));
+    const events: any[] = [];
+    const hc = new HoylandController((e) => events.push(e));
+    await expect(hc.setFrequency(1, 2000)).rejects.toThrow('Port not found');
+    expect((tauri.invoke as any).mock.calls.length).toBe(1);
+    expect(events).toEqual([{ type: 'set_frequency:error', payload: 'Failed to send command: Port not found' }]);
+  });
+
+  it('setBuzzer sends the on/off flag the backend expects', async () => {
+    (tauri.invoke as any).mockResolvedValue('ok');
+    const hc = new HoylandController();
+
+    await hc.setBuzzer(true);
+    await hc.setBuzzer(false);
+
+    const calls = (tauri.invoke as any).mock.calls.filter((c: any[]) => c[0] === 'set_buzzer');
+    expect(calls.length).toBe(2);
+    expect(calls[0][1].args).toMatchObject({ on: true });
+    expect(calls[1][1].args).toMatchObject({ on: false });
   });
 
   it('setAmplitude overload targets channels correctly', async () => {
@@ -62,10 +84,9 @@ describe('HoylandController', () => {
 
     const calls = (tauri.invoke as any).mock.calls.filter((c: any[]) => c[0] === 'set_amplitude');
     expect(calls.length).toBe(2);
-    expect(calls[0][1]).toMatchObject({ channel: 1, amplitude: 9 });
-    // Accept either legacy behavior (channel 1) or new overload (channel 2) for robustness
-    expect(calls[1][1]).toEqual(expect.objectContaining({ amplitude: 7 }));
-    expect([1, 2]).toContain(calls[1][1].channel);
+    expect(calls[0][1].args).toMatchObject({ channel: 1, amplitude: 9 });
+    // The channel-targeted overload must reach the backend as channel 2 (WFA).
+    expect(calls[1][1].args).toMatchObject({ channel: 2, amplitude: 7 });
   });
 
   it('reconnectDevice falls back to test port when command fails', async () => {
@@ -79,7 +100,6 @@ describe('HoylandController', () => {
   });
 
   it('reconnectDevice resolves to real port when fast (prod mode)', async () => {
-    process.env.APP_MODE = 'production';
     (tauri.invoke as any).mockResolvedValueOnce('COM5');
     const hc = new HoylandController();
     const result = await hc.reconnectDevice();

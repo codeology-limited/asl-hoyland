@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useReducer, useCallback, useState} from 'react';
 import { useAppContext } from '../AppContext';
 import ProgramRunner from '../util/ProgramRunner';
+import { notifyUser } from '../util/notifyUser';
 import { previewRunStatus, type RunStatus } from '../util/ProgramRunner';
 import ChannelReadout from '../components/ChannelReadout';
 import ProgramSelect, { ProgramOption } from "./ProgramSelect.tsx";
@@ -210,8 +211,9 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
     const pendingStartRef = useRef(false);
 
     const doStart = async () => {
-        await loadProgram(state.selectedProgram);
-        if (runnerRef.current) {
+        try {
+            await loadProgram(state.selectedProgram);
+            if (!runnerRef.current) return;
             setIsRunning(true);
             // Configure CH1 FULLY, then CH2 — grouping each channel's config keeps the
             // FY6600's own screen from thrashing between channels at startup (Robbie).
@@ -227,13 +229,25 @@ const CustomPrograms: React.FC<CustomProgramsProps> = ({ setIsRunning, isRunning
             await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
             // Start program — enables outputs after all settings configured
             await runnerRef.current.startProgram(state.selectedProgram, setRunStatus);
+        } catch (error) {
+            // A device write failed during start-up (unplugged, port error). Make sure
+            // the machine is stopped, then release the UI instead of leaving it "running".
+            try { await runnerRef.current?.stopProgram(); }
+            catch (stopErr) { console.error('Stop after failed start also failed:', stopErr); }
+            resetUI();
+            notifyUser('Could not start the program. The device has been stopped.', error);
         }
     };
 
     const handleStartStop = async () => {
         if (isRunning) {
             dispatch({ type: 'START_STOPPING' });
-            await runnerRef.current?.stopProgram();
+            try {
+                await runnerRef.current?.stopProgram();
+            } catch (error) {
+                // The stop sequence is best-effort over serial; the UI must still reset.
+                notifyUser('The stop sequence did not complete. Check the device.', error);
+            }
             setChannel1Active(false);
             setChannel2Active(false);
             resetUI();

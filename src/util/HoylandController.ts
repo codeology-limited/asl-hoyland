@@ -2,13 +2,13 @@ import { invoke } from '@tauri-apps/api/tauri';
 
 type EventPayload = { type: string; payload: string };
 
+const errorMessage = (err: unknown): string =>
+    err instanceof Error ? (err.message ?? String(err)) : String(err ?? '');
+
 export default class HoylandController {
     private _intensity = 1;
     private _delayMs = 100;
     private _eventCallback: ((e: EventPayload) => void) | null = null;
-
-    /** For display only (Hz) */
-    currentFrequency = 0;
 
     constructor(eventCallback?: (e: EventPayload) => void) {
         console.log('INITIALISING HOYLAND CONTROLLER');
@@ -38,31 +38,28 @@ export default class HoylandController {
         cmd: string,
         args?: Record<string, unknown>
     ): Promise<T> {
-        try {
-            // 1) Try flat args (fn reconnect_device(target_device: String, baud_rate: u32))
-            const res = await invoke<T>(cmd, args);
-            this.emit(cmd, res);
-            return res;
-        } catch (err: unknown) {
-            const msg = err instanceof Error ? (err.message ?? String(err)) : String(err ?? '');
-            // 2) If Rust expects a single param named "args" (fn reconnect_device(args: X))
-            const needsArgsWrapper =
-                msg.includes('missing required key args') ||
-                msg.includes('invalid args `args`') ||
-                msg.includes('unknown field `target_device`'); // common variant
-
-            if (needsArgsWrapper && args && !('args' in args)) {
-                const res2 = await invoke<T>(cmd, { args });
-                this.emit(cmd, res2);
-                return res2;
+        // Every parameterised Rust command takes a single struct parameter named `args`
+        // (set_frequency, set_amplitude, reconnect_device), so Tauri only accepts the
+        // `{ args }` payload shape — the flat shape always failed and cost a wasted IPC
+        // round-trip per write. Send `{ args }` first; keep the flat shape as a fallback
+        // so a future flat-signature command still works.
+        const shapes: (Record<string, unknown> | undefined)[] = args ? [{ args }, args] : [undefined];
+        let lastErr: unknown;
+        for (let i = 0; i < shapes.length; i++) {
+            try {
+                const res = await invoke<T>(cmd, shapes[i]);
+                this.emit(cmd, res);
+                return res;
+            } catch (err: unknown) {
+                lastErr = err;
+                const shapeMismatch = /missing required key|invalid args|unknown field/i.test(errorMessage(err));
+                if (!shapeMismatch || i === shapes.length - 1) break;
             }
-
-            console.error(`[${cmd}] failed:`, err);
-            this.emit(`${cmd}:error`, msg);
-            throw err;
         }
+        console.error(`[${cmd}] failed:`, lastErr);
+        this.emit(`${cmd}:error`, errorMessage(lastErr));
+        throw lastErr;
     }
-
 
     async reconnectDevice(): Promise<string> {
         const target_device = 'Hoyland';
@@ -107,6 +104,24 @@ export default class HoylandController {
         console.log(ok ? 'squarewave sent successfully' : 'Failed to send squarewave');
     }
 
+    /** Turn the generator's own beeper on or off. */
+    async setBuzzer(on: boolean) {
+        const ok = await this.invokeCmd<boolean>('set_buzzer', { on });
+        console.log(ok ? `buzzer ${on ? 'on' : 'off'}` : 'Failed to set the buzzer');
+    }
+
+    /** CH2 waveform → sine (WFW00), without touching CH1. */
+    async auxSineWave() {
+        const ok = await this.invokeCmd<boolean>('aux_sine_wave');
+        console.log(ok ? 'CH2 sine set' : 'Failed to set CH2 sine');
+    }
+
+    /** CH2 waveform → square (WFW01), without touching CH1. */
+    async auxSquareWave() {
+        const ok = await this.invokeCmd<boolean>('aux_square_wave');
+        console.log(ok ? 'CH2 square set' : 'Failed to set CH2 square');
+    }
+
     async setBothChannelsToSquareWave() {
         const ok = await this.invokeCmd<boolean>('set_both_channels_to_square_wave');
         console.log(ok ? 'square wave set' : 'Failed to set square wave');
@@ -115,11 +130,6 @@ export default class HoylandController {
     async setBothChannelsToSineWave() {
         const ok = await this.invokeCmd<boolean>('set_both_channels_to_sine_wave');
         console.log(ok ? 'sine wave set on both channels' : 'Failed to set sine wave on both channels');
-    }
-
-    async setChannelsOutput(on: boolean) {
-        const ok = await this.invokeCmd<boolean>('set_channels_output', { on });
-        console.log(ok ? `outputs ${on ? 'enabled' : 'disabled'}` : `Failed to ${on ? 'enable' : 'disable'} outputs`);
     }
 
     async sync() {
@@ -143,7 +153,6 @@ export default class HoylandController {
 
     /** frequency in Hz */
     async setFrequency(channel: number, frequency: number) {
-        this.currentFrequency = frequency;
         await this.invokeCmd<void>('set_frequency', { channel, frequency });
         console.log(`Frequency set for channel ${channel} to ${frequency} Hz`);
     }
@@ -169,6 +178,18 @@ export default class HoylandController {
     async enableOutputs() {
         const ok = await this.invokeCmd<boolean>('enable_outputs');
         console.log(ok ? 'outputs enabled (WFN1, WMN1, USA2)' : 'Failed to enable outputs');
+    }
+
+    /**
+     * Read the generator's own registers back (e.g. ['RMW','RFW','RMF','RFF']).
+     * Returns one raw reply per query; an empty string means "no answer" (TEST port,
+     * or the device didn't reply in time) and callers must treat it as unknown, not
+     * as a mismatch. Every other command in this class is write-only and assumes it
+     * worked — this is the only way to find out whether it actually did.
+     */
+    async readDeviceState(queries: string[]): Promise<string[]> {
+        const res = await this.invokeCmd<string[]>('read_device_state', { queries });
+        return Array.isArray(res) ? res : [];
     }
 
     async stopAndReset() {

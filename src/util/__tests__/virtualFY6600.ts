@@ -47,9 +47,12 @@ export interface TranscriptLine {
 
 /** program.rs set_frequency: `{prefix}{trunc:07}.{frac:06}\n`, ch1→WMF, ch2→WFF. */
 export function formatFrequency(channel: number, hz: number): string {
-    if (hz < 0) throw new Error('Frequency must be non-negative');
-    const intHz = Math.trunc(hz);
-    const frac = Math.round((hz - intHz) * 1_000_000);
+    if (!Number.isFinite(hz) || hz < 0) throw new Error('Frequency must be a non-negative number');
+    // Same arithmetic as Rust: round to micro-Hz first so the fraction carries into the
+    // integer part instead of printing a 7th digit.
+    const microHz = Math.round(hz * 1_000_000);
+    const intHz = Math.floor(microHz / 1_000_000);
+    const frac = microHz % 1_000_000;
     const prefix = channel === 2 ? 'WFF' : 'WMF';
     // padStart reproduces Rust's *minimum*-width {:07}/{:06}: never truncates when longer.
     return `${prefix}${String(intHz).padStart(7, '0')}.${String(frac).padStart(6, '0')}\n`;
@@ -58,13 +61,14 @@ export function formatFrequency(channel: number, hz: number): string {
 /** program.rs set_amplitude: `{prefix}{amp:05.2}\n`, ch2→WFA else WMA. */
 export function formatAmplitude(channel: number, amp: number): string {
     const prefix = channel === 2 ? 'WFA' : 'WMA';
+    if (!Number.isFinite(amp) || amp < 0 || amp > 20) throw new Error('Amplitude must be between 0 and 20 V');
     return `${prefix}${amp.toFixed(2).padStart(5, '0')}\n`;
 }
 
 // --- Static command tables (verbatim from program.rs) -----------------------------------
 
-const INITIAL_COMMANDS = ['WFW00\n', 'WFO00.00\n', 'WFD50.0\n', 'WFP000\n', 'WFT0\n', 'WFF3100000.000000\n'];
-const SECONDARY_COMMANDS = ['WMW01\n', 'WMO00.00\n', 'WMD50.0\n', 'WMP000\n', 'WMT0\n'];
+const INITIAL_COMMANDS = ['WFW00\n', 'WFO00.00\n', 'WFD50.0\n', 'WFP000\n', 'WFF3100000.000000\n'];
+const SECONDARY_COMMANDS = ['WMW01\n', 'WMO00.00\n', 'WMD50.0\n', 'WMP000\n'];
 const ENABLE_OUTPUT_COMMANDS = ['WFN1\n', 'WMN1\n', 'USA2\n'];
 const STOP_COMMANDS = ['USD0\n', 'USD1\n', 'USD2\n', 'USD3\n', 'USD4\n', 'WFF0\n', 'WMF0\n', 'WFN0\n', 'WMN0\n'];
 const SYNC_COMMANDS = ['USA0\n', 'USA1\n', 'USA2\n', 'USA3\n', 'USA4\n'];
@@ -80,12 +84,16 @@ function expand(cmd: string, args?: Record<string, unknown>): string[] {
             return ['WMW00\n'];
         case 'square_wave':
             return ['WMW01\n'];
+        case 'set_buzzer':
+            return [args?.on ? 'UBZ1\n' : 'UBZ0\n'];
+        case 'aux_sine_wave':
+            return ['WFW00\n'];
+        case 'aux_square_wave':
+            return ['WFW01\n'];
         case 'set_both_channels_to_sine_wave':
             return ['WMW00\n', 'WFW00\n'];
         case 'set_both_channels_to_square_wave':
             return ['WMW01\n', 'WFW01\n'];
-        case 'set_channels_output':
-            return args?.on ? ['WFN1\n', 'WMN1\n', 'USA2\n'] : ['WFN0\n', 'WMN0\n'];
         case 'sync':
             return [...SYNC_COMMANDS];
         case 'enable_waveform_sync':
@@ -184,6 +192,22 @@ export class VirtualFY6600 {
         const flat = args && 'args' in args && typeof args.args === 'object'
             ? (args.args as Record<string, unknown>)
             : args;
+        if (cmd === 'read_device_state') {
+            // Answer register reads from the modelled state, the way the real device does.
+            const st = this.runningState;
+            const wave = (w: Wave) => (w === 'SINE' ? '0' : w === 'SQUARE' ? '1' : '');
+            const hz = (v: number) => {
+                const micro = Math.round(v * 1_000_000);
+                return `${String(Math.floor(micro / 1_000_000)).padStart(8, '0')}.${String(micro % 1_000_000).padStart(6, '0')}`;
+            };
+            const map: Record<string, string> = {
+                RMW: wave(st.ch1.wave), RFW: wave(st.ch2.wave),
+                RMF: hz(st.ch1.hz), RFF: hz(st.ch2.hz),
+                RMN: st.ch1.outputOn ? '255' : '0', RFN: st.ch2.outputOn ? '255' : '0',
+            };
+            const queries = (flat?.queries as string[]) ?? [];
+            return queries.map((q) => map[q] ?? '');
+        }
         const t = Date.now();
         for (const raw of expand(cmd, flat)) {
             this._transcript.push({ line: raw.replace(/\n$/, ''), cmd, t });

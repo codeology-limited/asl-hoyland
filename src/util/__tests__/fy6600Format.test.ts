@@ -19,8 +19,14 @@ describe('formatFrequency (mirror of program.rs set_frequency)', () => {
         expect(formatFrequency(2, 3.1)).toBe('WFF0000003.100000\n');
     });
 
-    it('rejects negative frequency (Rust returns Err)', () => {
+    it('rejects negative or non-finite frequency (Rust returns Err)', () => {
         expect(() => formatFrequency(1, -1)).toThrow();
+        expect(() => formatFrequency(1, NaN)).toThrow();
+    });
+
+    it('carries a rounding overflow into the integer part (never 7 fraction digits)', () => {
+        expect(formatFrequency(1, 2.9999999)).toBe('WMF0000003.000000\n');
+        expect(formatFrequency(1, 1873.477)).toBe('WMF0001873.477000\n');
     });
 });
 
@@ -31,6 +37,11 @@ describe('formatAmplitude (mirror of program.rs set_amplitude)', () => {
         expect(formatAmplitude(1, 20.0)).toBe('WMA20.00\n');
         expect(formatAmplitude(1, 0.0)).toBe('WMA00.00\n');
         expect(formatAmplitude(2, 5.0)).toBe('WFA05.00\n');
+    });
+
+    it('rejects out-of-range amplitude (Rust returns Err)', () => {
+        expect(() => formatAmplitude(1, -1)).toThrow();
+        expect(() => formatAmplitude(1, 25)).toThrow();
     });
 });
 

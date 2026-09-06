@@ -1,10 +1,7 @@
 use crate::app_state::{
-    log_test_port_data, perform_real_port_write, AppState, PortHandle, PORT_NAME,
+    log_test_port_data, perform_real_port_query, perform_real_port_write, AppState, PORT_NAME,
 };
 use serde::Deserialize;
-use serialport;
-use std::sync::Mutex;
-use std::time::Duration;
 use tauri::{State, Window};
 
 #[derive(Deserialize)]
@@ -12,99 +9,14 @@ pub struct WriteToPortArgs {
     pub data: String,
 }
 
-#[derive(Deserialize)]
-pub struct OpenPortArgs {
-    pub baud_rate: u32,
-}
-
-#[derive(Deserialize)]
-pub struct ClosePortArgs {}
-
-#[tauri::command]
-pub fn list_ports() -> Vec<String> {
-    println!("list_ports called");
-    let mut ports = serialport::available_ports()
-        .map(|ports| {
-            ports
-                .into_iter()
-                .map(|p| p.port_name)
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or_else(|_| Vec::new());
-    ports.push("TEST".to_string());
-    println!("Available ports: {:?}", ports);
-    ports
-}
-
-#[tauri::command]
-pub fn open_port(state: State<AppState>, args: OpenPortArgs) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
-    println!(
-        "open_port called with port_name: {}, baud_rate: {}",
-        port_name, args.baud_rate
-    );
-
-    let mut ports = state
-        .ports
-        .lock()
-        .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-
-    if ports.contains_key(&port_name) {
-        return Err(format!("Port already open: {}", port_name));
-    }
-
-    if port_name == "TEST" {
-        println!("Simulating opening Test Port");
-        ports.insert(port_name.clone(), PortHandle(Mutex::new(None)));
-        println!("Test Port opened");
-        return Ok(true);
-    }
-
-    match serialport::new(&port_name, args.baud_rate)
-        .timeout(Duration::from_millis(500))
-        .data_bits(serialport::DataBits::Eight)
-        .parity(serialport::Parity::None)
-        .stop_bits(serialport::StopBits::One)
-        .flow_control(serialport::FlowControl::None)
-        .open()
-    {
-        Ok(port) => {
-            ports.insert(port_name.clone(), PortHandle(Mutex::new(Some(port))));
-            println!("Successfully opened port: {}", port_name);
-            Ok(true)
-        }
-        Err(e) => {
-            let msg = format!("Failed to open port: {}. Error: {}", port_name, e);
-            println!("{}", msg);
-            Err(msg)
-        }
-    }
-}
-
-#[tauri::command]
-pub fn close_port(state: State<AppState>, _args: ClosePortArgs) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
-    println!("close_port called with port_name: {}", port_name);
-    let mut ports = state
-        .ports
-        .lock()
-        .map_err(|_| "Failed to acquire lock on ports.".to_string())?;
-    if ports.remove(&port_name).is_some() {
-        println!("Successfully closed port: {}", port_name);
-        Ok(true)
-    } else {
-        println!("Port not found: {}", port_name);
-        Err("Port not found".to_string())
-    }
-}
-
-#[tauri::command]
+/// Write one command line to the active port. Called directly by the program
+/// commands (not exposed over IPC — the frontend never invokes it).
 pub fn write_to_port(
     state: State<AppState>,
     args: WriteToPortArgs,
     window: Window,
 ) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
     println!("Writing to port: {} with data: {}", port_name, args.data);
 
     let emit_event = |event: &str, message: String| {
@@ -139,13 +51,34 @@ pub fn write_to_port(
     Ok(true)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn list_ports_always_includes_test() {
-        let ports = list_ports();
-        assert!(ports.contains(&"TEST".to_string()));
+#[derive(Deserialize)]
+pub struct ReadDeviceStateArgs {
+    /// Read commands to issue, e.g. ["RMW", "RFW", "RMF", "RFF", "RMN", "RFN"].
+    pub queries: Vec<String>,
+}
+
+/// Read the generator's own registers back.
+///
+/// The app is otherwise write-only: it assumes every command took effect. On real
+/// hardware a command is occasionally ignored (observed after sustained use), which
+/// silently leaves a channel on the wrong waveform while the UI shows the intended
+/// one. Reading the registers back is the only way to tell.
+#[tauri::command]
+pub fn read_device_state(
+    state: State<AppState>,
+    args: ReadDeviceStateArgs,
+) -> Result<Vec<String>, String> {
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    if port_name == "TEST" {
+        // No device: report "unknown" for every query so callers skip verification.
+        return Ok(args.queries.iter().map(|_| String::new()).collect());
     }
+    let mut out = Vec::with_capacity(args.queries.len());
+    for q in &args.queries {
+        let reply = perform_real_port_query(&state.ports, q)?;
+        println!("read_device_state: {} -> {:?}", q, reply);
+        out.push(reply);
+    }
+    Ok(out)
 }

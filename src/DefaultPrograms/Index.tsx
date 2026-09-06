@@ -4,6 +4,7 @@ import ProgramRunner from '../util/ProgramRunner';
 import ProgramSelect, { ProgramOption } from './ProgramSelect.tsx';
 import type { ProgramRow } from '../util/AppDatabase';
 import { previewRunStatus, type RunStatus } from '../util/ProgramRunner';
+import { notifyUser } from '../util/notifyUser';
 import ChannelReadout from '../components/ChannelReadout';
 
 interface DefaultProgramsProps {
@@ -294,23 +295,32 @@ const DefaultPrograms: React.FC<DefaultProgramsProps> = ({ setIsRunning, isRunni
     const pendingStartRef = useRef(false);
 
     const doStart = async () => {
-        await loadProgram(state.selectedProgram);
-        if (!runnerRef.current) return;
+        try {
+            await loadProgram(state.selectedProgram);
+            if (!runnerRef.current) return;
 
-        setIsRunning(true);
-        // Configure CH1 FULLY, then CH2 — grouping each channel's config keeps the
-        // FY6600's own screen from thrashing between channels at startup (Robbie).
-        // Still no outputs/sync here; those stay after all config (outputs last).
-        await runnerRef.current.initializeChannel0();   // CH1 config (no output yet)
-        await runnerRef.current.initializeChannel1();   // CH2 config (no output yet)
-        await runnerRef.current.setChannel1StartFrequency(state.selectedProgram); // CH2 carrier
-        setChannel1Active(true);
-        setChannel2Active(true);
-        // Stash the intensity without writing it yet — startProgram applies it once
-        // (via applyCurrentIntensity) right before enabling outputs. Writing here too
-        // sent a redundant amplitude command on every start (Robbie: startup noise).
-        await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
-        await runnerRef.current.startProgram(state.selectedProgram, setRunStatus);
+            setIsRunning(true);
+            // Configure CH1 FULLY, then CH2 — grouping each channel's config keeps the
+            // FY6600's own screen from thrashing between channels at startup (Robbie).
+            // Still no outputs/sync here; those stay after all config (outputs last).
+            await runnerRef.current.initializeChannel0();   // CH1 config (no output yet)
+            await runnerRef.current.initializeChannel1();   // CH2 config (no output yet)
+            await runnerRef.current.setChannel1StartFrequency(state.selectedProgram); // CH2 carrier
+            setChannel1Active(true);
+            setChannel2Active(true);
+            // Stash the intensity without writing it yet — startProgram applies it once
+            // (via applyCurrentIntensity) right before enabling outputs. Writing here too
+            // sent a redundant amplitude command on every start (Robbie: startup noise).
+            await runnerRef.current.setIntensity(state.intensity, { applyNow: false });
+            await runnerRef.current.startProgram(state.selectedProgram, setRunStatus);
+        } catch (error) {
+            // A device write failed during start-up (unplugged, port error). Make sure
+            // the machine is stopped, then release the UI instead of leaving it "running".
+            try { await runnerRef.current?.stopProgram(); }
+            catch (stopErr) { console.error('Stop after failed start also failed:', stopErr); }
+            resetUI();
+            notifyUser('Could not start the program. The device has been stopped.', error);
+        }
     };
 
     const handleStartStop = async () => {

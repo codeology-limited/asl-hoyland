@@ -23,13 +23,17 @@ pub fn perform_real_port_write(
     ports: &Mutex<HashMap<String, PortHandle>>,
     data: &str,
 ) -> Result<bool, String> {
-    let port_name = PORT_NAME.lock().unwrap().clone();
+    // Poison-tolerant locks: a panic elsewhere must not turn every later write into a
+    // panic on the IPC thread (the device would be left in whatever state it was in).
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
     println!(
         "perform_real_port_write called with port_name: {} and data: {}",
         port_name, data
     );
-    if let Some(handle) = ports.lock().unwrap().get(&port_name) {
-        if let Some(port) = handle.0.lock().unwrap().as_mut() {
+    let ports = ports.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some(handle) = ports.get(&port_name) {
+        let mut guard = handle.0.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(port) = guard.as_mut() {
             port.write_all(data.as_bytes()).map_err(|e| {
                 println!("Failed to write to port: {}", e);
                 e.to_string()
@@ -42,6 +46,48 @@ pub fn perform_real_port_write(
         }
     }
     Err("Port not found".to_string())
+}
+
+/// Send one `R*` read command and return the device's reply, trimmed.
+///
+/// The device acks every write with 0x0a and nothing consumes those acks during a
+/// paced run, so the input buffer holds a backlog. Clear it first, otherwise a stale
+/// ack is read as this query's reply and every later read is shifted by one register.
+pub fn perform_real_port_query(
+    ports: &Mutex<HashMap<String, PortHandle>>,
+    query: &str,
+) -> Result<String, String> {
+    use std::io::Read;
+    let port_name = PORT_NAME.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    let ports = ports.lock().unwrap_or_else(|e| e.into_inner());
+    let handle = ports.get(&port_name).ok_or_else(|| "Port not found".to_string())?;
+    let mut guard = handle.0.lock().unwrap_or_else(|e| e.into_inner());
+    let port = guard.as_mut().ok_or_else(|| "Port not open".to_string())?;
+
+    let _ = port.clear(serialport::ClearBuffer::Input);
+    port.write_all(format!("{}\n", query).as_bytes())
+        .map_err(|e| e.to_string())?;
+    port.flush().map_err(|e| e.to_string())?;
+
+    // Replies land 300-900 ms after the query on the FY6300, so poll past the port's
+    // own 500 ms read timeout rather than giving up on the first empty read.
+    let deadline = std::time::Instant::now() + std::time::Duration::from_millis(1500);
+    let mut out = String::new();
+    let mut buf = [0u8; 64];
+    while std::time::Instant::now() < deadline {
+        match port.read(&mut buf) {
+            Ok(0) => {}
+            Ok(n) => {
+                out.push_str(&String::from_utf8_lossy(&buf[..n]));
+                if out.contains('\n') && !out.trim().is_empty() {
+                    break;
+                }
+            }
+            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {}
+            Err(e) => return Err(e.to_string()),
+        }
+    }
+    Ok(out.trim().to_string())
 }
 
 #[cfg(test)]

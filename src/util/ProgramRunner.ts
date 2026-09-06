@@ -34,7 +34,15 @@ export function previewRunStatus(program: ProgramRow): RunStatus {
         : (nameLc.includes('ultra') || n(program.startFrequency, 0) === 0 || (ch1Square && ch2Square)) ? 'SQUARE'
         : ch1Sine ? 'SINE'
         : 'SQUARE';
-    return { ch1: { hz: firstFreq, wave }, ch2: { hz: ch2Hz, wave } };
+    // A carrier program with two different declared waveforms drives each channel
+    // separately (see startProgram), so preview them separately too.
+    const isCarrier = !nameLc.includes('ultra') && ch2Independent <= 0 && n(program.startFrequency, 0) > 0;
+    const split = isCarrier && (ch1Sine || ch1Square) && (ch2Sine || ch2Square)
+        && program.channel1wavetype !== program.channel2wavetype;
+    return {
+        ch1: { hz: firstFreq, wave },
+        ch2: { hz: ch2Hz, wave: split ? (ch2Sine ? 'SINE' : 'SQUARE') : wave },
+    };
 }
 
 
@@ -48,7 +56,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // program is running: per-frequency custom programs stepped CH2 correctly but
 // left CH1 stuck on its first frequency (10 Jun report) because WFF followed
 // WMF after only the 5 ms device-side settle. 50 ms is the registration
-// interval already field-proven by set_channels_output's pulse toggling.
+// interval field-proven by the old WMN/WFN pulse toggling (removed in v1.6.9).
 const FREQ_PAIR_GAP_MS = 50;
 
 // Gap between the (already-set) frequency pair and a per-step waveform switch.
@@ -60,6 +68,11 @@ const FREQ_PAIR_GAP_MS = 50;
 // steps were fine because no switch is sent). 200 ms gives CH2 the same safe
 // margin CH1 already has. Only paid on steps that actually change waveform.
 const WAVEFORM_SWITCH_GAP_MS = 200;
+
+// How long the device needs before a write it has accepted can be read back. Measured on
+// an FY6300-30M: 310 ms for a CH1 frequency, 920 ms for CH2. Only used by the read-back
+// verification, never in the playback path.
+const DEVICE_COMMIT_MS = 1000;
 
 // small helpers
 const num = (v: unknown, fallback: number) => {
@@ -86,6 +99,8 @@ export default class ProgramRunner {
 
     private onProgress: ProgressCallback | null;
     private onStop: (() => void) | null = null;
+    /** onStop fires once per run, whichever path (manual stop, completion, error) ends it. */
+    private stopNotified = false;
 
     private readonly amplitudeSupportsChannel: boolean;
 
@@ -104,6 +119,12 @@ export default class ProgramRunner {
 
     setProgressCallback(cb: ProgressCallback) { this.onProgress = cb; }
     setOnStopCallback(cb: () => void) { this.onStop = cb; }
+
+    private notifyStop() {
+        if (this.stopNotified) return;
+        this.stopNotified = true;
+        this.onStop?.();
+    }
 
     /** Set CH1 frequency, then optionally CH2, paced FREQ_PAIR_GAP_MS apart. */
     private async setFrequencyPair(ch1Hz: number, ch2Hz: number | null) {
@@ -156,9 +177,13 @@ export default class ProgramRunner {
             const step = num(program?.sliderStepV, 1);
             amp = clampAndSnap(min + 0.25 * (max - min), min, max, step);
         }
-        const mirror = asBool(program?.mirror);
+        // Both channels, always. USA2 does NOT copy CH1's amplitude across when it is
+        // enabled — bench-confirmed — it only couples later changes, so CH2 was left on
+        // whatever it held (the 5 V power-on default) while CH1 followed the slider.
+        // The per-program `mirror` flag used to be the only thing that set CH2 and is now
+        // redundant.
         await this.sendAmp(1, amp);
-        if (mirror) await this.sendAmp(2, amp);
+        await this.sendAmp(2, amp);
     }
 
     /** Ultrasound special: toggle 0.5 / 0.67 MHz; keep waveform SQUARE (no sine call). */
@@ -197,7 +222,7 @@ export default class ProgramRunner {
 
         if (this.running) await this.gen.stopAndReset();
         this.running = false;
-        this.onStop?.();
+        this.notifyStop();
     }
 
     async initializeChannel1() { await this.gen.sendInitialCommands(); }
@@ -212,21 +237,33 @@ export default class ProgramRunner {
 
     async startProgram(programName: string, setRunningFrequency: RunStatusCallback) {
         const program = await this.loadProgram(programName);
-        if (!program) { console.error(`Program ${programName} not found`); return; }
+        if (!program) {
+            console.error(`Program ${programName} not found`);
+            // The tab flipped to "running" before calling us — release it.
+            this.running = false;
+            this.stopNotified = false;
+            this.notifyStop();
+            return;
+        }
 
         this.running = true;
         this.paused = false;
         this.pausedTotal = 0;
+        this.stopNotified = false;
+        const isUltrasound = program.name.toLowerCase() === 'ultrasound';
 
         const totalMs = Math.max(1, program.maxTimeInMinutes * 60 * 1000);
         const start = Date.now();
 
         // progress updater
         const progressLoop = (async () => {
+            // Ultrasound reports its own progress (9-minute basis) from runSpecialCase;
+            // running this reporter too made the bar flicker between two scales.
+            if (isUltrasound) return;
             while (this.running) {
                 if (!this.paused) {
                     const elapsed = Date.now() - start - this.pausedTotal;
-                    const pct = (elapsed / totalMs) * 100;
+                    const pct = Math.min(100, (elapsed / totalMs) * 100);
                     this.reportProgress(pct, 100, (totalMs - elapsed) / 60000);
                     if (elapsed >= totalMs) break;
                 }
@@ -237,6 +274,45 @@ export default class ProgramRunner {
 
 
 
+        let failed = false;
+        let liveAtFailure = false;
+        try {
+            await this.runBody(program, setRunningFrequency, start, totalMs);
+        } catch (err) {
+            // A rejected device write (serial error, invalid value) used to leave the
+            // run flagged as running with no stop sequence and the UI stuck. Log it,
+            // then fall through to the cleanup, which stops the device.
+            failed = true;
+            liveAtFailure = this.running;
+            console.error('Program run failed:', err);
+        } finally {
+            if (failed) this.running = false; // let the progress reporter exit now
+            await progressLoop;               // natural completion still runs to the deadline
+            // needStop is false when stopProgram() already sent STOP_COMMANDS — before
+            // the run ended or while we were waiting for the deadline above.
+            const needStop = failed ? liveAtFailure : this.running;
+            // Always release the UI, even if the stop sequence errors partway. stopAndReset
+            // sends 9 serial commands over several seconds and any one can throw transiently;
+            // without this guard the throw skipped the reset below, so the machine stopped
+            // but the UI stayed stuck "running" (report: custom program finished, UI frozen).
+            try {
+                if (needStop) await this.gen.stopAndReset();
+            } catch (err) {
+                console.error('stopAndReset at completion failed:', err);
+            } finally {
+                this.running = false;
+                this.paused = false;
+                this.notifyStop();
+            }
+        }
+    }
+
+    /**
+     * The device-facing run: start-up writes, then the playback loop for the program's
+     * mode. Byte order and pacing here are load-bearing (see README "Timing invariants").
+     * Called only from startProgram, which owns the running flag, progress and cleanup.
+     */
+    private async runBody(program: ProgramRow, setRunningFrequency: RunStatusCallback, start: number, totalMs: number) {
         if (program.name.toLowerCase() === 'ultrasound') {
             // Ensure amplitude and frequency are set BEFORE outputs are enabled
             await this.applyCurrentIntensity(program);
@@ -245,6 +321,7 @@ export default class ProgramRunner {
             setRunningFrequency({ ch1: { hz: initialHz, wave: 'SQUARE' }, ch2: { hz: initialHz, wave: 'SQUARE' } });
             await this.gen.setBothChannelsToSquareWave();
             await this.gen.sync();
+            if (!this.running) return; // Stop pressed during start-up: STOP already sent
             await this.gen.enableOutputs();
             setRunningFrequency({ ch1: { hz: initialHz, wave: 'SQUARE' }, ch2: { hz: initialHz, wave: 'SQUARE' } });
             await this.runSpecialCase(setRunningFrequency);
@@ -343,8 +420,11 @@ export default class ProgramRunner {
                 : (program.startFrequency > 0 ? program.startFrequency * 1_000_000 : 0);
             if (ch2CarrierHz > 0) {
                 await sleep(FREQ_PAIR_GAP_MS);
+                if (!this.running) return; // Stop pressed during start-up
                 await this.gen.setFrequency(2, ch2CarrierHz);
             }
+
+            if (!this.running) return; // Stop pressed during start-up
 
             // Set waveform.
             // - SINE+SINE → both sine, asserted explicitly so CH1 doesn't inherit the
@@ -356,13 +436,25 @@ export default class ProgramRunner {
             // - otherwise → fall back to sinewave() if CH1 declared SINE.
             const ch1Sine = program.channel1wavetype === 'SINE';
             const ch2Sine = program.channel2wavetype === 'SINE';
+            // A carrier program may ask for a DIFFERENT waveform on each channel
+            // (cancerSarcomaBX/BY: a square therapy tone under a sine carrier). That
+            // cannot use waveform-sync, because USA0 makes CH2 copy CH1 by definition, so
+            // each channel is written on its own and CH2 is re-asserted after the outputs
+            // come on. Requires both wavetypes to be declared and to differ.
+            const splitWaveform =
+                hasStartCarrier &&
+                (program.channel1wavetype === 'SINE' || program.channel1wavetype === 'SQUARE') &&
+                (program.channel2wavetype === 'SINE' || program.channel2wavetype === 'SQUARE') &&
+                program.channel1wavetype !== program.channel2wavetype;
+            const ch2Wave: ChannelWave = ch2Sine ? 'SINE' : 'SQUARE';
             const ch1Square = program.channel1wavetype === 'SQUARE';
             const ch2Square = program.channel2wavetype === 'SQUARE';
 
             // The program-level waveform both channels run (per-step programs override
             // this with the current step's wavetype). Mirrors the if/else chain below.
             const baseWave: ChannelWave =
-                (!nameLc.includes('ultra') && ch1Sine && ch2Sine) ? 'SINE'
+                splitWaveform ? (ch1Sine ? 'SINE' : 'SQUARE')
+                : (!nameLc.includes('ultra') && ch1Sine && ch2Sine) ? 'SINE'
                 : (hasIndependentCh2 && ch1Square && ch2Square) ? 'SQUARE'
                 : (nameLc.includes('ultra') || program.startFrequency === 0 || (ch1Square && ch2Square)) ? 'SQUARE'
                 : ch1Sine ? 'SINE'
@@ -374,7 +466,12 @@ export default class ProgramRunner {
             const reportStatus = (ch1Hz: number, wave?: ChannelWave | null) => {
                 const w = wave ?? (hasItemWaveform ? (appliedWavetype ?? null) : baseWave);
                 const ch2Hz = ch2CarrierHz > 0 ? ch2CarrierHz : ch1Hz;
-                setRunningFrequency({ ch1: { hz: ch1Hz, wave: w }, ch2: { hz: ch2Hz, wave: w } });
+                // Split-waveform carriers show each channel's own shape; everything else
+                // runs one waveform across both.
+                setRunningFrequency({
+                    ch1: { hz: ch1Hz, wave: w },
+                    ch2: { hz: ch2Hz, wave: splitWaveform ? ch2Wave : w },
+                });
             };
 
             if (hasItemWaveform) {
@@ -388,6 +485,13 @@ export default class ProgramRunner {
                 // frequency-sync would slave CH2 to CH1, collapsing the two
                 // frequencies into one.
                 await this.gen.setBothChannelsToSquareWave();
+            } else if (splitWaveform) {
+                // Each channel gets its own waveform and NO waveform-sync: USA0 would
+                // immediately drag CH2 onto CH1 and lose the distinction.
+                if (ch1Sine) await this.gen.sinewave();
+                else await this.gen.squarewave();
+                if (ch2Sine) await this.gen.auxSineWave();
+                else await this.gen.auxSquareWave();
             } else {
                 // Assert the run waveform, keyed off CH1 (CH2 follows the waveform sync):
                 // SINE/SINE and SINE/unspecified run sine; everything else runs square.
@@ -415,7 +519,10 @@ export default class ProgramRunner {
             // Prime the readout with the initial frequency + resolved waveform.
             if (initialHz != null && Number.isFinite(initialHz)) reportStatus(initialHz);
 
-            // Enable outputs LAST — after all settings are configured
+            // Enable outputs LAST — after all settings are configured. A Stop pressed
+            // during the ~10 s of start-up flips `running` and has already sent
+            // STOP_COMMANDS; never turn the outputs back on after that.
+            if (!this.running) return;
             await this.gen.enableOutputs();
 
             // Per-step-waveform programs switch waveform mid-run on both channels. The
@@ -435,6 +542,32 @@ export default class ProgramRunner {
                 await sleep(FREQ_PAIR_GAP_MS);
                 if (this.running) await this.gen.setFrequency(2, ch2CarrierHz);
             }
+
+            // A split carrier has no USA0 holding CH2's waveform, so re-assert it once the
+            // outputs are on, after the carrier write above (bench-validated ordering).
+            if (splitWaveform && this.running) {
+                await sleep(FREQ_PAIR_GAP_MS);
+                if (ch2Sine) await this.gen.auxSineWave();
+                else await this.gen.auxSquareWave();
+            }
+
+            // Everything above is written blind. On real hardware a command is
+            // occasionally ignored — bench-confirmed after sustained use — and the one
+            // that matters is the CH1 waveform: the channel then stays on the SQUARE the
+            // init left it with, and USA0 copies that square onto CH2 at the next CH1
+            // write, so a SINE program runs square on both channels while the UI shows
+            // sine (Rob, 12 and 14 Aug, on insomnia / ttf / ttFields100to500kHz).
+            // Read the registers back and re-assert anything that did not take.
+            await this.verifyAndCorrect({
+                wave: hasItemWaveform ? (appliedWavetype ?? null) : (ch1Sine ? 'SINE' : 'SQUARE'),
+                ch2Wave: splitWaveform ? ch2Wave : null,
+                ch1Hz: initialHz,
+                // Only assert CH2's frequency when the program actually owns it. A mirror
+                // program (ultra500/ultra670 included) leaves CH2 to USA1, and ultra670
+                // carries a stale startFrequency of 0.5 that must NOT be enforced.
+                ch2Hz: (hasStartCarrier || hasIndependentCh2) && ch2CarrierHz > 0 ? ch2CarrierHz : null,
+                reportStatus,
+            });
 
             if (isRange) {
                 const [startItem, endItem] = program.data as [ProgramRow['data'][number], ProgramRow['data'][number]];
@@ -627,23 +760,114 @@ export default class ProgramRunner {
             }
         }
 
-        await progressLoop;
+    }
 
-        // Always release the UI, even if the stop sequence errors partway. stopAndReset
-        // sends 9 serial commands over several seconds and any one can throw transiently;
-        // without this guard the throw skipped the reset below, so the machine stopped
-        // but the UI stayed stuck "running" (report: custom program finished, UI frozen).
-        // stopProgram() already guards onStop the same way — the completion path didn't.
+    /**
+     * Read the device's registers back and re-assert anything that did not take.
+     *
+     * Only start-up is verified: the run loop's per-step writes are paced and a missed
+     * step self-corrects on the next one, whereas a missed start-up write persists for
+     * the whole program. Corrections are CH1-only where possible, so the CH2 coupling
+     * (USA0 / USA1) keeps doing its job. Unknown replies (TEST port, no answer) are
+     * treated as "cannot tell" and never as a mismatch.
+     */
+    private async verifyAndCorrect(want: {
+        wave: ChannelWave | null;
+        /** Only set when the two channels deliberately run different waveforms. */
+        ch2Wave: ChannelWave | null;
+        ch1Hz: number | null;
+        ch2Hz: number | null;
+        reportStatus: (ch1Hz: number, wave?: ChannelWave | null) => void;
+    }) {
+        if (!this.running) return;
+        const QUERIES = ['RMW', 'RMF', 'RFF', 'RMN', 'RFN', 'RFW'];
+        // Replies are validated against their documented shape before being believed. A
+        // read very occasionally comes back malformed (a concatenation such as
+        // "100001000.000000" was seen on the bench); parsed loosely that is a plausible
+        // 100 MHz and would trigger a pointless correction. Anything unrecognised is
+        // treated as "cannot tell".
+        const parseWave = (v: string): ChannelWave | null => {
+            if (!/^\d{1,2}$/.test(v)) return null;      // waveform index, 0-94
+            return Number(v) === 0 ? 'SINE' : 'SQUARE';
+        };
+        const parseHz = (v: string): number | null => {
+            if (!/^\d{1,8}\.\d{6}$/.test(v)) return null;   // Hz with six decimals
+            const n = Number(v);
+            return Number.isFinite(n) ? n : null;
+        };
+        const parseOutput = (v: string): boolean | null =>
+            v === '0' ? false : v === '255' ? true : null;
+        const close = (a: number, b: number) => Math.abs(a - b) <= Math.max(1e-6, Math.abs(b) * 1e-6);
+
+        // Cheap probe first: a TEST port (or a build with no read support) answers
+        // nothing, and must cost the run no time at all.
         try {
-            if (this.running) await this.gen.stopAndReset();
+            const probe = await this.gen.readDeviceState(['RMW']);
+            if (!probe?.[0]) return;
         } catch (err) {
-            // The program is finished; a failed stop sequence must not reject the
-            // whole run (doStart doesn't catch it) or skip the UI reset below.
-            console.error('stopAndReset at completion failed:', err);
-        } finally {
-            this.running = false;
-            this.paused = false;
-            this.onStop?.();
+            console.warn('Could not read the device state back:', err);
+            return;                          // verification is best-effort, never fatal
+        }
+
+        for (let attempt = 0; attempt < 2 && this.running; attempt++) {
+            // A write is not readable back immediately — the FY6300 takes 300-900 ms to
+            // commit one. Reading sooner reports the PREVIOUS value and would trigger a
+            // pointless "correction" of a setting that was already on its way.
+            await sleep(DEVICE_COMMIT_MS);
+            if (!this.running) return;
+            let replies: string[];
+            try {
+                replies = await this.gen.readDeviceState(QUERIES);
+            } catch (err) {
+                console.warn('Could not read the device state back:', err);
+                return;                      // verification is best-effort, never fatal
+            }
+            const [mw, mf, ff, mn, fn, fw] = replies;
+            if (replies.every((r) => !r)) return;   // TEST port or no answers at all
+
+            const wave = parseWave(mw ?? '');
+            const ch1Hz = parseHz(mf ?? '');
+            const ch2Hz = parseHz(ff ?? '');
+            const corrections: string[] = [];
+
+            if (want.wave && wave && wave !== want.wave) {
+                corrections.push(`CH1 waveform ${wave} -> ${want.wave}`);
+                // CH1 only: CH2 follows through USA0 / sync, exactly as at start-up.
+                if (want.wave === 'SINE') await this.gen.sinewave();
+                else await this.gen.squarewave();
+            }
+            if (want.ch2Wave) {
+                const ch2Actual = parseWave(fw ?? '');
+                if (ch2Actual && ch2Actual !== want.ch2Wave) {
+                    corrections.push(`CH2 waveform ${ch2Actual} -> ${want.ch2Wave}`);
+                    if (want.ch2Wave === 'SINE') await this.gen.auxSineWave();
+                    else await this.gen.auxSquareWave();
+                }
+            }
+            if (want.ch1Hz != null && ch1Hz != null && !close(ch1Hz, want.ch1Hz)) {
+                corrections.push(`CH1 ${ch1Hz} Hz -> ${want.ch1Hz} Hz`);
+                await this.gen.setFrequency(1, want.ch1Hz);
+            }
+            // CH2's frequency is only ours to assert when the program owns it (carrier or
+            // independent). Mirror programs leave CH2 to USA1 and it catches up in the loop.
+            if (want.ch2Hz != null && ch2Hz != null && !close(ch2Hz, want.ch2Hz)) {
+                corrections.push(`CH2 ${ch2Hz} Hz -> ${want.ch2Hz} Hz`);
+                await sleep(FREQ_PAIR_GAP_MS);
+                if (this.running) await this.gen.setFrequency(2, want.ch2Hz);
+            }
+            const ch1On = parseOutput(mn ?? '');
+            const ch2On = parseOutput(fn ?? '');
+            if ((ch1On === false || ch2On === false) && this.running) {
+                corrections.push('outputs were off');
+                await this.gen.enableOutputs();
+            }
+
+            if (!corrections.length) {
+                // Verified: tell the UI what the device actually reports.
+                if (want.ch1Hz != null) want.reportStatus(want.ch1Hz, wave ?? undefined);
+                return;
+            }
+            console.warn(`Device did not match the program; corrected: ${corrections.join(', ')}`);
         }
     }
 
@@ -660,7 +884,12 @@ export default class ProgramRunner {
     }
 
     async stopProgram() {
+        // Flip the flag FIRST so the playback loops stop issuing writes while the
+        // 9-command stop sequence (~5 s on hardware) is still going out; previously a
+        // step's WMF/WFF could land after WFN0/WMN0 and re-drive a stopped channel.
+        this.running = false;
+        this.paused = false;
         try { await this.gen.stopAndReset(); }
-        finally { this.running = false; this.paused = false; this.onStop?.(); }
+        finally { this.notifyStop(); }
     }
 }

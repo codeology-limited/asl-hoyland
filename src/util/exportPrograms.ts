@@ -84,7 +84,7 @@ export function parseProgramsTsv(text: string): ImportedProgram[] {
         const cols = splitCols(rawLines[i]);
         const name = (cols[0] ?? '').trim();
         const frequency = num(cols[2], NaN);
-        if (!name || !Number.isFinite(frequency)) continue; // skip rows with no name/frequency
+        if (!name || !Number.isFinite(frequency) || frequency < 0) continue; // skip rows with no name or an unusable frequency
 
         const rangeYes = (cols[1] ?? '').trim().toLowerCase() === 'yes';
         const minutes = num(cols[3], 0);

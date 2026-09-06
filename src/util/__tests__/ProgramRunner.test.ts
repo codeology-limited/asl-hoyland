@@ -21,9 +21,6 @@ const mkFakeGen = () => {
     setBothChannelsToSineWave: vi.fn(async function (this: any) {
       (this.calls as any).push({ m: 'setSine', args: [], t: Date.now() });
     }),
-    setChannelsOutput: vi.fn(async function (this: any, on: boolean) {
-      (this.calls as any).push({ m: 'setChannelsOutput', args: [on] });
-    }),
     sync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sync', args: [] }); }),
     enableWaveformSync: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'enableWaveformSync', args: [] }); }),
     sinewave: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'sinewave', args: [], t: Date.now() }); }),
@@ -32,6 +29,11 @@ const mkFakeGen = () => {
     sendInitialCommands: vi.fn(async () => {}),
     sendSecondaryCommands: vi.fn(async () => {}),
     stopAndReset: vi.fn(async function (this: any) { (this.calls as any).push({ m: 'stop', args: [] }); }),
+    // Default: the device answers nothing, so verification is a no-op (TEST port).
+    readDeviceState: vi.fn(async function (this: any, queries: string[]) {
+      (this.calls as any).push({ m: 'readDeviceState', args: [queries] });
+      return queries.map(() => '');
+    }),
   } as any;
 };
 
@@ -824,18 +826,12 @@ describe('ProgramRunner', () => {
     expect(onStop).toHaveBeenCalledTimes(1); // UI reset still ran
   });
 
-  it('setChannel2StartFrequency multiplies MHz to Hz (or legacy method exists)', async () => {
+  it('setChannel1StartFrequency writes CH2 (naming is historical) and multiplies MHz to Hz', async () => {
     const program = { name: 'x', range: 0, data: [], maxTimeInMinutes: 0, default: 0, startFrequency: 0.5 };
     const gen = mkFakeGen();
     const db = mkFakeDb(program);
-    const pr = new ProgramRunner(db, gen, null) as any;
-    if (typeof pr.setChannel2StartFrequency === 'function') {
-      await pr.setChannel2StartFrequency('x');
-    } else if (typeof pr.setChannel1StartFrequency === 'function') {
-      await pr.setChannel1StartFrequency('x');
-    } else {
-      throw new Error('No start frequency method found');
-    }
+    const pr = new ProgramRunner(db, gen, null);
+    await pr.setChannel1StartFrequency('x');
     expect(gen.setFrequency).toHaveBeenCalledWith(2, 500000);
   });
 
@@ -1062,10 +1058,6 @@ describe('ProgramRunner', () => {
       .filter((c: any) => c.m === 'setFrequency' && c.args[0] === 2);
     expect(ch2Calls.some((c: any) => c.args[1] === 27_120_000)).toBe(true);
     expect(ch2Calls.some((c: any) => c.args[1] === 0)).toBe(true);
-
-    // Pulsed mode no longer touches WMN/WFN — that approach was unreliable on FY6600.
-    const toggleCalls = gen.calls.filter((c: any) => c.m === 'setChannelsOutput');
-    expect(toggleCalls.length).toBe(0);
   });
 
   it('insomnia (SINE/SINE pulsed) primes both channels at startup and toggles freqs each cycle', async () => {
@@ -1139,7 +1131,163 @@ describe('ProgramRunner', () => {
     await pr.stopProgram();
     await vi.runAllTimersAsync();
     await p;
-    expect(onStop).toHaveBeenCalled();
-    expect(gen.stopAndReset).toHaveBeenCalled();
+    expect(onStop).toHaveBeenCalledTimes(1); // manual stop + completion path fire it ONCE
+    expect(gen.stopAndReset).toHaveBeenCalledTimes(1);
+  });
+
+  describe('fault tolerance', () => {
+    const carrierProgram = {
+      name: 'carrierish', range: 0,
+      data: [{ channel: 1, frequency: 322, runTime: 60_000 }],
+      maxTimeInMinutes: 1, default: 1, startFrequency: 27.12,
+      channel1wavetype: 'SQUARE', channel2wavetype: 'SQUARE',
+    };
+
+    it('a Stop pressed during start-up never enables the outputs and writes nothing after STOP', async () => {
+      const gen = mkFakeGen();
+      const pr = new ProgramRunner(mkFakeDb(carrierProgram), gen, null);
+      const onStop = vi.fn();
+      pr.setOnStopCallback(onStop);
+
+      const p = pr.startProgram('carrierish', () => {});
+      await vi.advanceTimersByTimeAsync(10);      // start-up is parked in the 50 ms CH1→CH2 gap
+      await pr.stopProgram();                       // operator hits Stop
+      await vi.runAllTimersAsync();
+      await p;
+
+      expect(gen.enableOutputs).not.toHaveBeenCalled();
+      expect(gen.stopAndReset).toHaveBeenCalledTimes(1);
+      expect(onStop).toHaveBeenCalledTimes(1);
+      const names = gen.calls.map((c: any) => c.m);
+      expect(names.lastIndexOf('stop')).toBe(names.length - 1); // STOP is the final write
+    });
+
+    it('a device write that fails mid-run stops the device, releases the UI once, and does not reject', async () => {
+      const gen = mkFakeGen();
+      gen.enableOutputs.mockRejectedValueOnce(new Error('serial write failed'));
+      const pr = new ProgramRunner(mkFakeDb(carrierProgram), gen, null);
+      const onStop = vi.fn();
+      pr.setOnStopCallback(onStop);
+
+      const p = pr.startProgram('carrierish', () => {});
+      await vi.runAllTimersAsync();
+      await expect(p).resolves.toBeUndefined();
+
+      expect(gen.stopAndReset).toHaveBeenCalledTimes(1);
+      expect(onStop).toHaveBeenCalledTimes(1);
+      // No playback write was attempted after the failure.
+      const names = gen.calls.map((c: any) => c.m);
+      expect(names[names.length - 1]).toBe('stop');
+    });
+
+    it('a missing program releases the UI via onStop without touching the device', async () => {
+      const gen = mkFakeGen();
+      const pr = new ProgramRunner(mkFakeDb(null), gen, null);
+      const onStop = vi.fn();
+      pr.setOnStopCallback(onStop);
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await pr.startProgram('nope', () => {});
+
+      expect(onStop).toHaveBeenCalledTimes(1);
+      expect(gen.calls).toHaveLength(0);
+    });
+
+    it('ultrasound reports progress from a single (9-minute) reporter', async () => {
+      const program = {
+        name: 'ultrasound', range: 1, data: [{ channel: 1, frequency: 500000, runTime: 1000 }],
+        maxTimeInMinutes: 0.15, default: 1, startFrequency: 0.5,
+      };
+      const gen = mkFakeGen();
+      const pcts: number[] = [];
+      const pr = new ProgramRunner(mkFakeDb(program), gen, (pct) => pcts.push(pct));
+
+      const p = pr.startProgram('ultrasound', () => {});
+      await vi.advanceTimersByTimeAsync(9_500);   // 9.5 s: the 0.15-min generic reporter would say 100 %
+      await pr.stopProgram();
+      await vi.runAllTimersAsync();
+      await p;
+
+      expect(pcts.length).toBeGreaterThan(0);
+      expect(Math.max(...pcts)).toBeLessThanOrEqual(5); // 9.5 s of 9 min ≈ 1.8 %
+    });
+  });
+
+  describe('start-up verification against the device', () => {
+    // A SINE carrier program, the shape that failed on real hardware.
+    const sineCarrier = {
+      name: 'sinecarrier', range: 0,
+      data: [{ channel: 1, frequency: 1873.5, runTime: 60_000 }],
+      maxTimeInMinutes: 1, default: 1, startFrequency: 27.12,
+      channel1wavetype: 'SINE', channel2wavetype: 'SINE',
+    };
+
+    /** Device that reports SQUARE until CH1's waveform is re-asserted (the observed fault). */
+    const mkDroppingGen = () => {
+      const gen = mkFakeGen();
+      let ch1Wave = 'SQUARE';                 // the WMW00 never took effect
+      gen.sinewave = vi.fn(async function (this: any) {
+        (this.calls as any).push({ m: 'sinewave', args: [] });
+        ch1Wave = 'SINE';                     // the re-assert does land
+      });
+      gen.readDeviceState = vi.fn(async function (this: any, queries: string[]) {
+        (this.calls as any).push({ m: 'readDeviceState', args: [queries] });
+        return queries.map((q: string) =>
+          q === 'RMW' ? (ch1Wave === 'SINE' ? '0' : '1')
+          : q === 'RMF' ? '00001873.500000'
+          : q === 'RFF' ? '27120000.000000'
+          : '255');
+      });
+      return gen;
+    };
+
+    it('re-asserts the CH1 waveform when the device reports the wrong one', async () => {
+      const gen = mkDroppingGen();
+      const pr = new ProgramRunner(mkFakeDb(sineCarrier), gen, null);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const p = pr.startProgram('sinecarrier', () => {});
+      await vi.advanceTimersByTimeAsync(2000);
+      await pr.stopProgram();
+      await vi.runAllTimersAsync();
+      await p;
+
+      // It read the device back and corrected CH1 — the fix for Rob's Aug reports.
+      expect(gen.readDeviceState).toHaveBeenCalled();
+      expect(gen.sinewave).toHaveBeenCalled();
+      const names = gen.calls.map((c: any) => c.m);
+      expect(names.indexOf('sinewave')).toBeGreaterThan(names.indexOf('enableOutputs'));
+    });
+
+    it('does not touch the device when the read-back already matches', async () => {
+      const gen = mkFakeGen();
+      gen.readDeviceState = vi.fn(async (queries: string[]) =>
+        queries.map((q: string) =>
+          q === 'RMW' ? '0' : q === 'RMF' ? '00001873.500000' : q === 'RFF' ? '27120000.000000' : '255'));
+      const pr = new ProgramRunner(mkFakeDb(sineCarrier), gen, null);
+
+      const p = pr.startProgram('sinecarrier', () => {});
+      await vi.advanceTimersByTimeAsync(2000);
+      await pr.stopProgram();
+      await vi.runAllTimersAsync();
+      await p;
+
+      expect(gen.sinewave).not.toHaveBeenCalled();
+      expect(gen.squarewave).not.toHaveBeenCalled();
+    });
+
+    it('is best-effort: a device that cannot be read still runs the program', async () => {
+      const gen = mkFakeGen();
+      gen.readDeviceState = vi.fn(async () => { throw new Error('Port not found'); });
+      const pr = new ProgramRunner(mkFakeDb(sineCarrier), gen, null);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const p = pr.startProgram('sinecarrier', () => {});
+      await vi.advanceTimersByTimeAsync(2000);
+      await pr.stopProgram();
+      await vi.runAllTimersAsync();
+      await expect(p).resolves.toBeUndefined();
+      expect(gen.enableOutputs).toHaveBeenCalled();
+    });
   });
 });
